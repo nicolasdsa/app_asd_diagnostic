@@ -1,6 +1,5 @@
 import 'package:app_asd_diagnostic/db/database.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
+import 'package:app_asd_diagnostic/screens/components/form_user.dart';
 
 class FormDao {
   static const String tableSql = 'CREATE TABLE $_tableName('
@@ -8,20 +7,26 @@ class FormDao {
       'name TEXT)';
 
   static const String _tableName = 'forms';
+  static const String _name = 'name';
+  static const String _id = 'id';
+
+  final dbHelper = DatabaseHelper.instance;
 
   Future<int> insertForm(Map<String, dynamic> form) async {
-    final Database database = await getDatabase();
-    return await database.insert('forms', form);
+    final db = await dbHelper.database;
+    return await db.insert('forms', form);
   }
 
-  Future<List<Map<String, dynamic>>> getAllForms() async {
-    final Database database = await getDatabase();
-    return await database.query('forms');
+  Future<List<FormUser>> getAllForms() async {
+    final db = await dbHelper.database;
+    final List<Map<String, dynamic>> result = await db.query(_tableName);
+    List<FormUser> tasks = toList(result);
+    return tasks;
   }
 
   Future<int> updateForm(Map<String, dynamic> form) async {
-    final Database database = await getDatabase();
-    return await database.update(
+    final db = await dbHelper.database;
+    return await db.update(
       'forms',
       form,
       where: 'id = ?',
@@ -30,11 +35,20 @@ class FormDao {
   }
 
   Future<int> deleteForm(int id) async {
-    final Database database = await getDatabase();
-    return await database.delete(
+    final db = await dbHelper.database;
+    return await db.delete(
       'forms',
       where: 'id = ?',
       whereArgs: [id],
     );
+  }
+
+  List<FormUser> toList(List<Map<String, dynamic>> mapaDeTarefas) {
+    final List<FormUser> forms = [];
+    for (Map<String, dynamic> linha in mapaDeTarefas) {
+      final FormUser form = FormUser(linha[_id], linha[_name]);
+      forms.add(form);
+    }
+    return forms;
   }
 }

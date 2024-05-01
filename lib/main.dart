@@ -22,9 +22,7 @@ class MyApp extends StatelessWidget {
               builder: (context, value, child) {
                 return InitialScreen(formChangeNotifier: formChangeNotifier);
               },
-            ),
-        // Add your new route here
-        // Example: '/details': (context) => DetailsScreen(),
+            )
       },
     );
   }

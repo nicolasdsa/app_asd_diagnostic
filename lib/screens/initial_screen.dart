@@ -1,4 +1,7 @@
 import 'package:app_asd_diagnostic/db/form_dao.dart';
+import 'package:app_asd_diagnostic/db/type_question_dao.dart';
+import 'package:app_asd_diagnostic/screens/components/form_user.dart';
+import 'package:app_asd_diagnostic/screens/components/my_bottom_navigation_bar.dart';
 import 'package:app_asd_diagnostic/screens/form_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -20,84 +23,38 @@ class _InitialScreenState extends State<InitialScreen> {
       appBar: AppBar(
         title: const Text('Initial Screen'),
       ),
-      body: ValueListenableBuilder(
-        valueListenable: widget.formChangeNotifier,
-        builder: (context, value, child) {
-          return FutureBuilder<List<Map<String, dynamic>>>(
-            future: _formDao.getAllForms(),
-            builder: (context, snapshot) {
-              List<Map<String, dynamic>>? items = snapshot.data;
-              switch (snapshot.connectionState) {
-                case ConnectionState.none:
-                  return const Center(
-                    child: Column(
-                      children: [
-                        CircularProgressIndicator(),
-                        Text('Carregando'),
-                      ],
-                    ),
-                  );
-
-                case ConnectionState.waiting:
-                  return const Center(
-                    child: Column(
-                      children: [
-                        CircularProgressIndicator(),
-                        Text('Carregando'),
-                      ],
-                    ),
-                  );
-                case ConnectionState.active:
-                  return const Center(
-                    child: Column(
-                      children: [
-                        CircularProgressIndicator(),
-                        Text('Carregando'),
-                      ],
-                    ),
-                  );
-                case ConnectionState.done:
-                  if (snapshot.hasData && items != null) {
-                    if (items.isNotEmpty) {
-                      return ListView.builder(
-                          itemCount: items.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return Text(items[index]['name'].toString());
-                          });
-                    }
-                    return const Center(
-                        child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.error_outline,
-                          size: 128,
-                        ),
-                        Text(
-                          'Não há nenhuma Tarefa',
-                          style: TextStyle(fontSize: 32),
-                        ),
-                      ],
-                    ));
-                  }
-                  return const Text('Erro ao carregar tarefas');
-              }
-            },
-          );
-        },
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text(
+                'Drawer Header',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              title: Text('Item 1'),
+              onTap: () {
+                // Handle drawer item 1 tap
+              },
+            ),
+            ListTile(
+              title: Text('Item 2'),
+              onTap: () {
+                // Handle drawer item 2 tap
+              },
+            ),
+          ],
+        ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    FormScreen(formChangeNotifier: widget.formChangeNotifier)),
-          );
-        },
-        child: const Icon(Icons.add),
-      ),
+      bottomNavigationBar: MyBottomNavigationBar(),
     );
   }
 }
