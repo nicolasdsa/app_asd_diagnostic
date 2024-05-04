@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 
 class Patient extends StatefulWidget {
   final String name;
-  final String id;
-
+  final int id;
   const Patient(this.id, this.name, [Key? key]) : super(key: key);
 
   @override
@@ -20,16 +19,16 @@ class _PatientState extends State<Patient> {
       },
       child: Row(
         children: [
-          Icon(Icons.person),
-          SizedBox(width: 8),
+          const Icon(Icons.person),
+          const SizedBox(width: 8),
           Expanded(child: Text(widget.name)),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           IconButton(
-            icon: Icon(Icons.edit),
+            icon: const Icon(Icons.edit),
             onPressed: () => (),
           ),
           IconButton(
-            icon: Icon(Icons.delete),
+            icon: const Icon(Icons.delete),
             onPressed: () => (),
           ),
         ],

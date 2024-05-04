@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 class FormUser extends StatefulWidget {
-  final int id;
   final String name;
+  final String id;
   const FormUser(this.id, this.name, [Key? key]) : super(key: key);
 
   @override

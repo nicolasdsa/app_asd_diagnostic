@@ -1,6 +1,6 @@
 import 'package:app_asd_diagnostic/screens/form_screen.dart';
 import 'package:app_asd_diagnostic/screens/home_screen.dart';
-import 'package:app_asd_diagnostic/screens/initial_screen.dart';
+import 'package:app_asd_diagnostic/screens/patients_screen.dart';
 import 'package:app_asd_diagnostic/screens/teste.dart';
 import 'package:flutter/material.dart';
 
@@ -13,11 +13,13 @@ class MyBottomNavigationBar extends StatefulWidget {
 
 class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
   late ValueNotifier<int> formChangeNotifier;
+  late ValueNotifier<int> patientChangeNotifier;
 
   @override
   void initState() {
     super.initState();
     formChangeNotifier = ValueNotifier(0);
+    patientChangeNotifier = ValueNotifier(0);
   }
 
   int _currentIndex = 0;
@@ -33,7 +35,7 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
     final List<Widget> _children = [
       Screen1(),
       HomeScreen(formChangeNotifier: formChangeNotifier),
-      FormScreen(formChangeNotifier: formChangeNotifier)
+      PatientScreen(patientChangeNotifier: patientChangeNotifier)
     ];
 
     return Scaffold(
@@ -43,15 +45,15 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
           onTap: _onTabTapped,
           items: const [
             BottomNavigationBarItem(
-              icon: const Icon(Icons.home),
+              icon: Icon(Icons.home),
               label: 'Tela Inicial',
             ),
             BottomNavigationBarItem(
-              icon: const Icon(Icons.search),
+              icon: Icon(Icons.search),
               label: 'Search',
             ),
             BottomNavigationBarItem(
-              icon: const Icon(Icons.person),
+              icon: Icon(Icons.person),
               label: 'Pacientes',
             ),
           ],
