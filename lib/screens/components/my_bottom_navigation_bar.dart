@@ -32,14 +32,14 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> _children = [
-      Screen1(),
+    final List<Widget> children = [
+      FormScreen(formChangeNotifier: formChangeNotifier),
       HomeScreen(formChangeNotifier: formChangeNotifier),
       PatientScreen(patientChangeNotifier: patientChangeNotifier)
     ];
 
     return Scaffold(
-        body: _children[_currentIndex],
+        body: children[_currentIndex],
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _currentIndex,
           onTap: _onTabTapped,

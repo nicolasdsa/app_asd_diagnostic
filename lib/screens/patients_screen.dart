@@ -60,8 +60,6 @@ class _InitialScreenState extends State<PatientScreen> {
                   );
                 case ConnectionState.done:
                   if (snapshot.hasError) {
-                    // Print the error to the console
-                    print('Error: ${snapshot.error}');
                     return Text('Error: ${snapshot.error}');
                   }
                   if (snapshot.hasData && items != null) {
