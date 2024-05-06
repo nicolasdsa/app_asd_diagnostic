@@ -1,7 +1,6 @@
 import 'package:app_asd_diagnostic/screens/form_screen.dart';
 import 'package:app_asd_diagnostic/screens/home_screen.dart';
 import 'package:app_asd_diagnostic/screens/patients_screen.dart';
-import 'package:app_asd_diagnostic/screens/teste.dart';
 import 'package:flutter/material.dart';
 
 class MyBottomNavigationBar extends StatefulWidget {

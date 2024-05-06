@@ -3,13 +3,14 @@ import 'package:app_asd_diagnostic/db/form_dao.dart';
 import 'package:app_asd_diagnostic/db/form_question_dao.dart';
 import 'package:app_asd_diagnostic/db/patient_dao.dart';
 import 'package:app_asd_diagnostic/db/question_dao.dart';
+import 'package:app_asd_diagnostic/db/type_form_dao.dart';
 import 'package:app_asd_diagnostic/db/type_question_dao.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 class DatabaseHelper {
   static const _databaseName = "MyDatabase.db";
-  static const _databaseVersion = 1;
+  static const _databaseVersion = 2;
 
   DatabaseHelper._privateConstructor();
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
@@ -29,6 +30,10 @@ class DatabaseHelper {
     await db.execute(PatientDao.tableSql);
     await db.execute(TypeQuestionDao.tableSql);
     await db.execute(QuestionDao.tableSql);
+    await db.execute(TypeFormDao.tableSql);
+
+    await db.insert('type_forms', {'name': 'Analises de informações'});
+    await db.insert('type_forms', {'name': 'Avaliar Comportamento'});
   }
 
   _initDatabase() async {

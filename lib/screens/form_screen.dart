@@ -1,8 +1,7 @@
 import 'package:app_asd_diagnostic/db/form_dao.dart';
 import 'package:app_asd_diagnostic/db/patient_dao.dart';
-import 'package:app_asd_diagnostic/models/form_model.dart';
+import 'package:app_asd_diagnostic/db/type_form_dao.dart';
 import 'package:app_asd_diagnostic/screens/components/card_option.dart';
-import 'package:app_asd_diagnostic/screens/components/patient.dart';
 import 'package:flutter/material.dart';
 
 class FormScreen extends StatefulWidget {
@@ -18,8 +17,11 @@ class _FormScreenState extends State<FormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _formDao = FormDao();
   final _patientDao = PatientDao();
+  final _typeFormDao = TypeFormDao();
+  List<Map<String, dynamic>> _typeFormElements = [];
 
   String _name = 'Perguntas';
+  String _selectedName = '';
 
   void _handleCardOptionTap(String name) {
     setState(() {
@@ -45,9 +47,20 @@ class _FormScreenState extends State<FormScreen> {
                 return _patientDao.filterByName(textEditingValue.text);
               },
               onSelected: (String selection) {
-                print('You just selected $selection');
+                _selectedName = selection;
+                _typeFormDao
+                    .getAll()
+                    .then((List<Map<String, dynamic>> elements) {
+                  setState(() {
+                    _typeFormElements = elements;
+                  });
+                });
               },
             ),
+            if (_selectedName.isNotEmpty) ...[
+              for (var element in _typeFormElements)
+                Text('Element: ${element['name']}'),
+            ],
             Form(
               key: _formKey,
               child: Column(
