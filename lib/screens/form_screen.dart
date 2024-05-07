@@ -1,7 +1,10 @@
 import 'package:app_asd_diagnostic/db/form_dao.dart';
 import 'package:app_asd_diagnostic/db/patient_dao.dart';
+import 'package:app_asd_diagnostic/db/question_dao.dart';
 import 'package:app_asd_diagnostic/db/type_form_dao.dart';
 import 'package:app_asd_diagnostic/screens/components/card_option.dart';
+import 'package:app_asd_diagnostic/screens/components/question.dart';
+import 'package:app_asd_diagnostic/screens/questions_create_screen.dart';
 import 'package:flutter/material.dart';
 
 class FormScreen extends StatefulWidget {
@@ -14,6 +17,14 @@ class FormScreen extends StatefulWidget {
 }
 
 class _FormScreenState extends State<FormScreen> {
+  late ValueNotifier<int> questionChangeNotifier;
+
+  @override
+  void initState() {
+    super.initState();
+    questionChangeNotifier = ValueNotifier(0);
+  }
+
   final _formKey = GlobalKey<FormState>();
   final _formDao = FormDao();
   final _patientDao = PatientDao();
@@ -47,7 +58,10 @@ class _FormScreenState extends State<FormScreen> {
                 return _patientDao.filterByName(textEditingValue.text);
               },
               onSelected: (String selection) {
-                _selectedName = selection;
+                setState(() {
+                  _selectedName = selection;
+                  _typeFormElements = [];
+                });
                 _typeFormDao
                     .getAll()
                     .then((List<Map<String, dynamic>> elements) {
@@ -58,8 +72,18 @@ class _FormScreenState extends State<FormScreen> {
               },
             ),
             if (_selectedName.isNotEmpty) ...[
-              for (var element in _typeFormElements)
-                Text('Element: ${element['name']}'),
+              AnimatedOpacity(
+                opacity: _typeFormElements.isEmpty ? 0.0 : 1.0,
+                duration: const Duration(seconds: 3),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    for (var element in _typeFormElements)
+                      Text('${element['name']}'),
+                    const SizedBox(width: 8),
+                  ],
+                ),
+              ),
             ],
             Form(
               key: _formKey,
@@ -85,7 +109,41 @@ class _FormScreenState extends State<FormScreen> {
                     shrinkWrap: true,
                     children: [
                       if (_name == 'Perguntas') ...[
-                        // Code for displaying questions
+                        ValueListenableBuilder(
+                          valueListenable: questionChangeNotifier,
+                          builder: (context, value, child) {
+                            return FutureBuilder<List<Question>>(
+                              future: QuestionDao().getAll(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return CircularProgressIndicator();
+                                } else if (snapshot.hasError) {
+                                  return Text('Error: ${snapshot.error}');
+                                } else {
+                                  final items = snapshot.data;
+                                  return Column(
+                                    children:
+                                        items?.map((item) => item).toList() ??
+                                            [],
+                                  );
+                                }
+                              },
+                            );
+                          },
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => QuestionCreateScreen(
+                                      questionChangeNotifier:
+                                          questionChangeNotifier)),
+                            );
+                          },
+                          child: Text('Add Question'),
+                        ),
                       ],
                       if (_name == 'Jogos') ...[
                         // Code for displaying games

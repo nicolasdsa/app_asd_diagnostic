@@ -32,8 +32,11 @@ class DatabaseHelper {
     await db.execute(QuestionDao.tableSql);
     await db.execute(TypeFormDao.tableSql);
 
-    await db.insert('type_forms', {'name': 'Analises de informações'});
+    await db.insert('type_forms', {'name': 'Analise de informações'});
     await db.insert('type_forms', {'name': 'Avaliar Comportamento'});
+
+    await db.insert('type_questions', {'name': 'Simples'});
+    await db.insert('type_questions', {'name': 'Multipla escolha'});
   }
 
   _initDatabase() async {

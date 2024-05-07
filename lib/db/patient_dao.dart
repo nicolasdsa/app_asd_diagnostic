@@ -14,9 +14,9 @@ class PatientDao {
 
   final dbHelper = DatabaseHelper.instance;
 
-  Future<int> insert(Map<String, dynamic> form) async {
+  Future<int> insert(Map<String, dynamic> patient) async {
     final db = await dbHelper.database;
-    return await db.insert(_tableName, form);
+    return await db.insert(_tableName, patient);
   }
 
   Future<List<Patient>> getAll() async {
