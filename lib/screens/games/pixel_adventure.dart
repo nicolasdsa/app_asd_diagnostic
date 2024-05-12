@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:app_asd_diagnostic/screens/games/components/jump_button.dart';
 import 'package:app_asd_diagnostic/screens/games/components/player.dart';
 import 'package:app_asd_diagnostic/screens/games/components/level.dart';
 import 'package:flame/components.dart';
@@ -8,44 +9,44 @@ import 'package:flame/game.dart';
 import 'package:flutter/painting.dart';
 
 class PixelAdventure extends FlameGame
-    with HasKeyboardHandlerComponents, DragCallbacks, HasCollisionDetection {
+    with
+        HasKeyboardHandlerComponents,
+        DragCallbacks,
+        HasCollisionDetection,
+        TapCallbacks {
   @override
   Color backgroundColor() => const Color(0xFF211F30);
-  late final CameraComponent cam;
+  late CameraComponent cam;
   Player player = Player(character: 'Mask Dude');
   late JoystickComponent joystick;
-  bool showJoystick = false;
+  bool showControls = false;
+  List<String> levelNames = ['Level-01.tmx', 'Level-02.tmx'];
+  bool playSounds = true;
+  double soundVolume = 1.0;
+  int currentLevelIndex = 0;
 
   @override
   FutureOr<void> onLoad() async {
     // Load all images into cache
     await images.loadAllImages();
-    final world = Level(player: player, levelName: 'Level-01.tmx');
-
-    cam = CameraComponent.withFixedResolution(
-      world: world,
-      width: 640,
-      height: 360,
-    );
-    cam.viewfinder.anchor = Anchor.topLeft;
-    cam.priority = 1;
+    _loadLevel();
 
     if (Platform.isAndroid || Platform.isIOS) {
-      showJoystick = true;
+      showControls = true;
     }
 
-    if (showJoystick) {
+    if (showControls) {
       addJoystick();
     }
-    addAll([cam, world]);
 
     return super.onLoad();
   }
 
   @override
   void update(double dt) {
-    if (showJoystick) {
+    if (showControls) {
       updateJoystick();
+      add(JumpButton());
     }
     super.update(dt);
   }
@@ -73,11 +74,38 @@ class PixelAdventure extends FlameGame
       case JoystickDirection.downRight:
         player.horizontalMoviment = 1;
         break;
-      case JoystickDirection.up:
-        player.hasJumped = true;
       default:
         player.horizontalMoviment = 0;
         break;
     }
+  }
+
+  void loadNextLevel() async {
+    if (currentLevelIndex < levelNames.length - 1) {
+      remove(world);
+      await world.removed;
+      remove(cam);
+      await cam.removed;
+      currentLevelIndex++;
+      _loadLevel();
+    } else {
+      currentLevelIndex = 0;
+      _loadLevel();
+    }
+  }
+
+  void _loadLevel() async {
+    Level world =
+        Level(player: player, levelName: levelNames[currentLevelIndex]);
+
+    cam = CameraComponent.withFixedResolution(
+      world: world,
+      width: 640,
+      height: 360,
+    );
+    cam.viewfinder.anchor = Anchor.topLeft;
+    cam.priority = 1;
+
+    addAll([cam, world]);
   }
 }

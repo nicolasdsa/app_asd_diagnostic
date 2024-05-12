@@ -3,17 +3,17 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "",
+    "activeFile": "Level-02.tmx",
     "expandedProjectPaths": [
     ],
     "file.lastUsedOpenFilter": "Todos os Ficheiros (*)",
     "fileStates": {
         "Level-01.tmx": {
             "scale": 2,
-            "selectedLayer": 0,
+            "selectedLayer": 2,
             "viewCenter": {
-                "x": 307.5,
-                "y": 171.75
+                "x": 320,
+                "y": 183.75
             }
         },
         "Level-02.tmx": {
@@ -23,6 +23,9 @@
                 "x": 312.3809523809524,
                 "y": 184.09052935368726
             }
+        },
+        "Pixel Adventure.tsx": {
+            "scaleInDock": 1
         }
     },
     "last.imagePath": "/home/nicolas/Área de Trabalho/codigos/Imersao-API-NodeBR/assets/images/Terrain",
@@ -32,9 +35,14 @@
     "map.tileWidth": 16,
     "map.width": 40,
     "openFiles": [
+        "Level-01.tmx",
+        "Level-02.tmx"
     ],
     "project": "Pixel Adventure.tiled-project",
+    "property.type": "float",
     "recentFiles": [
+        "Level-01.tmx",
+        "Level-02.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {

@@ -38,6 +38,7 @@ dependencies:
   sqflite: ^2.3.2
   flame: ^1.15.0
   flame_tiled: ^1.18.4
+  flame_audio: ^2.1.8
 
 dev_dependencies:
   flutter_test:
@@ -69,13 +70,18 @@ flutter:
     - assets/images/
     - assets/tiles/
     - assets/images/Terrain/
+    - assets/images/Main Characters/
     - assets/images/Main Characters/Mask Dude/
     - assets/images/Main Characters/Ninja Frog/
     - assets/images/Main Characters/Pink Man/
     - assets/images/Main Characters/Virtual Guy/
+    - assets/images/Enemies/Chicken/
     - assets/images/HUD/
     - assets/images/Items/Fruits/
     - assets/images/Background/
+    - assets/images/Traps/Saw/
+    - assets/images/Items/Checkpoints/Checkpoint/
+    - assets/audio/
 
 
 
