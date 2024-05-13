@@ -27,19 +27,36 @@ class MyApp extends StatelessWidget {
     );
   }
 }*/
-import 'package:app_asd_diagnostic/screens/games/pixel_adventure.dart';
-import 'package:flame/flame.dart';
-import 'package:flame/game.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 
-void main() async {
+/* Teste Pixel Adventure */
+/*void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Flame.device.fullScreen();
   await Flame.device.setLandscape();
 
   PixelAdventure game = PixelAdventure();
+  await Flame.device.fullScreen();
   runApp(
-    GameWidget(game: kDebugMode ? PixelAdventure() : game),
+    GameWidget(game: kDebugMode ? GiftGrabGame() : game),
+  );
+}*/
+
+import 'package:app_asd_diagnostic/screens/games/gift_grab/gift_grab.dart';
+import 'package:app_asd_diagnostic/screens/games/gift_grab/screens/game_play.dart';
+import 'package:app_asd_diagnostic/screens/games/pixel_adventure/pixel_adventure.dart';
+import 'package:flame/flame.dart';
+import 'package:flame/game.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  runApp(
+    const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: GamePlay(),
+    ),
   );
 }
