@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:app_asd_diagnostic/screens/games/pixel_adventure/pixel_adventure.dart';
+import 'package:app_asd_diagnostic/games/pixel_adventure/pixel_adventure.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 

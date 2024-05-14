@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:app_asd_diagnostic/screens/games/pixel_adventure/components/custom_hitbox.dart';
-import 'package:app_asd_diagnostic/screens/games/pixel_adventure/pixel_adventure.dart';
+import 'package:app_asd_diagnostic/games/pixel_adventure/components/custom_hitbox.dart';
+import 'package:app_asd_diagnostic/games/pixel_adventure/pixel_adventure.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame_audio/flame_audio.dart';
@@ -28,7 +28,7 @@ class Fruit extends SpriteAnimationComponent
       collisionType: CollisionType.passive,
     ));
     animation = SpriteAnimation.fromFrameData(
-        game.images.fromCache('Items/Fruits/$fruit.png'),
+        game.images.fromCache('pixel_adventure/Items/Fruits/$fruit.png'),
         SpriteAnimationData.sequenced(
           amount: 17,
           stepTime: stepTime,
@@ -45,7 +45,7 @@ class Fruit extends SpriteAnimationComponent
         FlameAudio.play('collect_fruit.wav', volume: game.soundVolume);
       }
       animation = SpriteAnimation.fromFrameData(
-          game.images.fromCache('Items/Fruits/Collected.png'),
+          game.images.fromCache('pixel_adventure/Items/Fruits/Collected.png'),
           SpriteAnimationData.sequenced(
               amount: 6,
               stepTime: stepTime,

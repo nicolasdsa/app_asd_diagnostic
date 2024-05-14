@@ -29,7 +29,14 @@ class MyApp extends StatelessWidget {
 }*/
 
 /* Teste Pixel Adventure */
-/*void main() async {
+/*import 'package:app_asd_diagnostic/games/gift_grab/gift_grab.dart';
+import 'package:app_asd_diagnostic/games/pixel_adventure/pixel_adventure.dart';
+import 'package:flame/flame.dart';
+import 'package:flame/game.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Flame.device.fullScreen();
   await Flame.device.setLandscape();
@@ -37,16 +44,12 @@ class MyApp extends StatelessWidget {
   PixelAdventure game = PixelAdventure();
   await Flame.device.fullScreen();
   runApp(
-    GameWidget(game: kDebugMode ? GiftGrabGame() : game),
+    GameWidget(game: kDebugMode ? PixelAdventure() : game),
   );
 }*/
 
-import 'package:app_asd_diagnostic/screens/games/gift_grab/gift_grab.dart';
-import 'package:app_asd_diagnostic/screens/games/gift_grab/screens/game_play.dart';
-import 'package:app_asd_diagnostic/screens/games/pixel_adventure/pixel_adventure.dart';
-import 'package:flame/flame.dart';
-import 'package:flame/game.dart';
-import 'package:flutter/foundation.dart';
+/* Teste Gift_Grab */
+/*import 'package:app_asd_diagnostic/games/gift_grab/screens/game_play.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -58,5 +61,23 @@ void main() async {
       debugShowCheckedModeBanner: false,
       home: GamePlay(),
     ),
+  );
+}*/
+
+import 'package:app_asd_diagnostic/games/hit_run/hit_run.dart';
+import 'package:flame/flame.dart';
+import 'package:flame/game.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Flame.device.fullScreen();
+  await Flame.device.setLandscape();
+
+  HitRun game = HitRun();
+  await Flame.device.fullScreen();
+  runApp(
+    GameWidget(game: kDebugMode ? HitRun() : game),
   );
 }

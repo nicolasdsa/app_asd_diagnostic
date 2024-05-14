@@ -1,7 +1,7 @@
 import 'dart:ui';
 
-import 'package:app_asd_diagnostic/screens/games/gift_grab/components/globals.dart';
-import 'package:app_asd_diagnostic/screens/games/gift_grab/gift_grab.dart';
+import 'package:app_asd_diagnostic/games/gift_grab/components/globals.dart';
+import 'package:app_asd_diagnostic/games/gift_grab/gift_grab.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'dart:math' as math;

@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:app_asd_diagnostic/screens/games/pixel_adventure/components/jump_button.dart';
-import 'package:app_asd_diagnostic/screens/games/pixel_adventure/components/player.dart';
-import 'package:app_asd_diagnostic/screens/games/pixel_adventure/components/level.dart';
+import 'package:app_asd_diagnostic/games/pixel_adventure/components/jump_button.dart';
+import 'package:app_asd_diagnostic/games/pixel_adventure/components/player.dart';
+import 'package:app_asd_diagnostic/games/pixel_adventure/components/level.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';

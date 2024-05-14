@@ -1,4 +1,4 @@
-import 'package:app_asd_diagnostic/screens/games/gift_grab/components/globals.dart';
+import 'package:app_asd_diagnostic/games/gift_grab/components/globals.dart';
 import 'package:flutter/material.dart';
 
 class MenuBackgroundWidget extends StatelessWidget {

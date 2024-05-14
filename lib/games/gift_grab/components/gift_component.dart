@@ -1,8 +1,8 @@
 import 'dart:math';
 
-import 'package:app_asd_diagnostic/screens/games/gift_grab/components/globals.dart';
-import 'package:app_asd_diagnostic/screens/games/gift_grab/components/santa_component.dart';
-import 'package:app_asd_diagnostic/screens/games/gift_grab/gift_grab.dart';
+import 'package:app_asd_diagnostic/games/gift_grab/components/globals.dart';
+import 'package:app_asd_diagnostic/games/gift_grab/components/santa_component.dart';
+import 'package:app_asd_diagnostic/games/gift_grab/gift_grab.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame_audio/flame_audio.dart';

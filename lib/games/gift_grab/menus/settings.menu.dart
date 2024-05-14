@@ -1,7 +1,7 @@
-import 'package:app_asd_diagnostic/screens/games/gift_grab/components/globals.dart';
-import 'package:app_asd_diagnostic/screens/games/gift_grab/menus/menu_background_widget.dart';
-import 'package:app_asd_diagnostic/screens/games/gift_grab/gift_grab.dart';
-import 'package:app_asd_diagnostic/screens/games/gift_grab/screens/game_play.dart';
+import 'package:app_asd_diagnostic/games/gift_grab/components/globals.dart';
+import 'package:app_asd_diagnostic/games/gift_grab/menus/menu_background_widget.dart';
+import 'package:app_asd_diagnostic/games/gift_grab/gift_grab.dart';
+import 'package:app_asd_diagnostic/games/gift_grab/screens/game_play.dart';
 import 'package:flutter/material.dart';
 
 class SettingsMenu extends StatelessWidget {

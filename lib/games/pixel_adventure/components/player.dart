@@ -1,12 +1,12 @@
 import 'dart:async';
-import 'package:app_asd_diagnostic/screens/games/pixel_adventure/components/checkpoint.dart';
-import 'package:app_asd_diagnostic/screens/games/pixel_adventure/components/chicken.dart';
-import 'package:app_asd_diagnostic/screens/games/pixel_adventure/components/collision_block.dart';
-import 'package:app_asd_diagnostic/screens/games/pixel_adventure/components/custom_hitbox.dart';
-import 'package:app_asd_diagnostic/screens/games/pixel_adventure/components/fruit.dart';
-import 'package:app_asd_diagnostic/screens/games/pixel_adventure/components/saw.dart';
-import 'package:app_asd_diagnostic/screens/games/pixel_adventure/components/utils.dart';
-import 'package:app_asd_diagnostic/screens/games/pixel_adventure/pixel_adventure.dart';
+import 'package:app_asd_diagnostic/games/pixel_adventure/components/checkpoint.dart';
+import 'package:app_asd_diagnostic/games/pixel_adventure/components/chicken.dart';
+import 'package:app_asd_diagnostic/games/pixel_adventure/components/collision_block.dart';
+import 'package:app_asd_diagnostic/games/pixel_adventure/components/custom_hitbox.dart';
+import 'package:app_asd_diagnostic/games/pixel_adventure/components/fruit.dart';
+import 'package:app_asd_diagnostic/games/pixel_adventure/components/saw.dart';
+import 'package:app_asd_diagnostic/games/pixel_adventure/components/utils.dart';
+import 'package:app_asd_diagnostic/games/pixel_adventure/pixel_adventure.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame_audio/flame_audio.dart';
@@ -156,7 +156,8 @@ class Player extends SpriteAnimationGroupComponent
 
   SpriteAnimation _spriteAnimation(String state, int amount) {
     return SpriteAnimation.fromFrameData(
-      game.images.fromCache('Main Characters/$character/$state (32x32).png'),
+      game.images.fromCache(
+          'pixel_adventure/Main Characters/$character/$state (32x32).png'),
       SpriteAnimationData.sequenced(
         // amount is the amount of frames
         amount: amount,
@@ -168,7 +169,8 @@ class Player extends SpriteAnimationGroupComponent
 
   SpriteAnimation _specialspriteAnimation(String state, int amount) {
     return SpriteAnimation.fromFrameData(
-      game.images.fromCache('Main Characters/$state (96x96).png'),
+      game.images
+          .fromCache('pixel_adventure/Main Characters/$state (96x96).png'),
       SpriteAnimationData.sequenced(
           // amount is the amount of frames
           amount: amount,

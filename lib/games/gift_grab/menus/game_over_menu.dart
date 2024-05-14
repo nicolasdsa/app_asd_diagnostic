@@ -1,15 +1,12 @@
-import 'package:app_asd_diagnostic/screens/games/gift_grab/components/globals.dart';
-import 'package:app_asd_diagnostic/screens/games/gift_grab/menus/menu_background_widget.dart';
-import 'package:app_asd_diagnostic/screens/games/gift_grab/gift_grab.dart';
-import 'package:app_asd_diagnostic/screens/games/gift_grab/screens/game_play.dart';
+import 'package:app_asd_diagnostic/games/gift_grab/components/globals.dart';
+import 'package:app_asd_diagnostic/games/gift_grab/menus/menu_background_widget.dart';
+import 'package:app_asd_diagnostic/games/gift_grab/gift_grab.dart';
+import 'package:app_asd_diagnostic/games/gift_grab/screens/game_play.dart';
 import 'package:flutter/material.dart';
 
-class MainMenu extends StatelessWidget {
+class GameOverMenu extends StatelessWidget {
   final GiftGrabGame gameRef;
-  const MainMenu({
-    Key? key,
-    required this.gameRef,
-  }) : super(key: key);
+  const GameOverMenu({Key? key, required this.gameRef}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +18,16 @@ class MainMenu extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 50),
               child: Text(
-                'Gift Grab',
+                'Game Over',
+                style: TextStyle(
+                  fontSize: Globals.isTablet ? 100 : 50,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 50),
+              child: Text(
+                'Score: ${gameRef.score}',
                 style: TextStyle(
                   fontSize: Globals.isTablet ? 100 : 50,
                 ),
@@ -32,11 +38,12 @@ class MainMenu extends StatelessWidget {
               height: Globals.isTablet ? 100 : 50,
               child: ElevatedButton(
                 onPressed: () {
-                  gameRef.removeMenu(menu: Menu.main);
+                  gameRef.removeMenu(menu: Menu.gameOver);
+                  gameRef.reset();
                   gameRef.resumeEngine();
                 },
                 child: Text(
-                  'Play',
+                  'Play Again?',
                   style: TextStyle(
                     fontSize: Globals.isTablet ? 50 : 25,
                   ),
@@ -51,10 +58,12 @@ class MainMenu extends StatelessWidget {
               height: Globals.isTablet ? 100 : 50,
               child: ElevatedButton(
                 onPressed: () {
-                  gameRef.addMenu(menu: Menu.settings);
+                  gameRef.removeMenu(menu: Menu.gameOver);
+                  gameRef.reset();
+                  gameRef.addMenu(menu: Menu.main);
                 },
                 child: Text(
-                  'Settings',
+                  'Main Menu',
                   style: TextStyle(
                     fontSize: Globals.isTablet ? 50 : 25,
                   ),

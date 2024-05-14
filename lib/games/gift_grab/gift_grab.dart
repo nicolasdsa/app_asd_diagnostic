@@ -1,12 +1,12 @@
 import 'dart:async';
 
-import 'package:app_asd_diagnostic/screens/games/gift_grab/components/background_component.dart';
-import 'package:app_asd_diagnostic/screens/games/gift_grab/components/gift_component.dart';
-import 'package:app_asd_diagnostic/screens/games/gift_grab/components/globals.dart';
-import 'package:app_asd_diagnostic/screens/games/gift_grab/components/ice_component.dart';
-import 'package:app_asd_diagnostic/screens/games/gift_grab/components/joystick.dart';
-import 'package:app_asd_diagnostic/screens/games/gift_grab/components/santa_component.dart';
-import 'package:app_asd_diagnostic/screens/games/gift_grab/screens/game_play.dart';
+import 'package:app_asd_diagnostic/games/gift_grab/components/background_component.dart';
+import 'package:app_asd_diagnostic/games/gift_grab/components/gift_component.dart';
+import 'package:app_asd_diagnostic/games/gift_grab/components/globals.dart';
+import 'package:app_asd_diagnostic/games/gift_grab/components/ice_component.dart';
+import 'package:app_asd_diagnostic/games/gift_grab/components/joystick.dart';
+import 'package:app_asd_diagnostic/games/gift_grab/components/santa_component.dart';
+import 'package:app_asd_diagnostic/games/gift_grab/screens/game_play.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';

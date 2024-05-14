@@ -68,18 +68,18 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets:
     - assets/tiles/
-    - assets/images/Terrain/
-    - assets/images/Main Characters/
-    - assets/images/Main Characters/Mask Dude/
-    - assets/images/Main Characters/Ninja Frog/
-    - assets/images/Main Characters/Pink Man/
-    - assets/images/Main Characters/Virtual Guy/
-    - assets/images/Enemies/Chicken/
+    - assets/images/pixel_adventure/Terrain/
+    - assets/images/pixel_adventure/Main Characters/
+    - assets/images/pixel_adventure/Main Characters/Mask Dude/
+    - assets/images/pixel_adventure/Main Characters/Ninja Frog/
+    - assets/images/pixel_adventure/Main Characters/Pink Man/
+    - assets/images/pixel_adventure/Main Characters/Virtual Guy/
+    - assets/images/pixel_adventure/Enemies/Chicken/
     - assets/images/HUD/
-    - assets/images/Items/Fruits/
-    - assets/images/Background/
-    - assets/images/Traps/Saw/
-    - assets/images/Items/Checkpoints/Checkpoint/
+    - assets/images/pixel_adventure/Items/Fruits/
+    - assets/images/pixel_adventure/Background/
+    - assets/images/pixel_adventure/Traps/Saw/
+    - assets/images/pixel_adventure/Items/Checkpoints/Checkpoint/
     - assets/audio/
     - assets/images/Gift_Grab/
 
