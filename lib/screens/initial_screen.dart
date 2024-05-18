@@ -1,11 +1,8 @@
 import 'package:app_asd_diagnostic/screens/components/my_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class InitialScreen extends StatefulWidget {
-  final ValueNotifier<int> formChangeNotifier;
-
-  InitialScreen({required this.formChangeNotifier, Key? key}) : super(key: key);
-
   @override
   State<InitialScreen> createState() => _InitialScreenState();
 }
@@ -13,6 +10,11 @@ class InitialScreen extends StatefulWidget {
 class _InitialScreenState extends State<InitialScreen> {
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Initial Screen'),

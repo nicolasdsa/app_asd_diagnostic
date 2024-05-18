@@ -25,7 +25,7 @@ class Level extends World with HasGameRef<HitRun> {
     level.priority = 10;
     add(level);
 
-    //_scrollingBackground();
+    _scrollingBackground();
     _spawingObjects();
     _addCollisions();
     spawnRandomShapeType();
@@ -70,7 +70,11 @@ class Level extends World with HasGameRef<HitRun> {
       for (final spawnPoint in spawnPointsLayer.objects) {
         switch (spawnPoint.class_) {
           case 'Spawn':
-            ShapeForm shape = ShapeForm(speed: Vector2.zero(), level: this);
+            ShapeForm shape = ShapeForm(
+                speed: Vector2.zero(),
+                level: this,
+                isTap: false,
+                isButton: false);
             shape.position = Vector2(spawnPoint.x, spawnPoint.y);
             shape.form =
                 spawnedShapeType; // Update form based on spawnedShapeType
@@ -79,8 +83,12 @@ class Level extends World with HasGameRef<HitRun> {
             spawnShape = shape; // Keep track of the spawn shape
             break;
           case 'Shapes':
-            for (int i = 0; i < 5; i++) {
-              ShapeForm shape = ShapeForm(speed: _randomSpeed(), level: this);
+            for (int i = 0; i < 3; i++) {
+              ShapeForm shape = ShapeForm(
+                  speed: _randomSpeed(),
+                  level: this,
+                  isTap: true,
+                  isButton: false);
               shape.position = Vector2(
                 spawnPoint.x + rng.nextDouble() * spawnPoint.width,
                 spawnPoint.y + rng.nextDouble() * spawnPoint.height,
@@ -89,8 +97,12 @@ class Level extends World with HasGameRef<HitRun> {
               shape.priority = 9999;
               add(shape);
             }
-            for (int i = 0; i < 5; i++) {
-              ShapeForm shape = ShapeForm(speed: _randomSpeed(), level: this);
+            for (int i = 0; i < 3; i++) {
+              ShapeForm shape = ShapeForm(
+                  speed: _randomSpeed(),
+                  level: this,
+                  isTap: true,
+                  isButton: false);
               shape.position = Vector2(
                 spawnPoint.x + rng.nextDouble() * spawnPoint.width,
                 spawnPoint.y + rng.nextDouble() * spawnPoint.height,
@@ -99,8 +111,12 @@ class Level extends World with HasGameRef<HitRun> {
               shape.priority = 9999;
               add(shape);
             }
-            for (int i = 0; i < 5; i++) {
-              ShapeForm shape = ShapeForm(speed: _randomSpeed(), level: this);
+            for (int i = 0; i < 3; i++) {
+              ShapeForm shape = ShapeForm(
+                  speed: _randomSpeed(),
+                  level: this,
+                  isTap: true,
+                  isButton: false);
               shape.position = Vector2(
                 spawnPoint.x + rng.nextDouble() * spawnPoint.width,
                 spawnPoint.y + rng.nextDouble() * spawnPoint.height,
@@ -111,21 +127,33 @@ class Level extends World with HasGameRef<HitRun> {
             }
             break;
           case 'Square':
-            ShapeForm shape = ShapeForm(speed: Vector2.zero(), level: this);
+            ShapeForm shape = ShapeForm(
+                speed: Vector2.zero(),
+                level: this,
+                isTap: true,
+                isButton: true);
             shape.position = Vector2(spawnPoint.x, spawnPoint.y);
             shape.form = 'Square';
             shape.priority = 9999;
             add(shape);
             break;
           case 'Circle':
-            ShapeForm shape = ShapeForm(speed: Vector2.zero(), level: this);
+            ShapeForm shape = ShapeForm(
+                speed: Vector2.zero(),
+                level: this,
+                isTap: true,
+                isButton: true);
             shape.position = Vector2(spawnPoint.x, spawnPoint.y);
             shape.form = 'Circle';
             shape.priority = 9999;
             add(shape);
             break;
           case 'Triangle':
-            ShapeForm shape = ShapeForm(speed: Vector2.zero(), level: this);
+            ShapeForm shape = ShapeForm(
+                speed: Vector2.zero(),
+                level: this,
+                isTap: true,
+                isButton: true);
             shape.position = Vector2(spawnPoint.x, spawnPoint.y);
             shape.form = 'Triangle';
             shape.priority = 9999;
@@ -145,14 +173,33 @@ class Level extends World with HasGameRef<HitRun> {
     if (spawnShape != null) {
       // Remove the old spawn shape
       remove(spawnShape!);
-      // Create and add a new spawn shape with the updated form
-      ShapeForm shape = ShapeForm(speed: Vector2.zero(), level: this);
-      shape.position = spawnShape!.position.clone();
+    }
+
+    final spawnPointsLayer = level.tileMap.getLayer<ObjectGroup>('Spawnpoints');
+    if (spawnPointsLayer != null) {
+      final shapesLayer = spawnPointsLayer.objects.firstWhere(
+          (layer) => layer.class_ == 'Shapes',
+          orElse: () => null as TiledObject);
+      final rng = Random();
+      ShapeForm shape = ShapeForm(
+          speed: _randomSpeed(), level: this, isTap: true, isButton: false);
+      shape.position = Vector2(
+        shapesLayer.x + rng.nextDouble() * shapesLayer.width,
+        shapesLayer.y + rng.nextDouble() * shapesLayer.height,
+      );
       shape.form = spawnedShapeType;
       shape.priority = 9999;
       add(shape);
-      spawnShape = shape; // Update spawnShape reference
     }
+
+    // Create and add a new spawn shape with the updated form
+    ShapeForm shape = ShapeForm(
+        speed: Vector2.zero(), level: this, isTap: false, isButton: false);
+    shape.position = spawnShape?.position?.clone() ?? Vector2.zero();
+    shape.form = spawnedShapeType;
+    shape.priority = 9999;
+    add(shape);
+    spawnShape = shape; // Update spawnShape reference
   }
 
   Vector2 _randomSpeed() {

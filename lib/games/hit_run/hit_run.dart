@@ -15,7 +15,7 @@ class HitRun extends FlameGame with TapCallbacks, HasCollisionDetection {
   FutureOr<void> onLoad() async {
     await images.loadAllImages();
     _loadLevel();
-    debugMode = true;
+    //debugMode = true;
 
     return super.onLoad();
   }

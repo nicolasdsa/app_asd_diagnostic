@@ -19,11 +19,15 @@ class ShapeForm extends SpriteAnimationGroupComponent
     with TapCallbacks, HasGameRef<HitRun> {
   String form;
   Level level;
+  bool isTap;
+  bool isButton;
   ShapeForm({
     super.position,
     this.form = 'circle',
     required this.speed,
     required this.level,
+    required this.isTap,
+    required this.isButton,
   }) {
     _adjustRandomAngle();
   }
@@ -169,33 +173,19 @@ class ShapeForm extends SpriteAnimationGroupComponent
   void onTapDown(TapDownEvent event) {
     super.onTapDown(event);
 
-    if (level.spawnedShapeType == form) {
+    if (!isTap) {
+      return;
+    }
+
+    if (isButton) {
+      level.selectedShape = this;
+      print('Shape Selected: form'); // For debugging
+      return;
+    }
+
+    if (level.spawnedShapeType == form && level.selectedShape?.form == form) {
       level.spawnRandomShapeType();
       removeFromParent();
-    } else {
-      if (level.selectedShape == this) {
-        isSelected = false;
-        level.selectedShape = null;
-      } else {
-        if (level.selectedShape != null) {
-          level.selectedShape!.isSelected = false;
-        }
-        isSelected = true;
-        level.selectedShape = this;
-      }
-    }
-  }
-
-  @override
-  void render(Canvas canvas) {
-    super.render(canvas);
-
-    if (isSelected) {
-      final paint = Paint()
-        ..color = Color(0xFFFFD700)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.0;
-      canvas.drawRect(toRect(), paint);
     }
   }
 }
