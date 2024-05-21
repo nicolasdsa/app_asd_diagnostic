@@ -8,13 +8,13 @@ class ListData<T> extends StatelessWidget {
   final String buttonText;
 
   const ListData({
-    super.key,
+    Key? key,
     required this.questionChangeNotifier,
     required this.getItems,
     required this.buildItem,
     required this.navigateTo,
     required this.buttonText,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +48,7 @@ class ListData<T> extends StatelessWidget {
             );
           },
           child: Text(buttonText),
-        ),
+        )
       ],
     );
   }

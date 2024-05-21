@@ -5,6 +5,7 @@ import 'package:app_asd_diagnostic/db/patient_dao.dart';
 import 'package:app_asd_diagnostic/db/question_dao.dart';
 import 'package:app_asd_diagnostic/db/type_form_dao.dart';
 import 'package:app_asd_diagnostic/db/type_question_dao.dart';
+import 'package:app_asd_diagnostic/db/user.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -31,6 +32,7 @@ class DatabaseHelper {
     await db.execute(TypeQuestionDao.tableSql);
     await db.execute(QuestionDao.tableSql);
     await db.execute(TypeFormDao.tableSql);
+    await db.execute(UserDao.tableSql);
 
     await db.insert('type_forms', {'name': 'Analise de informações'});
     await db.insert('type_forms', {'name': 'Avaliar Comportamento'});

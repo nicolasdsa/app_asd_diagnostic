@@ -1,3 +1,4 @@
+import 'package:app_asd_diagnostic/db/answer_options_dao.dart';
 import 'package:app_asd_diagnostic/db/database.dart';
 import 'package:app_asd_diagnostic/db/type_question_dao.dart';
 import 'package:app_asd_diagnostic/screens/components/question.dart';
@@ -39,8 +40,8 @@ class QuestionDao {
   Future<List<Question>> getAll() async {
     final db = await dbHelper.database;
     final List<Map<String, dynamic>> result = await db.query(_tableName);
-    List<Question> patients = await toList(result);
-    return patients;
+    List<Question> questions = await toList(result);
+    return questions;
   }
 
   Future<List<Question>> toList(List<Map<String, dynamic>> questionsAll) async {
@@ -48,9 +49,14 @@ class QuestionDao {
     for (Map<String, dynamic> linha in questionsAll) {
       final nameTypeQuestion =
           await TypeQuestionDao().getTypeQuestionName(linha[_idType]);
-      final Question patient =
-          Question(linha[_id], linha[_question], nameTypeQuestion);
-      questions.add(patient);
+      List<String>? answerOptions;
+      if (linha[_idType] == 2) {
+        answerOptions =
+            await AnswerOptionsDao().getOptionsForQuestion(linha[_id]);
+      }
+      final Question question = Question(
+          linha[_id], linha[_question], nameTypeQuestion, answerOptions);
+      questions.add(question);
     }
     return questions;
   }

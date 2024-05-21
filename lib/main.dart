@@ -1,6 +1,8 @@
 import 'package:app_asd_diagnostic/games/hit_run/game.dart';
 import 'package:app_asd_diagnostic/games/hit_run/hit_run.dart';
 import 'package:app_asd_diagnostic/screens/initial_screen.dart';
+import 'package:app_asd_diagnostic/screens/login_screen.dart';
+import 'package:app_asd_diagnostic/screens/register_screen.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/foundation.dart';
@@ -19,6 +21,8 @@ void main() async {
       ),
       initialRoute: '/game',
       routes: {
+        '/register': (context) => RegisterScreen(),
+        '/login': (context) => LoginScreen(),
         '/': (context) => InitialScreen(),
         '/game': (context) => GameScreen(game: game),
       },
