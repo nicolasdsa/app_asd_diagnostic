@@ -21,6 +21,7 @@ class ShapeForm extends SpriteAnimationGroupComponent
   Level level;
   bool isTap;
   bool isButton;
+
   ShapeForm({
     super.position,
     this.form = 'circle',
@@ -34,7 +35,7 @@ class ShapeForm extends SpriteAnimationGroupComponent
 
   Vector2 startingPosition = Vector2.zero();
   Vector2 speed;
-  bool isSelected = false; // New variable for selection state
+  bool isSelected = false;
 
   late final SpriteAnimation circleAnimation;
   late final SpriteAnimation squareAnimation;
@@ -179,13 +180,17 @@ class ShapeForm extends SpriteAnimationGroupComponent
 
     if (isButton) {
       level.selectedShape = this;
-      print('Shape Selected: form'); // For debugging
+      print('Shape Selected: $form'); // For debugging
       return;
     }
 
     if (level.spawnedShapeType == form && level.selectedShape?.form == form) {
       level.spawnRandomShapeType();
       removeFromParent();
+      level.timer?.resetTimer(); // Reset the timer
+      level.points?.increasePoints();
+    } else {
+      level.hearts?.decreaseHearts(); // Decrease hearts if condition is false
     }
   }
 }

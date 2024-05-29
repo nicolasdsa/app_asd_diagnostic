@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.0" orientation="orthogonal" renderorder="right-down" width="40" height="23" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="10">
+<map version="1.8" tiledversion="1.8.0" orientation="orthogonal" renderorder="right-down" width="40" height="23" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="15">
  <tileset firstgid="1" source="Pixel Adventure.tsx"/>
  <layer id="1" name="Background" width="40" height="23">
   <properties>
@@ -43,5 +43,8 @@
   <object id="7" name="Triangle" type="Triangle" x="432" y="336" width="32" height="32"/>
   <object id="8" name="Spawn" type="Spawn" x="288" y="0" width="32" height="32"/>
   <object id="9" name="Shapes" type="Shapes" x="128" y="112" width="390" height="140"/>
+  <object id="10" name="Hearts" type="Hearts" x="432" y="0" width="160" height="32"/>
+  <object id="13" name="Timer" type="Timer" x="48" y="0" width="80" height="32"/>
+  <object id="14" name="Points" type="Points" x="176" y="0" width="80" height="32"/>
  </objectgroup>
 </map>
