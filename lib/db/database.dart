@@ -1,6 +1,8 @@
 import 'package:app_asd_diagnostic/db/answer_options_dao.dart';
 import 'package:app_asd_diagnostic/db/form_dao.dart';
 import 'package:app_asd_diagnostic/db/form_question_dao.dart';
+import 'package:app_asd_diagnostic/db/game_dao.dart';
+import 'package:app_asd_diagnostic/db/hash_access_dao.dart';
 import 'package:app_asd_diagnostic/db/patient_dao.dart';
 import 'package:app_asd_diagnostic/db/question_dao.dart';
 import 'package:app_asd_diagnostic/db/type_form_dao.dart';
@@ -33,12 +35,16 @@ class DatabaseHelper {
     await db.execute(QuestionDao.tableSql);
     await db.execute(TypeFormDao.tableSql);
     await db.execute(UserDao.tableSql);
+    await db.execute(GameDao.tableSql);
+    await db.execute(HashAccessDao.tableSql);
 
     await db.insert('type_forms', {'name': 'Analise de informações'});
     await db.insert('type_forms', {'name': 'Avaliar Comportamento'});
 
     await db.insert('type_questions', {'name': 'Simples'});
     await db.insert('type_questions', {'name': 'Multipla escolha'});
+
+    await db.insert('games', {'name': 'Hit run', 'link': '/hitRun'});
   }
 
   _initDatabase() async {

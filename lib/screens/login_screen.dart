@@ -49,7 +49,7 @@ class LoginScreen extends StatelessWidget {
                     print('username: $username, password: $password');
                     final success = await _dao.login(username, password);
                     if (success) {
-                      Navigator.pushReplacementNamed(context, '/');
+                      Navigator.pushReplacementNamed(context, '/initialLogin');
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(

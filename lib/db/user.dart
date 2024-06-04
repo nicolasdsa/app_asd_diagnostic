@@ -1,9 +1,5 @@
-import 'dart:math';
-
 import 'package:app_asd_diagnostic/db/database.dart';
 import 'package:crypt/crypt.dart';
-import 'package:crypto/crypto.dart';
-import 'dart:convert';
 
 class UserDao {
   static const String tableSql = 'CREATE TABLE $_tableName('
@@ -61,6 +57,4 @@ class UserDao {
 
   bool isValid(String cryptFormatHash, String enteredPassword) =>
       Crypt(cryptFormatHash).match(enteredPassword);
-
-  // Rest of the code...
 }

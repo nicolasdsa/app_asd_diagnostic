@@ -1,12 +1,16 @@
+import 'dart:convert';
+import 'package:app_asd_diagnostic/db/hash_access_dao.dart';
+import 'package:crypto/crypto.dart';
+import 'package:flutter/material.dart';
 import 'package:app_asd_diagnostic/db/form_dao.dart';
+import 'package:app_asd_diagnostic/db/game_dao.dart';
 import 'package:app_asd_diagnostic/db/patient_dao.dart';
 import 'package:app_asd_diagnostic/db/question_dao.dart';
 import 'package:app_asd_diagnostic/db/type_form_dao.dart';
 import 'package:app_asd_diagnostic/screens/components/card_option.dart';
+import 'package:app_asd_diagnostic/screens/components/game.dart';
 import 'package:app_asd_diagnostic/screens/components/list_data.dart';
-import 'package:app_asd_diagnostic/screens/components/question.dart';
 import 'package:app_asd_diagnostic/screens/questions_create_screen.dart';
-import 'package:flutter/material.dart';
 
 class FormScreen extends StatefulWidget {
   final ValueNotifier<int> formChangeNotifier;
@@ -19,6 +23,7 @@ class FormScreen extends StatefulWidget {
 
 class _FormScreenState extends State<FormScreen> {
   late ValueNotifier<int> questionChangeNotifier;
+  final Set<GameComponent> _selectedGames = Set<GameComponent>();
 
   @override
   void initState() {
@@ -27,7 +32,7 @@ class _FormScreenState extends State<FormScreen> {
   }
 
   final _formKey = GlobalKey<FormState>();
-  final _formDao = FormDao();
+  final _formDao = HashAccessDao();
   final _patientDao = PatientDao();
   final _typeFormDao = TypeFormDao();
   List<Map<String, dynamic>> _typeFormElements = [];
@@ -35,6 +40,7 @@ class _FormScreenState extends State<FormScreen> {
   String _name = '';
   String _selectedName = '';
   String _selectedTypeForm = '';
+  String _selectedPatientId = ''; // Add this line
 
   void _handleCardOptionTap(String name) {
     setState(() {
@@ -61,17 +67,24 @@ class _FormScreenState extends State<FormScreen> {
             shrinkWrap: true,
             children: [
               Autocomplete<String>(
-                optionsBuilder: (TextEditingValue textEditingValue) {
+                optionsBuilder: (TextEditingValue textEditingValue) async {
                   if (textEditingValue.text == '') {
                     return const Iterable<String>.empty();
                   }
-                  return _patientDao.filterByName(textEditingValue.text);
+                  final patients =
+                      await _patientDao.filterByName(textEditingValue.text);
+                  return patients.map((patient) => patient['name'] as String);
                 },
-                onSelected: (String selection) {
+                onSelected: (String selection) async {
                   setState(() {
                     _selectedName = selection;
                     _typeFormElements = [];
                   });
+                  final patients =
+                      await _patientDao.filterByName(_selectedName);
+                  if (patients.isNotEmpty) {
+                    _selectedPatientId = patients.first['id'].toString();
+                  }
                   _typeFormDao
                       .getAll()
                       .then((List<Map<String, dynamic>> elements) {
@@ -102,6 +115,7 @@ class _FormScreenState extends State<FormScreen> {
                     )),
               ],
               Form(
+                key: _formKey,
                 child: Column(
                   children: [
                     if (_selectedTypeForm.isNotEmpty &&
@@ -109,7 +123,6 @@ class _FormScreenState extends State<FormScreen> {
                         _selectedTypeForm == 'Analise de informações') ...[
                       Row(
                         children: [
-                          // Add your widgets here
                           CardOption('Perguntas', Icons.help,
                               onTap: _handleCardOptionTap),
                           const SizedBox(width: 8),
@@ -132,7 +145,36 @@ class _FormScreenState extends State<FormScreen> {
                       ),
                     ],
                     if (_name == 'Jogos') ...[
-                      // Code for displaying games
+                      ListData<GameComponent>(
+                        questionChangeNotifier: questionChangeNotifier,
+                        getItems: () => GameDao().getAll(),
+                        buildItem: (item) => item,
+                        onSelect: (item) {
+                          print(_selectedGames);
+                          setState(() {
+                            if (_selectedGames.contains(item)) {
+                              _selectedGames.remove(item);
+                            } else {
+                              _selectedGames.add(item);
+                            }
+                          });
+                        },
+                        selectedItems: _selectedGames,
+                      ),
+                      Wrap(
+                        spacing: 8.0,
+                        runSpacing: 4.0,
+                        children: _selectedGames.map((game) {
+                          return Chip(
+                            label: Text(game.link),
+                            onDeleted: () {
+                              setState(() {
+                                _selectedGames.remove(game);
+                              });
+                            },
+                          );
+                        }).toList(),
+                      ),
                     ],
                     if (_name == 'Sons') ...[
                       // Code for displaying sounds
@@ -141,29 +183,12 @@ class _FormScreenState extends State<FormScreen> {
                       // Code for displaying data
                     ],
                     if (_name == 'Perguntas') ...[
-                      ListData<Question>(
-                        questionChangeNotifier: questionChangeNotifier,
-                        getItems: () => QuestionDao().getAll(),
-                        buildItem: (item) => item,
-                        navigateTo: (context) => QuestionCreateScreen(
-                          questionChangeNotifier: questionChangeNotifier,
-                        ),
-                        buttonText: 'Adicionar pergunta',
-                      )
+                      // Code for displaying questions
                     ],
                     ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          _formKey.currentState!.save();
-                          _formDao.insertForm({
-                            'name': _name,
-                          });
-                          widget.formChangeNotifier.value++;
-                          Navigator.pushReplacementNamed(context, '/');
-                        }
-                      },
+                      onPressed: _createForm,
                       child: const Text('Criar formulário'),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -172,5 +197,29 @@ class _FormScreenState extends State<FormScreen> {
         ),
       ),
     );
+  }
+
+  String _generateAccessHash(String patientId, List<String> gameLinks) {
+    final data = json.encode({'patientId': patientId, 'gameLinks': gameLinks});
+    return sha256.convert(utf8.encode(data)).toString();
+  }
+
+  void _createForm() {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      final patientId = _selectedPatientId; // Use _selectedPatientId here
+      final gameLinks = _selectedGames.map((game) => game.link).toList();
+      print(gameLinks);
+      final accessHash = _generateAccessHash(patientId, gameLinks);
+      print(accessHash);
+      _formDao.insertForm({
+        'id_patient': patientId,
+        'accessHash': accessHash,
+        'gameLinks':
+            json.encode(gameLinks), // Salve os links dos jogos como JSON
+      });
+      widget.formChangeNotifier.value++;
+      Navigator.pushReplacementNamed(context, '/');
+    }
   }
 }

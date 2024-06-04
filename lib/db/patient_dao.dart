@@ -45,16 +45,14 @@ class PatientDao {
     );
   }
 
-  Future<List<String>> filterByName(String name) async {
+  Future<List<Map<String, dynamic>>> filterByName(String name) async {
     final db = await dbHelper.database;
     final List<Map<String, dynamic>> result = await db.query(
       _tableName,
       where: 'name LIKE ?',
       whereArgs: ['%$name%'],
     );
-    List<String> patientNames =
-        result.map((map) => map[_name] as String).toList();
-    return patientNames;
+    return result;
   }
 
   List<Patient> toList(List<Map<String, dynamic>> patientsAll) {
