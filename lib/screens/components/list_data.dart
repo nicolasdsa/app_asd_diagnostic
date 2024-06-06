@@ -7,7 +7,6 @@ class ListData<T> extends StatefulWidget {
   final Widget Function(BuildContext context)? navigateTo;
   final String? buttonText;
   final void Function(T item)? onSelect;
-  final Set<T> selectedItems;
 
   const ListData({
     Key? key,
@@ -17,7 +16,6 @@ class ListData<T> extends StatefulWidget {
     this.navigateTo,
     this.buttonText,
     this.onSelect,
-    required this.selectedItems,
   }) : super(key: key);
 
   @override
@@ -42,29 +40,7 @@ class _ListDataState<T> extends State<ListData<T>> {
                 } else {
                   final items = snapshot.data;
                   return Column(
-                    children: items?.map((item) {
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                if (widget.selectedItems.contains(item)) {
-                                  widget.selectedItems.remove(item);
-                                } else {
-                                  widget.selectedItems.add(item);
-                                }
-                              });
-                              if (widget.onSelect != null) {
-                                widget.onSelect!(item);
-                              }
-                            },
-                            child: Container(
-                              color: widget.selectedItems.contains(item)
-                                  ? Colors.grey.shade300
-                                  : Colors.transparent,
-                              child: widget.buildItem(item),
-                            ),
-                          );
-                        }).toList() ??
-                        [],
+                    children: items?.map(widget.buildItem).toList() ?? [],
                   );
                 }
               },

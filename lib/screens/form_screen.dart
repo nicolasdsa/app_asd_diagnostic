@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:app_asd_diagnostic/db/hash_access_dao.dart';
+import 'package:app_asd_diagnostic/screens/components/question.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:app_asd_diagnostic/db/form_dao.dart';
@@ -149,31 +150,6 @@ class _FormScreenState extends State<FormScreen> {
                         questionChangeNotifier: questionChangeNotifier,
                         getItems: () => GameDao().getAll(),
                         buildItem: (item) => item,
-                        onSelect: (item) {
-                          print(_selectedGames);
-                          setState(() {
-                            if (_selectedGames.contains(item)) {
-                              _selectedGames.remove(item);
-                            } else {
-                              _selectedGames.add(item);
-                            }
-                          });
-                        },
-                        selectedItems: _selectedGames,
-                      ),
-                      Wrap(
-                        spacing: 8.0,
-                        runSpacing: 4.0,
-                        children: _selectedGames.map((game) {
-                          return Chip(
-                            label: Text(game.link),
-                            onDeleted: () {
-                              setState(() {
-                                _selectedGames.remove(game);
-                              });
-                            },
-                          );
-                        }).toList(),
                       ),
                     ],
                     if (_name == 'Sons') ...[
@@ -183,7 +159,15 @@ class _FormScreenState extends State<FormScreen> {
                       // Code for displaying data
                     ],
                     if (_name == 'Perguntas') ...[
-                      // Code for displaying questions
+                      ListData<Question>(
+                        questionChangeNotifier: questionChangeNotifier,
+                        getItems: () => QuestionDao().getAll(),
+                        buildItem: (item) => item,
+                        navigateTo: (context) => QuestionCreateScreen(
+                          questionChangeNotifier: questionChangeNotifier,
+                        ),
+                        buttonText: 'Adicionar pergunta',
+                      )
                     ],
                     ElevatedButton(
                       onPressed: _createForm,

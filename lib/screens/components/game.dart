@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 
 class GameComponent extends StatefulWidget {
   final String name;
-  final String link; // Adicione esta linha
+  final String link;
 
-  const GameComponent(this.name, this.link, [Key? key])
-      : super(key: key); // Modifique esta linha
+  const GameComponent(this.name, this.link, {Key? key}) : super(key: key);
 
   @override
   State<GameComponent> createState() => _GameState();
