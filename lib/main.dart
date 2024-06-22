@@ -9,19 +9,21 @@ import 'package:flutter/material.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  HitRun game = HitRun();
+
   runApp(
     MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      initialRoute: '/',
+      initialRoute: '/hitRun',
       routes: {
         '/initialLogin': (context) => InitialScreen(),
         '/': (context) => TestScreen(),
         '/login': (context) => LoginScreen(),
         '/register': (context) => RegisterScreen(),
-        // Adicione outras rotas conforme necessário
+        '/hitRun': (context) => GameScreen(game: game),
       },
     ),
   );

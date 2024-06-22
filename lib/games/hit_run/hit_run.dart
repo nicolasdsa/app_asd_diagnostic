@@ -1,11 +1,14 @@
 import 'dart:async';
 
+import 'package:app_asd_diagnostic/db/json_data_dao.dart';
+import 'package:app_asd_diagnostic/games/hit_run/components/game_stats.dart';
 import 'package:app_asd_diagnostic/games/hit_run/components/level_design.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 
 class HitRun extends FlameGame with TapCallbacks, HasCollisionDetection {
+  GameStats stats = GameStats();
   List<String> levelNames = ['sem título.tmx'];
   int currentLevelIndex = 0;
   late CameraComponent cam;
@@ -15,9 +18,28 @@ class HitRun extends FlameGame with TapCallbacks, HasCollisionDetection {
 
   @override
   FutureOr<void> onLoad() async {
+    stats.startGame();
     await images.loadAllImages();
     _loadLevel();
     return super.onLoad();
+  }
+
+  void resetGame() {
+    stats.endGame();
+    stats.startGame();
+  }
+
+  @override
+  void onRemove() {
+    saveGameStats();
+    super.onRemove();
+  }
+
+  Future<void> saveGameStats() async {
+    Map<String, dynamic> jsonData = stats.toJson();
+    print('JSON data before saving: $jsonData');
+    JsonDataDao jsonDataDao = JsonDataDao();
+    await jsonDataDao.insertJson(jsonData);
   }
 
   void _loadLevel() async {

@@ -9,6 +9,7 @@ class GameDao {
 
   static const String _tableName = 'games';
   static const String _name = 'name';
+  static const String _id = 'id';
 
   final dbHelper = DatabaseHelper.instance;
 
@@ -23,7 +24,8 @@ class GameDao {
       List<Map<String, dynamic>> gamesAll) async {
     final List<GameComponent> games = [];
     for (Map<String, dynamic> linha in gamesAll) {
-      final GameComponent game = GameComponent(linha[_name], linha['link']);
+      final GameComponent game =
+          GameComponent(linha[_name], linha['link'], id: linha[_id]);
       games.add(game);
     }
     return games;

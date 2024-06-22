@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:app_asd_diagnostic/db/hash_access_dao.dart';
 import 'package:app_asd_diagnostic/screens/components/question.dart';
 import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:app_asd_diagnostic/db/form_dao.dart';
 import 'package:app_asd_diagnostic/db/game_dao.dart';
@@ -43,6 +44,9 @@ class _FormScreenState extends State<FormScreen> {
   String _selectedTypeForm = '';
   String _selectedPatientId = ''; // Add this line
 
+  List<List<dynamic>> _analiseInfoElements = [];
+  List<List<dynamic>> _avaliarComportamentoElements = [];
+
   void _handleCardOptionTap(String name) {
     setState(() {
       _name = name;
@@ -52,6 +56,39 @@ class _FormScreenState extends State<FormScreen> {
   void _handleTypeFormTap(String name) {
     setState(() {
       _selectedTypeForm = name;
+    });
+  }
+
+  void _addElementToAnaliseInfo(String tableName, int id) {
+    final newElement = [tableName, id];
+    setState(() {
+      if (_analiseInfoElements
+          .any((element) => listEquals(element, newElement))) {
+        _analiseInfoElements.removeWhere((element) => element[1] == id);
+        print(
+            'Elemento removido de _analiseInfoElements: $_analiseInfoElements');
+      } else {
+        _analiseInfoElements.add(newElement);
+        print(
+            'Novo elemento adicionado em _analiseInfoElements: $_analiseInfoElements');
+      }
+    });
+  }
+
+  void _addElementToAvaliarComportamento(String tableName, int id) {
+    final newElement = [tableName, id];
+    setState(() {
+      if (_avaliarComportamentoElements
+          .any((element) => listEquals(element, newElement))) {
+        _avaliarComportamentoElements
+            .removeWhere((element) => element[1] == id);
+        print(
+            'Elemento removido de _avaliarComportamentoElements: $_avaliarComportamentoElements');
+      } else {
+        _avaliarComportamentoElements.add(newElement);
+        print(
+            'Novo elemento adicionado em _avaliarComportamentoElements: $_avaliarComportamentoElements');
+      }
     });
   }
 
@@ -106,11 +143,11 @@ class _FormScreenState extends State<FormScreen> {
                         children: [
                           CardOption(
                               _typeFormElements[0]['name'], Icons.analytics,
-                              onTap: _handleTypeFormTap),
+                              onTap: (name) => _handleTypeFormTap(name)),
                           const SizedBox(width: 8),
                           CardOption(
                               _typeFormElements[1]['name'], Icons.psychology,
-                              onTap: _handleTypeFormTap)
+                              onTap: (name) => _handleTypeFormTap(name))
                         ],
                       ),
                     )),
@@ -125,13 +162,13 @@ class _FormScreenState extends State<FormScreen> {
                       Row(
                         children: [
                           CardOption('Perguntas', Icons.help,
-                              onTap: _handleCardOptionTap),
+                              onTap: (name) => _handleCardOptionTap(name)),
                           const SizedBox(width: 8),
                           CardOption('Sons', Icons.volume_up,
-                              onTap: _handleCardOptionTap),
+                              onTap: (name) => _handleCardOptionTap(name)),
                           const SizedBox(width: 8),
                           CardOption('Dados', Icons.data_usage,
-                              onTap: _handleCardOptionTap),
+                              onTap: (name) => _handleCardOptionTap(name)),
                         ],
                       ),
                     ],
@@ -141,7 +178,7 @@ class _FormScreenState extends State<FormScreen> {
                       Row(
                         children: [
                           CardOption('Jogos', Icons.games,
-                              onTap: _handleCardOptionTap),
+                              onTap: (name) => _handleCardOptionTap(name)),
                         ],
                       ),
                     ],
@@ -149,7 +186,15 @@ class _FormScreenState extends State<FormScreen> {
                       ListData<GameComponent>(
                         questionChangeNotifier: questionChangeNotifier,
                         getItems: () => GameDao().getAll(),
-                        buildItem: (item) => item,
+                        buildItem: (item) {
+                          return GestureDetector(
+                            onTap: () {
+                              _addElementToAvaliarComportamento(
+                                  'games', item.id);
+                            },
+                            child: item,
+                          );
+                        },
                       ),
                     ],
                     if (_name == 'Sons') ...[
@@ -162,12 +207,19 @@ class _FormScreenState extends State<FormScreen> {
                       ListData<Question>(
                         questionChangeNotifier: questionChangeNotifier,
                         getItems: () => QuestionDao().getAll(),
-                        buildItem: (item) => item,
+                        buildItem: (item) {
+                          return GestureDetector(
+                            onTap: () {
+                              _addElementToAnaliseInfo('questions', item.id);
+                            },
+                            child: item,
+                          );
+                        },
                         navigateTo: (context) => QuestionCreateScreen(
                           questionChangeNotifier: questionChangeNotifier,
                         ),
                         buttonText: 'Adicionar pergunta',
-                      )
+                      ),
                     ],
                     ElevatedButton(
                       onPressed: _createForm,

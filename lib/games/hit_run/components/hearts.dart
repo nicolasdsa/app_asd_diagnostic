@@ -24,7 +24,9 @@ class Hearts extends PositionComponent with HasGameRef<HitRun> {
     hearts -= 1;
     heartsText.text = 'Hearts: $hearts';
     if (hearts <= 0) {
+      print('JSON data when lives reach zero: ${gameRef.stats.toJson()}');
       gameRef.level.resetGame(); // Reset the game when lives reach zero
+      gameRef.stats.endGame();
     }
   }
 

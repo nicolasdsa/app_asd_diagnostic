@@ -21,6 +21,7 @@ class ShapeForm extends SpriteAnimationGroupComponent
   Level level;
   bool isTap;
   bool isButton;
+  DateTime lastTapTime;
 
   ShapeForm({
     super.position,
@@ -29,7 +30,7 @@ class ShapeForm extends SpriteAnimationGroupComponent
     required this.level,
     required this.isTap,
     required this.isButton,
-  }) {
+  }) : lastTapTime = DateTime.now() {
     _adjustRandomAngle();
   }
 
@@ -184,12 +185,26 @@ class ShapeForm extends SpriteAnimationGroupComponent
       return;
     }
 
+    print(
+        'Checking conditions: spawnedShapeType=${level.spawnedShapeType}, form=$form, selectedShape=${level.selectedShape?.form}');
+
     if (level.spawnedShapeType == form && level.selectedShape?.form == form) {
+      print('Condition met for recording reaction time'); // For debugging
+      DateTime now = DateTime.now();
+      if (lastTapTime != null) {
+        double reactionTime =
+            now.difference(lastTapTime).inMilliseconds / 1000.0;
+        print('Reaction Time: $reactionTime'); // For debugging
+        gameRef.stats.recordReactionTime(reactionTime);
+      }
+      lastTapTime = now;
+
       level.spawnRandomShapeType();
       removeFromParent();
       level.timer?.resetTimer(); // Reset the timer
       level.points?.increasePoints();
     } else {
+      print('Incorrect shape tapped, decreasing hearts');
       level.hearts?.decreaseHearts(); // Decrease hearts if condition is false
     }
   }
