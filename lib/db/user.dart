@@ -34,20 +34,16 @@ class UserDao {
       whereArgs: [username],
     );
 
-    final List<Map<String, dynamic>> result = await db.query(_tableName);
-
-    print(result);
-
     if (rows.isEmpty) {
-      return false; // User not found
+      return false;
     }
 
     final storedPassword = rows.first['password'] as String;
     if (isValid(storedPassword, password)) {
-      return true; // Login successful
-    } else {
-      return false; // Invalid password
+      return true;
     }
+
+    return false;
   }
 
   Crypt _hashPassword(String password) {

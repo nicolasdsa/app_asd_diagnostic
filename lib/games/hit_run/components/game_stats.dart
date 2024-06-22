@@ -10,22 +10,17 @@ class GameStats {
   void startGame() {
     gameStartTime = DateTime.now();
     totalGames += 1;
-    print('Game started: $gameStartTime'); // For debugging
   }
 
   void endGame() {
     if (gameStartTime != null) {
       totalGameTime += DateTime.now().difference(gameStartTime!).inSeconds;
       gameStartTime = null;
-      print(
-          'Game ended. Total game time: $totalGameTime seconds'); // For debugging
     }
   }
 
   void recordReactionTime(double reactionTime) {
-    print('Recording reaction time: $reactionTime'); // For debugging
     reactionTimes.add(reactionTime);
-    print('Reaction times list: $reactionTimes'); // For debugging
   }
 
   double get averageReactionTime => reactionTimes.isEmpty

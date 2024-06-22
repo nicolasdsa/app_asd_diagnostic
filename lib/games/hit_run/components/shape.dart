@@ -181,31 +181,22 @@ class ShapeForm extends SpriteAnimationGroupComponent
 
     if (isButton) {
       level.selectedShape = this;
-      print('Shape Selected: $form'); // For debugging
+      print('Shape Selected: $form');
       return;
     }
 
-    print(
-        'Checking conditions: spawnedShapeType=${level.spawnedShapeType}, form=$form, selectedShape=${level.selectedShape?.form}');
-
     if (level.spawnedShapeType == form && level.selectedShape?.form == form) {
-      print('Condition met for recording reaction time'); // For debugging
       DateTime now = DateTime.now();
-      if (lastTapTime != null) {
-        double reactionTime =
-            now.difference(lastTapTime).inMilliseconds / 1000.0;
-        print('Reaction Time: $reactionTime'); // For debugging
-        gameRef.stats.recordReactionTime(reactionTime);
-      }
+      double reactionTime = now.difference(lastTapTime).inMilliseconds / 1000.0;
+      gameRef.stats.recordReactionTime(reactionTime);
       lastTapTime = now;
 
       level.spawnRandomShapeType();
       removeFromParent();
-      level.timer?.resetTimer(); // Reset the timer
+      level.timer?.resetTimer();
       level.points?.increasePoints();
     } else {
-      print('Incorrect shape tapped, decreasing hearts');
-      level.hearts?.decreaseHearts(); // Decrease hearts if condition is false
+      level.hearts?.decreaseHearts();
     }
   }
 }

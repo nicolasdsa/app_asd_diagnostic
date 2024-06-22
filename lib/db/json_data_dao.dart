@@ -14,6 +14,12 @@ class JsonDataDao {
 
   Future<int> insertJson(Map<String, dynamic> json) async {
     final db = await dbHelper.database;
+    print(json);
     return await db.insert('json_data', json);
+  }
+
+  Future<List<Map<String, dynamic>>> getAllJsonData() async {
+    final db = await dbHelper.database;
+    return await db.query(_tableName);
   }
 }

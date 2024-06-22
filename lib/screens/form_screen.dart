@@ -13,6 +13,7 @@ import 'package:app_asd_diagnostic/screens/components/card_option.dart';
 import 'package:app_asd_diagnostic/screens/components/game.dart';
 import 'package:app_asd_diagnostic/screens/components/list_data.dart';
 import 'package:app_asd_diagnostic/screens/questions_create_screen.dart';
+import 'package:app_asd_diagnostic/db/json_data_dao.dart';
 
 class FormScreen extends StatefulWidget {
   final ValueNotifier<int> formChangeNotifier;
@@ -26,6 +27,7 @@ class FormScreen extends StatefulWidget {
 class _FormScreenState extends State<FormScreen> {
   late ValueNotifier<int> questionChangeNotifier;
   final Set<GameComponent> _selectedGames = Set<GameComponent>();
+  final Set<int> _selectedDataIds = Set<int>();
 
   @override
   void initState() {
@@ -37,12 +39,13 @@ class _FormScreenState extends State<FormScreen> {
   final _formDao = HashAccessDao();
   final _patientDao = PatientDao();
   final _typeFormDao = TypeFormDao();
+  final _jsonDataDao = JsonDataDao();
   List<Map<String, dynamic>> _typeFormElements = [];
 
   String _name = '';
   String _selectedName = '';
   String _selectedTypeForm = '';
-  String _selectedPatientId = ''; // Add this line
+  String _selectedPatientId = '';
 
   List<List<dynamic>> _analiseInfoElements = [];
   List<List<dynamic>> _avaliarComportamentoElements = [];
@@ -88,6 +91,18 @@ class _FormScreenState extends State<FormScreen> {
         _avaliarComportamentoElements.add(newElement);
         print(
             'Novo elemento adicionado em _avaliarComportamentoElements: $_avaliarComportamentoElements');
+      }
+    });
+  }
+
+  void _addElementToJsonData(int id) {
+    setState(() {
+      if (_selectedDataIds.contains(id)) {
+        _selectedDataIds.remove(id);
+        print('ID removido de _selectedDataIds: $_selectedDataIds');
+      } else {
+        _selectedDataIds.add(id);
+        print('Novo ID adicionado em _selectedDataIds: $_selectedDataIds');
       }
     });
   }
@@ -201,7 +216,26 @@ class _FormScreenState extends State<FormScreen> {
                       // Code for displaying sounds
                     ],
                     if (_name == 'Dados') ...[
-                      // Code for displaying data
+                      ListData<Map<String, dynamic>>(
+                        questionChangeNotifier: questionChangeNotifier,
+                        getItems: () => _jsonDataDao.getAllJsonData(),
+                        buildItem: (item) {
+                          final formattedData = item.entries
+                              .map((e) => '${e.key}: ${e.value}')
+                              .join('\n');
+                          return GestureDetector(
+                            onTap: () {
+                              _addElementToJsonData(item['id']);
+                            },
+                            child: Card(
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Text(formattedData),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ],
                     if (_name == 'Perguntas') ...[
                       ListData<Question>(
