@@ -241,7 +241,6 @@ class Level extends World with HasGameRef<HitRun> {
   void handleTimerEnd() {
     hearts?.decreaseHearts();
     timer?.resetTimer();
-    gameRef.resetGame();
   }
 
   void resetGame() {

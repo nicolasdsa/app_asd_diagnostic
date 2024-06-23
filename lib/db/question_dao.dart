@@ -55,9 +55,28 @@ class QuestionDao {
             await AnswerOptionsDao().getOptionsForQuestion(linha[_id]);
       }
       final Question question = Question(
-          linha[_id], linha[_question], nameTypeQuestion, answerOptions);
+          linha[_id], linha[_question], nameTypeQuestion, answerOptions, false);
       questions.add(question);
     }
     return questions;
+  }
+
+  Future<Question> getOne(int id) async {
+    final db = await dbHelper.database;
+    final List<Map<String, dynamic>> result = await db.query(
+      _tableName,
+      where: 'id LIKE ?',
+      whereArgs: ['%$id%'],
+    );
+    final nameTypeQuestion =
+        await TypeQuestionDao().getTypeQuestionName(result[0][_idType]);
+    List<String>? answerOptions;
+    if (result[0][_idType] == 2) {
+      answerOptions =
+          await AnswerOptionsDao().getOptionsForQuestion(result[0][_id]);
+    }
+    final Question question = Question(result[0][_id], result[0][_question],
+        nameTypeQuestion, answerOptions, true);
+    return question;
   }
 }

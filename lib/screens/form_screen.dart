@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:app_asd_diagnostic/db/hash_access_dao.dart';
+import 'package:app_asd_diagnostic/screens/components/json_data.dart';
 import 'package:app_asd_diagnostic/screens/components/question.dart';
+import 'package:app_asd_diagnostic/screens/display_elements_screen.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +29,6 @@ class FormScreen extends StatefulWidget {
 class _FormScreenState extends State<FormScreen> {
   late ValueNotifier<int> questionChangeNotifier;
   final Set<GameComponent> _selectedGames = Set<GameComponent>();
-  final Set<int> _selectedDataIds = Set<int>();
 
   @override
   void initState() {
@@ -91,18 +92,6 @@ class _FormScreenState extends State<FormScreen> {
         _avaliarComportamentoElements.add(newElement);
         print(
             'Novo elemento adicionado em _avaliarComportamentoElements: $_avaliarComportamentoElements');
-      }
-    });
-  }
-
-  void _addElementToJsonData(int id) {
-    setState(() {
-      if (_selectedDataIds.contains(id)) {
-        _selectedDataIds.remove(id);
-        print('ID removido de _selectedDataIds: $_selectedDataIds');
-      } else {
-        _selectedDataIds.add(id);
-        print('Novo ID adicionado em _selectedDataIds: $_selectedDataIds');
       }
     });
   }
@@ -216,23 +205,15 @@ class _FormScreenState extends State<FormScreen> {
                       // Code for displaying sounds
                     ],
                     if (_name == 'Dados') ...[
-                      ListData<Map<String, dynamic>>(
+                      ListData<JsonData>(
                         questionChangeNotifier: questionChangeNotifier,
-                        getItems: () => _jsonDataDao.getAllJsonData(),
+                        getItems: () => _jsonDataDao.getAll(),
                         buildItem: (item) {
-                          final formattedData = item.entries
-                              .map((e) => '${e.key}: ${e.value}')
-                              .join('\n');
                           return GestureDetector(
                             onTap: () {
-                              _addElementToJsonData(item['id']);
+                              _addElementToAnaliseInfo('json_data', item.id);
                             },
-                            child: Card(
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Text(formattedData),
-                              ),
-                            ),
+                            child: item,
                           );
                         },
                       ),
@@ -256,8 +237,17 @@ class _FormScreenState extends State<FormScreen> {
                       ),
                     ],
                     ElevatedButton(
-                      onPressed: _createForm,
-                      child: const Text('Criar formulário'),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DisplayElementsScreen(
+                              elements: _analiseInfoElements,
+                            ),
+                          ),
+                        );
+                      },
+                      child: const Text('Ver Elementos Analisados'),
                     ),
                   ],
                 ),
@@ -267,29 +257,5 @@ class _FormScreenState extends State<FormScreen> {
         ),
       ),
     );
-  }
-
-  String _generateAccessHash(String patientId, List<String> gameLinks) {
-    final data = json.encode({'patientId': patientId, 'gameLinks': gameLinks});
-    return sha256.convert(utf8.encode(data)).toString();
-  }
-
-  void _createForm() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      final patientId = _selectedPatientId; // Use _selectedPatientId here
-      final gameLinks = _selectedGames.map((game) => game.link).toList();
-      print(gameLinks);
-      final accessHash = _generateAccessHash(patientId, gameLinks);
-      print(accessHash);
-      _formDao.insertForm({
-        'id_patient': patientId,
-        'accessHash': accessHash,
-        'gameLinks':
-            json.encode(gameLinks), // Salve os links dos jogos como JSON
-      });
-      widget.formChangeNotifier.value++;
-      Navigator.pushReplacementNamed(context, '/');
-    }
   }
 }
