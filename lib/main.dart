@@ -17,7 +17,7 @@ void main() async {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      initialRoute: '/hitRun',
+      initialRoute: '/login',
       routes: {
         '/initialLogin': (context) => InitialScreen(),
         '/': (context) => TestScreen(),

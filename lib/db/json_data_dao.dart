@@ -15,7 +15,8 @@ class JsonDataDao {
   Future<int> insertJson(Map<String, dynamic> json) async {
     final db = await dbHelper.database;
     print(json);
-    return await db.insert('json_data', json);
+    return await db
+        .insert('json_data', {"json": json.toString(), "id_patient": 1});
   }
 
   Future<List<Map<String, dynamic>>> getAllJsonData() async {

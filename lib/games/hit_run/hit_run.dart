@@ -12,9 +12,9 @@ class HitRun extends FlameGame with TapCallbacks, HasCollisionDetection {
   List<String> levelNames = ['sem título.tmx'];
   int currentLevelIndex = 0;
   late CameraComponent cam;
-  late Level _level; // Adiciona a propriedade _level
+  late Level _level; // Atributo privado
 
-  Level get level => _level; // Adiciona o getter para level
+  Level get level => _level;
 
   @override
   FutureOr<void> onLoad() async {
@@ -25,12 +25,14 @@ class HitRun extends FlameGame with TapCallbacks, HasCollisionDetection {
   }
 
   void resetGame() {
+    saveGameStats();
     stats.endGame();
     stats.startGame();
   }
 
   @override
   void onRemove() {
+    print('alo TA SAINDO');
     saveGameStats();
     super.onRemove();
   }

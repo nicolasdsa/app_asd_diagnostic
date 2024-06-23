@@ -7,7 +7,11 @@ class Hearts extends PositionComponent with HasGameRef<HitRun> {
   late TextComponent heartsText;
   int hearts = 3;
 
-  Hearts({super.position}) {
+  Hearts({super.position});
+
+  @override
+  Future<void> onLoad() async {
+    super.onLoad();
     heartsText = TextComponent(
       text: 'Hearts: $hearts',
       textRenderer: TextPaint(
@@ -25,7 +29,7 @@ class Hearts extends PositionComponent with HasGameRef<HitRun> {
     heartsText.text = 'Hearts: $hearts';
     if (hearts <= 0) {
       print('JSON data when lives reach zero: ${gameRef.stats.toJson()}');
-      gameRef.level.resetGame(); // Reset the game when lives reach zero
+      gameRef.resetGame(); // Reset the game when lives reach zero
       gameRef.stats.endGame();
     }
   }
