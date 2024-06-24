@@ -1,4 +1,3 @@
-// display_elements_screen.dart
 import 'package:app_asd_diagnostic/db/json_data_dao.dart';
 import 'package:app_asd_diagnostic/db/question_dao.dart';
 import 'package:flutter/material.dart';
@@ -38,11 +37,11 @@ class DisplayElementsScreen extends StatelessWidget {
           builder:
               (BuildContext context, AsyncSnapshot<List<Widget>> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
+              return const Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Center(child: Text('No data available'));
+              return const Center(child: Text('Nenhum dado adicionado'));
             } else {
               return Column(
                 children: snapshot.data!,

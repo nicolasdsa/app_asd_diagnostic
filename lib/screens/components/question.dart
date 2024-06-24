@@ -39,8 +39,8 @@ class _QuestionState extends State<Question> {
                 if (widget.isSelectable && widget.answerOptions == null)
                   TextFormField(
                     controller: _textController,
-                    decoration: InputDecoration(
-                      labelText: 'Enter text',
+                    decoration: const InputDecoration(
+                      labelText: 'Resposta',
                     ),
                   ),
                 if (widget.answerOptions != null)

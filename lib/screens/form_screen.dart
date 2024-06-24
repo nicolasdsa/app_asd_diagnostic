@@ -37,7 +37,6 @@ class _FormScreenState extends State<FormScreen> {
   }
 
   final _formKey = GlobalKey<FormState>();
-  final _formDao = HashAccessDao();
   final _patientDao = PatientDao();
   final _typeFormDao = TypeFormDao();
   final _jsonDataDao = JsonDataDao();
