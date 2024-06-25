@@ -32,11 +32,10 @@ class GameStats {
 
   Map<String, dynamic> toJson() {
     return {
-      'average_reaction_time': averageReactionTime,
-      'total_session_time':
-          DateTime.now().difference(sessionStartTime).inSeconds,
-      'average_game_time': averageGameTime,
-      'total_games': totalGames,
+      'Tempo de reação médio': averageReactionTime,
+      'Tempo de jogo': DateTime.now().difference(sessionStartTime).inSeconds,
+      'Tempo de jogo médio': averageGameTime,
+      'Total de jogos': totalGames,
     };
   }
 }

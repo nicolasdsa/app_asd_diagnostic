@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:app_asd_diagnostic/db/hash_access_dao.dart';
 import 'package:app_asd_diagnostic/screens/components/json_data.dart';
+import 'package:app_asd_diagnostic/screens/components/json_data_chart.dart';
 import 'package:app_asd_diagnostic/screens/components/question.dart';
 import 'package:app_asd_diagnostic/screens/display_elements_screen.dart';
 import 'package:crypto/crypto.dart';
@@ -62,9 +63,16 @@ class _FormScreenState extends State<FormScreen> {
     });
   }
 
-  void _addElementToAnaliseInfo(String tableName, int id) {
+  void _addElementToAnaliseInfo(String tableName, dynamic id) {
     final newElement = [tableName, id];
     setState(() {
+      if (tableName == 'json_data') {
+        _analiseInfoElements
+            .removeWhere((element) => element[0] == 'json_data');
+        print(
+            'Elemento com tableName json_data removido: $_analiseInfoElements');
+      }
+
       if (_analiseInfoElements
           .any((element) => listEquals(element, newElement))) {
         _analiseInfoElements.removeWhere((element) => element[1] == id);
@@ -204,18 +212,12 @@ class _FormScreenState extends State<FormScreen> {
                       // Code for displaying sounds
                     ],
                     if (_name == 'Dados') ...[
-                      ListData<JsonData>(
-                        questionChangeNotifier: questionChangeNotifier,
-                        getItems: () => _jsonDataDao.getAll(),
-                        buildItem: (item) {
-                          return GestureDetector(
-                            onTap: () {
-                              _addElementToAnaliseInfo('json_data', item.id);
-                            },
-                            child: item,
-                          );
-                        },
-                      ),
+                      GestureDetector(
+                          onTap: () {
+                            _addElementToAnaliseInfo(
+                                'json_data', CombinedLineChart());
+                          },
+                          child: CombinedLineChart()),
                     ],
                     if (_name == 'Perguntas') ...[
                       ListData<Question>(

@@ -1,5 +1,6 @@
 import 'package:app_asd_diagnostic/db/json_data_dao.dart';
 import 'package:app_asd_diagnostic/db/question_dao.dart';
+import 'package:app_asd_diagnostic/screens/components/json_data_chart.dart';
 import 'package:flutter/material.dart';
 
 class DisplayElementsScreen extends StatelessWidget {
@@ -12,8 +13,7 @@ class DisplayElementsScreen extends StatelessWidget {
 
     for (List<dynamic> element in elements) {
       if (element.isNotEmpty && element[0] == 'json_data') {
-        final jsonDataDao = JsonDataDao();
-        final jsonData = await jsonDataDao.getOne(element[1]);
+        final jsonData = CombinedLineChart();
         _avaliarComportamentoElements.add(jsonData);
       } else if (element.isNotEmpty && element[0] == 'questions') {
         final questionDao = QuestionDao();
@@ -43,8 +43,10 @@ class DisplayElementsScreen extends StatelessWidget {
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
               return const Center(child: Text('Nenhum dado adicionado'));
             } else {
-              return Column(
-                children: snapshot.data!,
+              return SingleChildScrollView(
+                child: Column(
+                  children: snapshot.data!,
+                ),
               );
             }
           },

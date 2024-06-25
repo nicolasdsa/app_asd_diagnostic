@@ -20,7 +20,18 @@ class JsonDataDao {
   Future<int> insertJson(Map<String, dynamic> json) async {
     final db = await dbHelper.database;
     final jsonInsert = jsonEncode(json);
-    return await db.insert('json_data', {"json": jsonInsert, "id_patient": 1});
+    final DateTime now = DateTime.now();
+    final DateTime twoDaysAgo = now;
+
+    final String createdAt = twoDaysAgo.toIso8601String();
+    final String updatedAt = now.toIso8601String();
+
+    return await db.insert('json_data', {
+      "json": jsonInsert,
+      "id_patient": 1,
+      'created_at': createdAt,
+      'updated_at': updatedAt
+    });
   }
 
   Future<List<JsonData>> getAll() async {
@@ -28,6 +39,32 @@ class JsonDataDao {
     final List<Map<String, dynamic>> result = await db.query(_tableName);
     List<JsonData> data = await toList(result);
     return data;
+  }
+
+  Future<List<List<dynamic>>> getAllJsonData() async {
+    final db = await dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(_tableName);
+
+    Map<String, List<List<dynamic>>> groupedData = {};
+
+    for (var map in maps) {
+      Map<String, dynamic> jsonDecoded = jsonDecode(map[_json]);
+      String createdAt = map['created_at'].toString();
+
+      jsonDecoded.forEach((key, value) {
+        if (!groupedData.containsKey(key)) {
+          groupedData[key] = [];
+        }
+        groupedData[key]!.add([value.toString(), createdAt]);
+      });
+    }
+
+    List<List<dynamic>> result = [];
+    groupedData.forEach((key, values) {
+      result.add([key, values]);
+    });
+
+    return result;
   }
 
   Future<List<JsonData>> toList(List<Map<String, dynamic>> dataAll) async {
