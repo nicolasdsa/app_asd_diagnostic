@@ -1,13 +1,8 @@
-import 'dart:convert';
-import 'package:app_asd_diagnostic/db/hash_access_dao.dart';
-import 'package:app_asd_diagnostic/screens/components/json_data.dart';
 import 'package:app_asd_diagnostic/screens/components/json_data_chart.dart';
 import 'package:app_asd_diagnostic/screens/components/question.dart';
 import 'package:app_asd_diagnostic/screens/display_elements_screen.dart';
-import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:app_asd_diagnostic/db/form_dao.dart';
 import 'package:app_asd_diagnostic/db/game_dao.dart';
 import 'package:app_asd_diagnostic/db/patient_dao.dart';
 import 'package:app_asd_diagnostic/db/question_dao.dart';

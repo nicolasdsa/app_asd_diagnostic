@@ -1,4 +1,3 @@
-import 'package:app_asd_diagnostic/db/json_data_dao.dart';
 import 'package:app_asd_diagnostic/db/question_dao.dart';
 import 'package:app_asd_diagnostic/screens/components/json_data_chart.dart';
 import 'package:flutter/material.dart';
