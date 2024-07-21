@@ -12,7 +12,7 @@ class HashAccessDao {
 
   final dbHelper = DatabaseHelper.instance;
 
-  Future<int> insertForm(Map<String, dynamic> hash) async {
+  Future<int> insert(Map<String, dynamic> hash) async {
     final db = await dbHelper.database;
     return await db.insert('hash_access', hash);
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ListData<T> extends StatefulWidget {
-  final ValueNotifier questionChangeNotifier;
+  final ValueNotifier<int>? questionChangeNotifier;
   final Future<List<T>> Function() getItems;
   final Widget Function(T item) buildItem;
   final Widget Function(BuildContext context)? navigateTo;
@@ -10,7 +10,7 @@ class ListData<T> extends StatefulWidget {
 
   const ListData({
     Key? key,
-    required this.questionChangeNotifier,
+    this.questionChangeNotifier,
     required this.getItems,
     required this.buildItem,
     this.navigateTo,
@@ -27,26 +27,15 @@ class _ListDataState<T> extends State<ListData<T>> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        ValueListenableBuilder(
-          valueListenable: widget.questionChangeNotifier,
-          builder: (context, value, child) {
-            return FutureBuilder<List<T>>(
-              future: widget.getItems(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else {
-                  final items = snapshot.data;
-                  return Column(
-                    children: items?.map(widget.buildItem).toList() ?? [],
-                  );
-                }
-              },
-            );
-          },
-        ),
+        if (widget.questionChangeNotifier != null)
+          ValueListenableBuilder(
+            valueListenable: widget.questionChangeNotifier!,
+            builder: (context, value, child) {
+              return _buildList();
+            },
+          )
+        else
+          _buildList(),
         if (widget.navigateTo != null && widget.buttonText != null)
           ElevatedButton(
             onPressed: () {
@@ -58,6 +47,24 @@ class _ListDataState<T> extends State<ListData<T>> {
             child: Text(widget.buttonText!),
           ),
       ],
+    );
+  }
+
+  Widget _buildList() {
+    return FutureBuilder<List<T>>(
+      future: widget.getItems(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          final items = snapshot.data;
+          return Column(
+            children: items?.map(widget.buildItem).toList() ?? [],
+          );
+        }
+      },
     );
   }
 }

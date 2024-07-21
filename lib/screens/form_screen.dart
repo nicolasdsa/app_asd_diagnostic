@@ -1,8 +1,10 @@
+import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:app_asd_diagnostic/screens/components/json_data_chart.dart';
 import 'package:app_asd_diagnostic/screens/components/question.dart';
 import 'package:app_asd_diagnostic/screens/display_elements_screen.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:app_asd_diagnostic/db/game_dao.dart';
 import 'package:app_asd_diagnostic/db/patient_dao.dart';
 import 'package:app_asd_diagnostic/db/question_dao.dart';
@@ -12,6 +14,7 @@ import 'package:app_asd_diagnostic/screens/components/game.dart';
 import 'package:app_asd_diagnostic/screens/components/list_data.dart';
 import 'package:app_asd_diagnostic/screens/questions_create_screen.dart';
 import 'package:app_asd_diagnostic/db/json_data_dao.dart';
+import 'package:app_asd_diagnostic/db/hash_access_dao.dart';
 
 class FormScreen extends StatefulWidget {
   final ValueNotifier<int> formChangeNotifier;
@@ -25,17 +28,11 @@ class FormScreen extends StatefulWidget {
 class _FormScreenState extends State<FormScreen> {
   late ValueNotifier<int> questionChangeNotifier;
   final Set<GameComponent> _selectedGames = Set<GameComponent>();
-
-  @override
-  void initState() {
-    super.initState();
-    questionChangeNotifier = ValueNotifier(0);
-  }
-
   final _formKey = GlobalKey<FormState>();
   final _patientDao = PatientDao();
   final _typeFormDao = TypeFormDao();
   final _jsonDataDao = JsonDataDao();
+  final _hashAccessDao = HashAccessDao();
   List<Map<String, dynamic>> _typeFormElements = [];
 
   String _name = '';
@@ -45,6 +42,12 @@ class _FormScreenState extends State<FormScreen> {
 
   List<List<dynamic>> _analiseInfoElements = [];
   List<List<dynamic>> _avaliarComportamentoElements = [];
+
+  @override
+  void initState() {
+    super.initState();
+    questionChangeNotifier = ValueNotifier(0);
+  }
 
   void _handleCardOptionTap(String name) {
     setState(() {
@@ -98,6 +101,37 @@ class _FormScreenState extends State<FormScreen> {
     });
   }
 
+  Future<void> _createSession() async {
+    // Pega o ID do paciente
+    final patientId = _selectedPatientId;
+    // Pega os IDs dos jogos
+    final gameIds =
+        _avaliarComportamentoElements.map((element) => element[1]).join(',');
+
+    // Cria o hash
+    final hashInput = '$patientId-$gameIds';
+    final bytes = utf8.encode(hashInput);
+    final hash = sha256.convert(bytes).toString();
+
+    // Imprime o hash no console
+    print('Hash gerado: $hash');
+
+    // Salva no banco de dados
+    final hashAccess = {
+      'id_patient': patientId,
+      'accessHash': hash,
+      'gameLinks': gameIds,
+    };
+    await _hashAccessDao.insert(hashAccess);
+
+    // Mostra uma mensagem de sucesso
+    setState(() {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Sessão criada com sucesso! Hash: $hash')),
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -140,23 +174,24 @@ class _FormScreenState extends State<FormScreen> {
               ),
               if (_selectedName.isNotEmpty && _typeFormElements.isNotEmpty) ...[
                 AnimatedOpacity(
-                    opacity: _typeFormElements.isEmpty ? 0.0 : 1.0,
-                    duration: const Duration(seconds: 3),
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 20.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          CardOption(
-                              _typeFormElements[0]['name'], Icons.analytics,
-                              onTap: (name) => _handleTypeFormTap(name)),
-                          const SizedBox(width: 8),
-                          CardOption(
-                              _typeFormElements[1]['name'], Icons.psychology,
-                              onTap: (name) => _handleTypeFormTap(name))
-                        ],
-                      ),
-                    )),
+                  opacity: _typeFormElements.isEmpty ? 0.0 : 1.0,
+                  duration: const Duration(seconds: 3),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 20.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        CardOption(
+                            _typeFormElements[0]['name'], Icons.analytics,
+                            onTap: (name) => _handleTypeFormTap(name)),
+                        const SizedBox(width: 8),
+                        CardOption(
+                            _typeFormElements[1]['name'], Icons.psychology,
+                            onTap: (name) => _handleTypeFormTap(name))
+                      ],
+                    ),
+                  ),
+                ),
               ],
               Form(
                 key: _formKey,
@@ -190,7 +225,7 @@ class _FormScreenState extends State<FormScreen> {
                     ],
                     if (_name == 'Jogos') ...[
                       ListData<GameComponent>(
-                        questionChangeNotifier: questionChangeNotifier,
+                        questionChangeNotifier: null,
                         getItems: () => GameDao().getAll(),
                         buildItem: (item) {
                           return GestureDetector(
@@ -204,7 +239,7 @@ class _FormScreenState extends State<FormScreen> {
                       ),
                     ],
                     if (_name == 'Sons') ...[
-                      // Code for displaying sounds
+                      // Código para exibir sons
                     ],
                     if (_name == 'Dados') ...[
                       GestureDetector(
@@ -232,19 +267,27 @@ class _FormScreenState extends State<FormScreen> {
                         buttonText: 'Adicionar pergunta',
                       ),
                     ],
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DisplayElementsScreen(
-                              elements: _analiseInfoElements,
+                    if (_selectedTypeForm == 'Analise de informações') ...[
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => DisplayElementsScreen(
+                                elements: _analiseInfoElements,
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                      child: const Text('Ver Elementos Analisados'),
-                    ),
+                          );
+                        },
+                        child: const Text('Ver Elementos Analisados'),
+                      ),
+                    ] else if (_selectedTypeForm ==
+                        'Avaliar Comportamento') ...[
+                      ElevatedButton(
+                        onPressed: _createSession,
+                        child: const Text('Criar Sessão'),
+                      ),
+                    ],
                   ],
                 ),
               ),
