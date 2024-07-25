@@ -120,7 +120,7 @@ class _FormScreenState extends State<FormScreen> {
     final hashAccess = {
       'id_patient': patientId,
       'accessHash': hash,
-      'gameLinks': gameIds,
+      'gameLinks': hashInput,
     };
     await _hashAccessDao.insert(hashAccess);
 

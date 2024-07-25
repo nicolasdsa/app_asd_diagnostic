@@ -20,6 +20,15 @@ class GameDao {
     return games;
   }
 
+  Future<List<Map<String, dynamic>>> getAllHash() async {
+    final db = await dbHelper.database;
+    final List<Map<String, dynamic>> result = await db.query(
+      _tableName,
+      columns: ['id', 'name', 'link'],
+    );
+    return result;
+  }
+
   Future<List<GameComponent>> toList(
       List<Map<String, dynamic>> gamesAll) async {
     final List<GameComponent> games = [];

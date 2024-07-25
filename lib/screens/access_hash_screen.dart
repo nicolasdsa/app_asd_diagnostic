@@ -1,7 +1,9 @@
 import 'dart:convert';
 
-import 'package:app_asd_diagnostic/db/database.dart';
+import 'package:app_asd_diagnostic/screens/hash_data_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:app_asd_diagnostic/db/database.dart';
+import 'package:app_asd_diagnostic/db/game_dao.dart';
 
 class AccessHashScreen extends StatefulWidget {
   @override
@@ -21,11 +23,30 @@ class _AccessHashScreenState extends State<AccessHashScreen> {
     );
 
     if (result.isNotEmpty) {
-      final form = result.first;
-      final gameLinks = json.decode(form['gameLinks']) as List<dynamic>;
+      final hashLinks = result.first;
+      final gameLinks = hashLinks['gameLinks'].split('-');
+      final gamesHash = gameLinks[1].split(',');
+      final idPatient = gameLinks[0];
+
+      // Obtemos os detalhes dos jogos
+      final gameDao = GameDao();
+      final games = await gameDao.getAllHash();
+
+      // Mapeamos os links dos jogos para obter os nomes correspondentes
+      final gameNames = gamesHash.map((id) {
+        try {
+          final game = games.firstWhere((game) => game['id'].toString() == id);
+          return {'name': game['name'], 'link': game['link']};
+        } catch (e) {
+          return {'name': 'Unknown', 'link': ''};
+        }
+      }).toList();
+
+      print(gameNames);
+
       return {
-        'id_patient': form['id_patient'],
-        'gameLinks': gameLinks.cast<String>()
+        'id_patient': idPatient,
+        'games': gameNames,
       };
     } else {
       throw Exception('Hash not found');
@@ -76,35 +97,6 @@ class _AccessHashScreenState extends State<AccessHashScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class HashDataScreen extends StatelessWidget {
-  final Map<String, dynamic> hashData;
-
-  const HashDataScreen({required this.hashData});
-
-  @override
-  Widget build(BuildContext context) {
-    final gameLinks = hashData['gameLinks'] as List<String>;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Dados da Hash'),
-      ),
-      body: ListView.builder(
-        itemCount: gameLinks.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text('Jogo ${index + 1}'),
-            subtitle: Text(gameLinks[index]),
-            onTap: () {
-              Navigator.pushNamed(context, gameLinks[index]);
-            },
-          );
-        },
       ),
     );
   }

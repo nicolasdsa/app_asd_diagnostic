@@ -32,7 +32,6 @@ class HitRun extends FlameGame with TapCallbacks, HasCollisionDetection {
 
   @override
   void onRemove() {
-    print('alo TA SAINDO');
     saveGameStats();
     super.onRemove();
   }
