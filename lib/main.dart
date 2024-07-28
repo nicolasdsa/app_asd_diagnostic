@@ -9,8 +9,6 @@ import 'package:flutter/material.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  HitRun game = HitRun();
-
   runApp(
     MaterialApp(
       title: 'Flutter Demo',
@@ -23,7 +21,17 @@ void main() async {
         '/': (context) => TestScreen(),
         '/login': (context) => LoginScreen(),
         '/register': (context) => RegisterScreen(),
-        '/hitRun': (context) => GameScreen(game: game),
+      },
+      onGenerateRoute: (settings) {
+        if (settings.name == '/hitRun') {
+          final args = settings.arguments as Map<String, String>;
+          final idPatient = args['idPatient']!;
+          final game = HitRun(idPatient: idPatient);
+          return MaterialPageRoute(
+            builder: (context) => GameScreen(game: game),
+          );
+        }
+        return null; // Unknown route
       },
     ),
   );

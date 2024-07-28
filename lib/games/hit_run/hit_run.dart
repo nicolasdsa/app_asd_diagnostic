@@ -8,6 +8,10 @@ import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 
 class HitRun extends FlameGame with TapCallbacks, HasCollisionDetection {
+  final String idPatient;
+
+  HitRun({required this.idPatient});
+
   GameStats stats = GameStats();
   List<String> levelNames = ['sem título.tmx'];
   int currentLevelIndex = 0;
@@ -21,6 +25,7 @@ class HitRun extends FlameGame with TapCallbacks, HasCollisionDetection {
     stats.startGame();
     await images.loadAllImages();
     _loadLevel();
+    print('ID do Paciente: $idPatient'); // Imprime o idPatient
     return super.onLoad();
   }
 
@@ -32,6 +37,7 @@ class HitRun extends FlameGame with TapCallbacks, HasCollisionDetection {
 
   @override
   void onRemove() {
+    print('alo TA SAINDO');
     saveGameStats();
     super.onRemove();
   }

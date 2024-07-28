@@ -15,6 +15,8 @@ class HashDataScreen extends StatelessWidget {
       ),
     );
 
+    final String idPatient = hashData['id_patient'] as String;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Dados da Hash'),
@@ -27,7 +29,11 @@ class HashDataScreen extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, game['link'] ?? '');
+                Navigator.pushNamed(
+                  context,
+                  '/hitRun',
+                  arguments: {'idPatient': idPatient},
+                );
               },
               child: Text(game['name'] ?? 'Jogo ${index + 1}'),
             ),
