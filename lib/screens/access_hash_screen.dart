@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:app_asd_diagnostic/screens/hash_data_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:app_asd_diagnostic/db/database.dart';

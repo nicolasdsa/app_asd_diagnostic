@@ -1,5 +1,7 @@
 import 'package:app_asd_diagnostic/games/hit_run/game.dart';
 import 'package:app_asd_diagnostic/games/hit_run/hit_run.dart';
+import 'package:app_asd_diagnostic/screens/components/my_bottom_navigation_bar.dart';
+import 'package:app_asd_diagnostic/screens/export_screen.dart';
 import 'package:app_asd_diagnostic/screens/initial_screen.dart';
 import 'package:app_asd_diagnostic/screens/login_screen.dart';
 import 'package:app_asd_diagnostic/screens/register_screen.dart';
@@ -15,12 +17,14 @@ void main() async {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      initialRoute: '/login',
+      initialRoute: '/test',
       routes: {
         '/initialLogin': (context) => InitialScreen(),
         '/': (context) => TestScreen(),
         '/login': (context) => LoginScreen(),
         '/register': (context) => RegisterScreen(),
+        '/test': (context) => const MyBottomNavigationBar(),
+        '/export': (context) => const ExportScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/hitRun') {

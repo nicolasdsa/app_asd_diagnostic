@@ -35,18 +35,11 @@ class HitRun extends FlameGame with TapCallbacks, HasCollisionDetection {
     stats.startGame();
   }
 
-  @override
-  void onRemove() {
-    print('alo TA SAINDO');
-    saveGameStats();
-    super.onRemove();
-  }
-
   Future<void> saveGameStats() async {
     Map<String, dynamic> jsonData = stats.toJson();
     print('JSON data before saving: $jsonData');
     JsonDataDao jsonDataDao = JsonDataDao();
-    await jsonDataDao.insertJson(jsonData);
+    await jsonDataDao.insertJson(jsonData, idPatient, 'Hit run');
   }
 
   void _loadLevel() async {

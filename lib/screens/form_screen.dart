@@ -1,25 +1,25 @@
-import 'package:crypto/crypto.dart';
-import 'package:flutter/foundation.dart';
-import 'dart:convert';
+import 'package:app_asd_diagnostic/screens/questions_create_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:app_asd_diagnostic/screens/components/json_data_chart.dart';
-import 'package:app_asd_diagnostic/screens/components/question.dart';
-import 'package:app_asd_diagnostic/screens/display_elements_screen.dart';
-import 'package:app_asd_diagnostic/db/game_dao.dart';
-import 'package:app_asd_diagnostic/db/patient_dao.dart';
-import 'package:app_asd_diagnostic/db/question_dao.dart';
-import 'package:app_asd_diagnostic/db/type_form_dao.dart';
 import 'package:app_asd_diagnostic/screens/components/card_option.dart';
 import 'package:app_asd_diagnostic/screens/components/game.dart';
 import 'package:app_asd_diagnostic/screens/components/list_data.dart';
-import 'package:app_asd_diagnostic/screens/questions_create_screen.dart';
+import 'package:app_asd_diagnostic/screens/components/patient_search_field.dart';
+import 'package:app_asd_diagnostic/db/game_dao.dart';
+import 'package:app_asd_diagnostic/db/question_dao.dart';
+import 'package:app_asd_diagnostic/db/type_form_dao.dart';
 import 'package:app_asd_diagnostic/db/json_data_dao.dart';
 import 'package:app_asd_diagnostic/db/hash_access_dao.dart';
+import 'package:app_asd_diagnostic/screens/components/json_data_chart.dart';
+import 'package:app_asd_diagnostic/screens/components/question.dart';
+import 'package:app_asd_diagnostic/screens/display_elements_screen.dart';
+import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:convert';
 
 class FormScreen extends StatefulWidget {
   final ValueNotifier<int> formChangeNotifier;
 
-  FormScreen({required this.formChangeNotifier});
+  FormScreen({Key? key, required this.formChangeNotifier}) : super(key: key);
 
   @override
   _FormScreenState createState() => _FormScreenState();
@@ -27,16 +27,13 @@ class FormScreen extends StatefulWidget {
 
 class _FormScreenState extends State<FormScreen> {
   late ValueNotifier<int> questionChangeNotifier;
-  final Set<GameComponent> _selectedGames = Set<GameComponent>();
   final _formKey = GlobalKey<FormState>();
-  final _patientDao = PatientDao();
   final _typeFormDao = TypeFormDao();
   final _jsonDataDao = JsonDataDao();
   final _hashAccessDao = HashAccessDao();
   List<Map<String, dynamic>> _typeFormElements = [];
 
   String _name = '';
-  String _selectedName = '';
   String _selectedTypeForm = '';
   String _selectedPatientId = '';
 
@@ -144,25 +141,11 @@ class _FormScreenState extends State<FormScreen> {
           child: ListView(
             shrinkWrap: true,
             children: [
-              Autocomplete<String>(
-                optionsBuilder: (TextEditingValue textEditingValue) async {
-                  if (textEditingValue.text == '') {
-                    return const Iterable<String>.empty();
-                  }
-                  final patients =
-                      await _patientDao.filterByName(textEditingValue.text);
-                  return patients.map((patient) => patient['name'] as String);
-                },
-                onSelected: (String selection) async {
+              PatientSearchField(
+                onPatientSelected: (int patientId) {
                   setState(() {
-                    _selectedName = selection;
-                    _typeFormElements = [];
+                    _selectedPatientId = patientId.toString();
                   });
-                  final patients =
-                      await _patientDao.filterByName(_selectedName);
-                  if (patients.isNotEmpty) {
-                    _selectedPatientId = patients.first['id'].toString();
-                  }
                   _typeFormDao
                       .getAll()
                       .then((List<Map<String, dynamic>> elements) {
@@ -172,7 +155,8 @@ class _FormScreenState extends State<FormScreen> {
                   });
                 },
               ),
-              if (_selectedName.isNotEmpty && _typeFormElements.isNotEmpty) ...[
+              if (_selectedPatientId.isNotEmpty &&
+                  _typeFormElements.isNotEmpty) ...[
                 AnimatedOpacity(
                   opacity: _typeFormElements.isEmpty ? 0.0 : 1.0,
                   duration: const Duration(seconds: 3),
@@ -198,7 +182,7 @@ class _FormScreenState extends State<FormScreen> {
                 child: Column(
                   children: [
                     if (_selectedTypeForm.isNotEmpty &&
-                        _selectedName.isNotEmpty &&
+                        _selectedPatientId.isNotEmpty &&
                         _selectedTypeForm == 'Analise de informações') ...[
                       Row(
                         children: [
@@ -214,7 +198,7 @@ class _FormScreenState extends State<FormScreen> {
                       ),
                     ],
                     if (_selectedTypeForm.isNotEmpty &&
-                        _selectedName.isNotEmpty &&
+                        _selectedPatientId.isNotEmpty &&
                         _selectedTypeForm == 'Avaliar Comportamento') ...[
                       Row(
                         children: [

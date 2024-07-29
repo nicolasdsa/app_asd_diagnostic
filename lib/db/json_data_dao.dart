@@ -7,6 +7,7 @@ class JsonDataDao {
   static const String tableSql = 'CREATE TABLE $_tableName('
       'id INTEGER PRIMARY KEY AUTOINCREMENT, '
       'json TEXT, '
+      'game TEXT, '
       'created_at TIMESTAMP, '
       'updated_at TIMESTAMP, '
       'id_patient INTEGER)';
@@ -17,18 +18,19 @@ class JsonDataDao {
 
   final dbHelper = DatabaseHelper.instance;
 
-  Future<int> insertJson(Map<String, dynamic> json) async {
+  Future<int> insertJson(
+      Map<String, dynamic> json, String idPatient, String game) async {
     final db = await dbHelper.database;
     final jsonInsert = jsonEncode(json);
     final DateTime now = DateTime.now();
-    final DateTime twoDaysAgo = now;
 
-    final String createdAt = twoDaysAgo.toIso8601String();
+    final String createdAt = now.toIso8601String();
     final String updatedAt = now.toIso8601String();
 
     return await db.insert('json_data', {
       "json": jsonInsert,
-      "id_patient": 1,
+      "id_patient": idPatient,
+      "game": game,
       'created_at': createdAt,
       'updated_at': updatedAt
     });
@@ -91,5 +93,34 @@ class JsonDataDao {
         teste.entries.map((e) => '${e.key}: ${e.value}').join('\n');
     final JsonData data = JsonData(id, formattedData);
     return data;
+  }
+
+  Future<List<String>> getUniqueGamesByPatientId(String idPatient) async {
+    final db = await dbHelper.database;
+    // A consulta SQL seleciona a coluna 'game' da tabela, agrupando por 'game'
+    // para garantir que cada jogo seja único para o 'id_patient' fornecido.
+    final List<Map<String, dynamic>> results = await db.rawQuery(
+      'SELECT DISTINCT game FROM $_tableName WHERE id_patient = ? GROUP BY game',
+      [idPatient],
+    );
+
+    // Converte os resultados em uma lista de strings (nomes dos jogos)
+    final List<String> games =
+        results.map((row) => row['game'] as String).toList();
+
+    return games;
+  }
+
+  Future<List<Map<String, dynamic>>> getRowsByPatientIdAndGame(
+      String idPatient, String gameName) async {
+    final db = await dbHelper.database;
+    // Executa a consulta na tabela, filtrando por 'id_patient' e 'game'
+    final List<Map<String, dynamic>> rows = await db.query(
+      _tableName,
+      where: 'id_patient = ? AND game = ?',
+      whereArgs: [idPatient, gameName],
+    );
+
+    return rows;
   }
 }

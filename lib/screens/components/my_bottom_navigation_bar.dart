@@ -1,3 +1,4 @@
+import 'package:app_asd_diagnostic/screens/export_screen.dart';
 import 'package:app_asd_diagnostic/screens/form_screen.dart';
 import 'package:app_asd_diagnostic/screens/home_screen.dart';
 import 'package:app_asd_diagnostic/screens/patients_screen.dart';
@@ -33,8 +34,9 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
   Widget build(BuildContext context) {
     final List<Widget> children = [
       FormScreen(formChangeNotifier: formChangeNotifier),
-      HomeScreen(formChangeNotifier: formChangeNotifier),
-      PatientScreen(patientChangeNotifier: patientChangeNotifier)
+      //HomeScreen(formChangeNotifier: formChangeNotifier),
+      PatientScreen(patientChangeNotifier: patientChangeNotifier),
+      ExportScreen(), // Comente esta linha para teste
     ];
 
     return Scaffold(
@@ -47,13 +49,17 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
               icon: Icon(Icons.home),
               label: 'Tela Inicial',
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.search),
-              label: 'Search',
-            ),
+            //BottomNavigationBarItem(
+            //icon: Icon(Icons.search),
+            //label: 'Search',
+            //),
             BottomNavigationBarItem(
               icon: Icon(Icons.person),
               label: 'Pacientes',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.analytics),
+              label: 'Dados',
             ),
           ],
         ));
