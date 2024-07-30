@@ -43,30 +43,37 @@ class JsonDataDao {
     return data;
   }
 
-  Future<List<List<dynamic>>> getAllJsonData() async {
+  Future<Map<String, List<List<dynamic>>>> getAllJsonDataGroupedByGame(
+      int idPatient) async {
     final db = await dbHelper.database;
-    final List<Map<String, dynamic>> maps = await db.query(_tableName);
 
-    Map<String, List<List<dynamic>>> groupedData = {};
+    final List<Map<String, dynamic>> rows = await db.query(
+      _tableName,
+      where: 'id_patient = ?',
+      whereArgs: [idPatient],
+    );
 
-    for (var map in maps) {
+    Map<String, Map<String, List<List<dynamic>>>> groupedData = {};
+
+    for (var map in rows) {
       Map<String, dynamic> jsonDecoded = jsonDecode(map[_json]);
       String createdAt = map['created_at'].toString();
+      String game = map['game'];
+
+      if (!groupedData.containsKey(game)) {
+        groupedData[game] = {};
+      }
 
       jsonDecoded.forEach((key, value) {
-        if (!groupedData.containsKey(key)) {
-          groupedData[key] = [];
+        if (!groupedData[game]!.containsKey(key)) {
+          groupedData[game]![key] = [];
         }
-        groupedData[key]!.add([value.toString(), createdAt]);
+        groupedData[game]![key]!.add([value.toString(), createdAt]);
       });
     }
 
-    List<List<dynamic>> result = [];
-    groupedData.forEach((key, values) {
-      result.add([key, values]);
-    });
-
-    return result;
+    return groupedData.map((key, value) =>
+        MapEntry(key, value.entries.map((e) => [e.key, e.value]).toList()));
   }
 
   Future<List<JsonData>> toList(List<Map<String, dynamic>> dataAll) async {

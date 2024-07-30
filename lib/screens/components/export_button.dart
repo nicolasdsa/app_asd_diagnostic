@@ -9,12 +9,12 @@ class ExportButton extends StatelessWidget {
   final int patientId;
   final String game;
 
-  ExportButton({required this.patientId, required this.game});
+  const ExportButton({super.key, required this.patientId, required this.game});
 
   Future<void> _exportToExcel() async {
-    final JsonDataDao _jsonDataDao = JsonDataDao();
-    List<Map<String, dynamic>> filteredData = await _jsonDataDao
-        .getRowsByPatientIdAndGame(patientId.toString(), game);
+    final JsonDataDao jsonDataDao = JsonDataDao();
+    List<Map<String, dynamic>> filteredData =
+        await jsonDataDao.getRowsByPatientIdAndGame(patientId.toString(), game);
 
     var excel = Excel.createExcel();
     Sheet sheetObject = excel['Sheet1'];
@@ -32,9 +32,8 @@ class ExportButton extends StatelessWidget {
       sheetObject
           .cell(
               CellIndex.indexByColumnRow(columnIndex: keys.length, rowIndex: 0))
-          .value = TextCellValue('created_at');
+          .value = const TextCellValue('created_at');
 
-      // Add data
       for (int i = 0; i < filteredData.length; i++) {
         Map<String, dynamic> jsonData = jsonDecode(filteredData[i]['json']);
         for (int j = 0; j < keys.length; j++) {
@@ -43,7 +42,6 @@ class ExportButton extends StatelessWidget {
               .value = TextCellValue(jsonData[keys[j]].toString());
         }
 
-        print(filteredData[i]['created_at']);
         sheetObject
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: keys.length, rowIndex: i + 1))
@@ -64,7 +62,7 @@ class ExportButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: _exportToExcel,
-      child: Text('Export to Excel'),
+      child: const Text('Export to Excel'),
     );
   }
 }

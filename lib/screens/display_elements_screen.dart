@@ -4,15 +4,20 @@ import 'package:flutter/material.dart';
 
 class DisplayElementsScreen extends StatelessWidget {
   final List<List<dynamic>> elements;
+  final int idPatient;
 
-  DisplayElementsScreen({required this.elements});
+  DisplayElementsScreen(
+      {Key? key, required this.elements, required this.idPatient})
+      : super(key: key);
 
   Future<List<Widget>> componentsPage(List<List<dynamic>> elements) async {
     List<Widget> _avaliarComportamentoElements = [];
 
     for (List<dynamic> element in elements) {
       if (element.isNotEmpty && element[0] == 'json_data') {
-        final jsonData = CombinedLineChart();
+        final jsonData = CombinedLineChart(
+          idPatient: idPatient,
+        );
         _avaliarComportamentoElements.add(jsonData);
       } else if (element.isNotEmpty && element[0] == 'questions') {
         final questionDao = QuestionDao();

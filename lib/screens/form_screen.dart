@@ -228,10 +228,11 @@ class _FormScreenState extends State<FormScreen> {
                     if (_name == 'Dados') ...[
                       GestureDetector(
                           onTap: () {
-                            _addElementToAnaliseInfo(
-                                'json_data', CombinedLineChart());
+                            //_addElementToAnaliseInfo(
+                            //  'json_data', CombinedLineChart());
                           },
-                          child: CombinedLineChart()),
+                          child: CombinedLineChart(
+                              idPatient: int.parse(_selectedPatientId))),
                     ],
                     if (_name == 'Perguntas') ...[
                       ListData<Question>(
@@ -258,8 +259,8 @@ class _FormScreenState extends State<FormScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => DisplayElementsScreen(
-                                elements: _analiseInfoElements,
-                              ),
+                                  elements: _analiseInfoElements,
+                                  idPatient: int.parse(_selectedPatientId)),
                             ),
                           );
                         },
