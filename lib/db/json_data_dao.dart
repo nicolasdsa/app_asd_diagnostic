@@ -43,14 +43,55 @@ class JsonDataDao {
     return data;
   }
 
-  Future<Map<String, List<List<dynamic>>>> getAllJsonDataGroupedByGame(
-      int idPatient) async {
+  Future<List<List<dynamic>>> getAllJsonDataByGameAndDate(
+      String game, int idPatient, DateTime startDate, DateTime endDate) async {
     final db = await dbHelper.database;
 
     final List<Map<String, dynamic>> rows = await db.query(
       _tableName,
-      where: 'id_patient = ?',
-      whereArgs: [idPatient],
+      where: 'game = ? AND id_patient = ? AND created_at BETWEEN ? AND ?',
+      whereArgs: [
+        game,
+        idPatient,
+        startDate.toIso8601String(),
+        endDate.toIso8601String()
+      ],
+    );
+
+    Map<String, List<List<dynamic>>> groupedData = {};
+
+    for (var map in rows) {
+      Map<String, dynamic> jsonDecoded = jsonDecode(map[_json]);
+      String createdAt = map['created_at'].toString();
+
+      jsonDecoded.forEach((key, value) {
+        if (!groupedData.containsKey(key)) {
+          groupedData[key] = [];
+        }
+        groupedData[key]!.add([value.toString(), createdAt]);
+      });
+    }
+
+    List<List<dynamic>> result = [];
+    groupedData.forEach((key, values) {
+      result.add([key, values]);
+    });
+
+    return result;
+  }
+
+  Future<Map<String, List<List<dynamic>>>> getAllJsonDataGroupedByGame(
+      int idPatient, DateTime startDate, DateTime endDate) async {
+    final db = await dbHelper.database;
+
+    final List<Map<String, dynamic>> rows = await db.query(
+      _tableName,
+      where: 'id_patient = ? AND created_at BETWEEN ? AND ?',
+      whereArgs: [
+        idPatient,
+        startDate.toIso8601String(),
+        endDate.toIso8601String()
+      ],
     );
 
     Map<String, Map<String, List<List<dynamic>>>> groupedData = {};

@@ -1,5 +1,5 @@
 import 'package:app_asd_diagnostic/db/question_dao.dart';
-import 'package:app_asd_diagnostic/screens/components/json_data_chart.dart';
+import 'package:app_asd_diagnostic/screens/components/chart_display.dart';
 import 'package:flutter/material.dart';
 
 class DisplayElementsScreen extends StatelessWidget {
@@ -15,8 +15,11 @@ class DisplayElementsScreen extends StatelessWidget {
 
     for (List<dynamic> element in elements) {
       if (element.isNotEmpty && element[0] == 'json_data') {
-        final jsonData = CombinedLineChart(
+        final jsonData = ChartData(
           idPatient: idPatient,
+          startDate: element[2],
+          endDate: element[3],
+          game: element[1],
         );
         _avaliarComportamentoElements.add(jsonData);
       } else if (element.isNotEmpty && element[0] == 'questions') {

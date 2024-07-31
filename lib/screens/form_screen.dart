@@ -7,7 +7,6 @@ import 'package:app_asd_diagnostic/screens/components/patient_search_field.dart'
 import 'package:app_asd_diagnostic/db/game_dao.dart';
 import 'package:app_asd_diagnostic/db/question_dao.dart';
 import 'package:app_asd_diagnostic/db/type_form_dao.dart';
-import 'package:app_asd_diagnostic/db/json_data_dao.dart';
 import 'package:app_asd_diagnostic/db/hash_access_dao.dart';
 import 'package:app_asd_diagnostic/screens/components/json_data_chart.dart';
 import 'package:app_asd_diagnostic/screens/components/question.dart';
@@ -29,7 +28,6 @@ class _FormScreenState extends State<FormScreen> {
   late ValueNotifier<int> questionChangeNotifier;
   final _formKey = GlobalKey<FormState>();
   final _typeFormDao = TypeFormDao();
-  final _jsonDataDao = JsonDataDao();
   final _hashAccessDao = HashAccessDao();
   List<Map<String, dynamic>> _typeFormElements = [];
 
@@ -44,6 +42,30 @@ class _FormScreenState extends State<FormScreen> {
   void initState() {
     super.initState();
     questionChangeNotifier = ValueNotifier(0);
+  }
+
+  void handleExpansionChange(
+      String? game, DateTime? initialDate, DateTime? endDate, bool addList) {
+    bool existsBeforeRemoval = _analiseInfoElements
+        .any((element) => element[0] == 'json_data' && element[1] == game);
+
+    if (addList) {
+      _analiseInfoElements.removeWhere(
+          (element) => element[0] == 'json_data' && element[1] == game);
+    }
+
+    if (existsBeforeRemoval && !addList) {
+      _analiseInfoElements.removeWhere(
+          (element) => element[0] == 'json_data' && element[1] == game);
+
+      _analiseInfoElements.add(['json_data', game, initialDate, endDate]);
+    }
+
+    if (!existsBeforeRemoval && addList) {
+      _analiseInfoElements.add(['json_data', game, initialDate, endDate]);
+    }
+
+    print('Estado atual de _analiseInfoElements: $_analiseInfoElements');
   }
 
   void _handleCardOptionTap(String name) {
@@ -61,13 +83,6 @@ class _FormScreenState extends State<FormScreen> {
   void _addElementToAnaliseInfo(String tableName, dynamic id) {
     final newElement = [tableName, id];
     setState(() {
-      if (tableName == 'json_data') {
-        _analiseInfoElements
-            .removeWhere((element) => element[0] == 'json_data');
-        print(
-            'Elemento com tableName json_data removido: $_analiseInfoElements');
-      }
-
       if (_analiseInfoElements
           .any((element) => listEquals(element, newElement))) {
         _analiseInfoElements.removeWhere((element) => element[1] == id);
@@ -232,7 +247,8 @@ class _FormScreenState extends State<FormScreen> {
                             //  'json_data', CombinedLineChart());
                           },
                           child: CombinedLineChart(
-                              idPatient: int.parse(_selectedPatientId))),
+                              idPatient: int.parse(_selectedPatientId),
+                              onExpansionChange: handleExpansionChange)),
                     ],
                     if (_name == 'Perguntas') ...[
                       ListData<Question>(
