@@ -46,7 +46,6 @@ class LoginScreen extends StatelessWidget {
                   if (_formKey.currentState?.validate() == true) {
                     final username = _usernameController.text;
                     final password = _passwordController.text;
-                    print('username: $username, password: $password');
                     final success = await _dao.login(username, password);
                     if (success) {
                       Navigator.pushReplacementNamed(context, '/initialLogin');

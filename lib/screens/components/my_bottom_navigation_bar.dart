@@ -1,4 +1,5 @@
 import 'package:app_asd_diagnostic/screens/export_screen.dart';
+import 'package:app_asd_diagnostic/screens/form_list_screen.dart';
 import 'package:app_asd_diagnostic/screens/form_screen.dart';
 import 'package:app_asd_diagnostic/screens/home_screen.dart';
 import 'package:app_asd_diagnostic/screens/patients_screen.dart';
@@ -36,7 +37,8 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
       FormScreen(formChangeNotifier: formChangeNotifier),
       //HomeScreen(formChangeNotifier: formChangeNotifier),
       PatientScreen(patientChangeNotifier: patientChangeNotifier),
-      ExportScreen(), // Comente esta linha para teste
+      //ExportScreen(),
+      FormListScreen()
     ];
 
     return Scaffold(

@@ -1,3 +1,4 @@
+import 'package:app_asd_diagnostic/screens/test_screen.dart';
 import 'package:flutter/material.dart';
 
 class Question extends StatefulWidget {
@@ -6,9 +7,21 @@ class Question extends StatefulWidget {
   final String? nameTypeQuestion;
   final List<String>? answerOptions;
   final bool isSelectable;
+  final ValueNotifier<String?> selectedOptionNotifier;
+  final ValueNotifier<String?> selectedPositionNotifier; // Novo ValueNotifier
+  final TextEditingController textController; // Novo TextEditingController
+  final List<String>? answerOptionIds;
 
-  const Question(this.id, this.name, this.nameTypeQuestion, this.answerOptions,
+  const Question(
+      this.id,
+      this.name,
+      this.nameTypeQuestion,
+      this.answerOptions,
       this.isSelectable, // Novo parâmetro booleano
+      this.selectedOptionNotifier, // Novo ValueNotifier
+      this.textController,
+      this.answerOptionIds, // Novo TextEditingController
+      this.selectedPositionNotifier, // Novo TextEditingController
       {Key? key})
       : super(key: key);
 
@@ -17,11 +30,6 @@ class Question extends StatefulWidget {
 }
 
 class _QuestionState extends State<Question> {
-  String?
-      _selectedOption; // Variável de estado para armazenar a opção selecionada
-  final TextEditingController _textController =
-      TextEditingController(); // Controlador para o TextFormField
-
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -38,7 +46,7 @@ class _QuestionState extends State<Question> {
                 ),
                 if (widget.isSelectable && widget.answerOptions == null)
                   TextFormField(
-                    controller: _textController,
+                    controller: widget.textController,
                     decoration: const InputDecoration(
                       labelText: 'Resposta',
                     ),
@@ -47,11 +55,18 @@ class _QuestionState extends State<Question> {
                   ...widget.answerOptions!.map((option) {
                     return RadioListTile(
                       value: option,
-                      groupValue: _selectedOption,
+                      groupValue: widget.selectedPositionNotifier.value,
                       onChanged: widget.isSelectable
                           ? (value) {
                               setState(() {
-                                _selectedOption = value as String?;
+                                final position = widget.answerOptions!
+                                    .indexOf(value as String);
+
+                                widget.selectedPositionNotifier.value =
+                                    value as String?;
+
+                                widget.selectedOptionNotifier.value =
+                                    widget.answerOptionIds?[position];
                               });
                             }
                           : null, // Desabilitar seleção se isSelectable for falso

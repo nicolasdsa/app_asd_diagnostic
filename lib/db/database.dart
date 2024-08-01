@@ -4,8 +4,11 @@ import 'package:app_asd_diagnostic/db/form_question_dao.dart';
 import 'package:app_asd_diagnostic/db/game_dao.dart';
 import 'package:app_asd_diagnostic/db/hash_access_dao.dart';
 import 'package:app_asd_diagnostic/db/json_data_dao.dart';
+import 'package:app_asd_diagnostic/db/json_data_response_dao.dart';
+import 'package:app_asd_diagnostic/db/option_response_dao.dart';
 import 'package:app_asd_diagnostic/db/patient_dao.dart';
 import 'package:app_asd_diagnostic/db/question_dao.dart';
+import 'package:app_asd_diagnostic/db/text_response_dao.dart';
 import 'package:app_asd_diagnostic/db/type_form_dao.dart';
 import 'package:app_asd_diagnostic/db/type_question_dao.dart';
 import 'package:app_asd_diagnostic/db/user.dart';
@@ -39,6 +42,10 @@ class DatabaseHelper {
     await db.execute(GameDao.tableSql);
     await db.execute(HashAccessDao.tableSql);
     await db.execute(JsonDataDao.tableSql);
+    await db.execute(TextResponseDao.tableSql);
+    await db.execute(OptionResponseDao.tableSql);
+    await db.execute(JsonDataResponseDao
+        .tableSql); // Criação da tabela de respostas json_data
 
     await db.insert('type_forms', {'name': 'Analise de informações'});
     await db.insert('type_forms', {'name': 'Avaliar Comportamento'});

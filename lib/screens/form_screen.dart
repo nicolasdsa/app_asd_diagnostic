@@ -82,18 +82,15 @@ class _FormScreenState extends State<FormScreen> {
 
   void _addElementToAnaliseInfo(String tableName, dynamic id) {
     final newElement = [tableName, id];
-    setState(() {
-      if (_analiseInfoElements
-          .any((element) => listEquals(element, newElement))) {
-        _analiseInfoElements.removeWhere((element) => element[1] == id);
-        print(
-            'Elemento removido de _analiseInfoElements: $_analiseInfoElements');
-      } else {
-        _analiseInfoElements.add(newElement);
-        print(
-            'Novo elemento adicionado em _analiseInfoElements: $_analiseInfoElements');
-      }
-    });
+    if (_analiseInfoElements
+        .any((element) => listEquals(element, newElement))) {
+      _analiseInfoElements.removeWhere((element) => element[1] == id);
+      print('Elemento removido de _analiseInfoElements: $_analiseInfoElements');
+    } else {
+      _analiseInfoElements.add(newElement);
+      print(
+          'Novo elemento adicionado em _analiseInfoElements: $_analiseInfoElements');
+    }
   }
 
   void _addElementToAvaliarComportamento(String tableName, int id) {

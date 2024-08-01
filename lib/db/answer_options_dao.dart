@@ -11,14 +11,15 @@ class AnswerOptionsDao {
 
   final dbHelper = DatabaseHelper.instance;
 
-  Future<List<String>> getOptionsForQuestion(int questionId) async {
+  Future<List<Map<String, dynamic>>> getOptionsForQuestion(
+      int questionId) async {
     final db = await dbHelper.database;
     final result = await db.query(
       _tableName,
-      columns: ['option_text'],
+      columns: ['id', 'option_text'],
       where: 'id_question = ?',
       whereArgs: [questionId],
     );
-    return result.map((row) => row['option_text'] as String).toList();
+    return result.toList();
   }
 }

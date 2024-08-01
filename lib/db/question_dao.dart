@@ -2,6 +2,7 @@ import 'package:app_asd_diagnostic/db/answer_options_dao.dart';
 import 'package:app_asd_diagnostic/db/database.dart';
 import 'package:app_asd_diagnostic/db/type_question_dao.dart';
 import 'package:app_asd_diagnostic/screens/components/question.dart';
+import 'package:flutter/material.dart';
 
 class QuestionDao {
   static const String tableSql = 'CREATE TABLE $_tableName('
@@ -49,13 +50,34 @@ class QuestionDao {
     for (Map<String, dynamic> linha in questionsAll) {
       final nameTypeQuestion =
           await TypeQuestionDao().getTypeQuestionName(linha[_idType]);
+      List<Map<String, dynamic>>? answerOptionsAndId;
+
       List<String>? answerOptions;
+      List<String>? answerOptionIds;
+
       if (linha[_idType] == 2) {
-        answerOptions =
+        answerOptionsAndId =
             await AnswerOptionsDao().getOptionsForQuestion(linha[_id]);
+
+        answerOptions = answerOptionsAndId
+            .map((option) => option['option_text'] as String)
+            .toList();
+
+        answerOptionIds = answerOptionsAndId
+            .map((option) => option['id'].toString())
+            .toList();
       }
       final Question question = Question(
-          linha[_id], linha[_question], nameTypeQuestion, answerOptions, false);
+        linha[_id],
+        linha[_question],
+        nameTypeQuestion,
+        answerOptions,
+        false,
+        ValueNotifier<String?>(null), // Inicializa o ValueNotifier
+        TextEditingController(),
+        answerOptionIds,
+        ValueNotifier<String?>(null), // Inicializa o ValueNotifier
+      );
       questions.add(question);
     }
     return questions;
@@ -70,13 +92,32 @@ class QuestionDao {
     );
     final nameTypeQuestion =
         await TypeQuestionDao().getTypeQuestionName(result[0][_idType]);
+    List<Map<String, dynamic>>? answerOptionsAndId;
     List<String>? answerOptions;
+    List<String>? answerOptionIds;
+
     if (result[0][_idType] == 2) {
-      answerOptions =
+      answerOptionsAndId =
           await AnswerOptionsDao().getOptionsForQuestion(result[0][_id]);
+
+      answerOptions = answerOptionsAndId
+          .map((option) => option['option_text'] as String)
+          .toList();
+
+      answerOptionIds =
+          answerOptionsAndId.map((option) => option['id'].toString()).toList();
     }
-    final Question question = Question(result[0][_id], result[0][_question],
-        nameTypeQuestion, answerOptions, true);
+    final Question question = Question(
+      result[0][_id],
+      result[0][_question],
+      nameTypeQuestion,
+      answerOptions,
+      true,
+      ValueNotifier<String?>(null), // Inicializa o ValueNotifier
+      TextEditingController(),
+      answerOptionIds,
+      ValueNotifier<String?>(null), // Inicializa o ValueNotifier
+    );
     return question;
   }
 }
