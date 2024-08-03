@@ -63,8 +63,10 @@ class _DisplayElementsScreenState extends State<DisplayElementsScreen> {
     final textResponseDao = TextResponseDao();
     final optionResponseDao = OptionResponseDao();
     final jsonDataResponseDao = JsonDataResponseDao();
-    final formId = await formDao.insertForm(
-        {'name': 'Novo Formulário'}); // Insere um novo formulário e obtém o ID
+    final formId = await formDao.insertForm({
+      'name': 'Novo Formulário',
+      'id_patient': widget.idPatient
+    }); // Insere um novo formulário e obtém o ID
 
     for (var question in _questions) {
       if (question.answerOptions != null) {

@@ -37,8 +37,8 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
       FormScreen(formChangeNotifier: formChangeNotifier),
       //HomeScreen(formChangeNotifier: formChangeNotifier),
       PatientScreen(patientChangeNotifier: patientChangeNotifier),
-      //ExportScreen(),
-      FormListScreen()
+      ExportScreen(),
+      //FormListScreen()
     ];
 
     return Scaffold(

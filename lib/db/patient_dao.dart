@@ -1,5 +1,6 @@
 import 'package:app_asd_diagnostic/db/database.dart';
 import 'package:app_asd_diagnostic/screens/components/patient.dart';
+import 'package:app_asd_diagnostic/screens/patient_details.dart';
 
 class PatientDao {
   static const String tableSql = 'CREATE TABLE $_tableName('
@@ -62,5 +63,22 @@ class PatientDao {
       patients.add(patient);
     }
     return patients;
+  }
+
+  Future<PatientDetails> getPatient(int id) async {
+    final db = await dbHelper.database;
+    final List<Map<String, dynamic>> result = await db.query(
+      _tableName,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    final patientData = result.first;
+
+    return PatientDetails(
+      name: patientData['name'],
+      age: patientData['age'], // Parse age as int
+      gender: patientData['gender'],
+    );
   }
 }

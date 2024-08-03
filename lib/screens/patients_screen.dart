@@ -1,5 +1,7 @@
+// patients_screen.dart
 import 'package:app_asd_diagnostic/db/patient_dao.dart';
 import 'package:app_asd_diagnostic/screens/components/patient.dart';
+import 'package:app_asd_diagnostic/screens/patient_detail_screen.dart';
 import 'package:app_asd_diagnostic/screens/patients_create_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -10,10 +12,10 @@ class PatientScreen extends StatefulWidget {
       : super(key: key);
 
   @override
-  State<PatientScreen> createState() => _InitialScreenState();
+  State<PatientScreen> createState() => _PatientScreenState();
 }
 
-class _InitialScreenState extends State<PatientScreen> {
+class _PatientScreenState extends State<PatientScreen> {
   final _patientDao = PatientDao();
 
   @override
@@ -28,67 +30,37 @@ class _InitialScreenState extends State<PatientScreen> {
           return FutureBuilder<List<Patient>>(
             future: _patientDao.getAll(),
             builder: (context, snapshot) {
-              List<Patient>? items = snapshot.data;
-              switch (snapshot.connectionState) {
-                case ConnectionState.none:
-                  return const Center(
-                    child: Column(
-                      children: [
-                        CircularProgressIndicator(),
-                        Text('Carregando'),
-                      ],
-                    ),
-                  );
-
-                case ConnectionState.waiting:
-                  return const Center(
-                    child: Column(
-                      children: [
-                        CircularProgressIndicator(),
-                        Text('Carregando'),
-                      ],
-                    ),
-                  );
-                case ConnectionState.active:
-                  return const Center(
-                    child: Column(
-                      children: [
-                        CircularProgressIndicator(),
-                        Text('Carregando'),
-                      ],
-                    ),
-                  );
-                case ConnectionState.done:
-                  if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  }
-                  if (snapshot.hasData && items != null) {
-                    if (items.isNotEmpty) {
-                      return ListView.builder(
-                          itemCount: items.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return items[index];
-                          });
-                    }
-                    return const Center(
-                        child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.error_outline,
-                          size: 128,
-                        ),
-                        Text(
-                          'Não há nenhum paciente cadastrado',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 32),
-                        ),
-                      ],
-                    ));
-                  }
-
-                  return const Text('Erro ao carregar os pacientes');
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else if (snapshot.hasError) {
+                return Center(
+                  child: Text('Error: ${snapshot.error}'),
+                );
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(
+                  child: Text('Nenhum paciente encontrado'),
+                );
+              } else {
+                return ListView.builder(
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: (context, index) {
+                    final patient = snapshot.data![index];
+                    return ListTile(
+                      title: Text(patient.name),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                PatientDetailScreen(patientId: patient.id),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                );
               }
             },
           );
@@ -99,8 +71,9 @@ class _InitialScreenState extends State<PatientScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => PatientCreateScreen(
-                    patientChangeNotifier: widget.patientChangeNotifier)),
+              builder: (context) => PatientCreateScreen(
+                  patientChangeNotifier: widget.patientChangeNotifier),
+            ),
           );
         },
         child: const Icon(Icons.add),

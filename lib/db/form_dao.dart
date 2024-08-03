@@ -4,7 +4,9 @@ import 'package:app_asd_diagnostic/screens/components/form_user.dart';
 class FormDao {
   static const String tableSql = 'CREATE TABLE $_tableName('
       'id INTEGER PRIMARY KEY AUTOINCREMENT, '
-      'name TEXT)';
+      'id_patient INTEGER, '
+      'name TEXT,'
+      'FOREIGN KEY (id_patient) REFERENCES patients(id))';
 
   static const String _tableName = 'forms';
   static const String _name = 'name';
@@ -31,5 +33,15 @@ class FormDao {
       whereArgs: [id],
     );
     return result.map((row) => FormUser(row[_id], row[_name])).first;
+  }
+
+  Future<List<FormUser>> getFormsByPatientId(int patientId) async {
+    final db = await dbHelper.database;
+    final List<Map<String, dynamic>> result = await db.query(
+      _tableName,
+      where: 'id_patient = ?',
+      whereArgs: [patientId],
+    );
+    return result.map((row) => FormUser(row[_id], row[_name])).toList();
   }
 }
