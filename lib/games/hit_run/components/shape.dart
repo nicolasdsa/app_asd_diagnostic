@@ -18,6 +18,7 @@ enum PlayerState {
 class ShapeForm extends SpriteAnimationGroupComponent
     with TapCallbacks, HasGameRef<HitRun> {
   String form;
+  String color;
   Level level;
   bool isTap;
   bool isButton;
@@ -26,6 +27,7 @@ class ShapeForm extends SpriteAnimationGroupComponent
   ShapeForm({
     super.position,
     this.form = 'circle',
+    required this.color,
     required this.speed,
     required this.level,
     required this.isTap,
@@ -105,7 +107,7 @@ class ShapeForm extends SpriteAnimationGroupComponent
   SpriteAnimation _spriteAnimation(String form, int amount,
       [double stepTime = 0.1]) {
     return SpriteAnimation.fromFrameData(
-      game.images.fromCache('hit_run/red_body_$form.png'),
+      game.images.fromCache('hit_run/${color}_body_$form.png'),
       SpriteAnimationData.sequenced(
         amount: amount,
         stepTime: stepTime,
@@ -185,7 +187,12 @@ class ShapeForm extends SpriteAnimationGroupComponent
       return;
     }
 
-    if (level.spawnedShapeType == form && level.selectedShape?.form == form) {
+    print(level.spawnedShapeType);
+    print(level.selectedShape);
+
+    if (level.spawnedShapeType == form &&
+        level.selectedShape?.form == form &&
+        level.selectedShape?.color == color) {
       DateTime now = DateTime.now();
       double reactionTime = now.difference(lastTapTime).inMilliseconds / 1000.0;
       gameRef.stats.recordReactionTime(reactionTime);

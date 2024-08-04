@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:app_asd_diagnostic/db/json_data_dao.dart';
 import 'package:app_asd_diagnostic/games/hit_run/components/game_stats.dart';
 import 'package:app_asd_diagnostic/games/hit_run/components/level_design.dart';
@@ -9,12 +8,14 @@ import 'package:flame/game.dart';
 
 class HitRun extends FlameGame with TapCallbacks, HasCollisionDetection {
   final String idPatient;
+  final String difficulty;
+  final String mode;
 
-  HitRun({required this.idPatient});
+  HitRun(
+      {required this.idPatient, required this.difficulty, required this.mode});
 
   GameStats stats = GameStats();
-  List<String> levelNames = ['sem título.tmx'];
-  int currentLevelIndex = 0;
+  List<String> levelNames = ['easy.tmx', 'hard.tmx', 'easy-no-sound.tmx'];
   late CameraComponent cam;
   late Level _level; // Atributo privado
 
@@ -26,6 +27,9 @@ class HitRun extends FlameGame with TapCallbacks, HasCollisionDetection {
     await images.loadAllImages();
     _loadLevel();
     print('ID do Paciente: $idPatient'); // Imprime o idPatient
+    print(
+        'Nível de dificuldade: $difficulty'); // Imprime o nível de dificuldade
+    print('Modo: $mode'); // Imprime o modo
     return super.onLoad();
   }
 
@@ -43,8 +47,32 @@ class HitRun extends FlameGame with TapCallbacks, HasCollisionDetection {
   }
 
   void _loadLevel() async {
-    _level =
-        Level(levelName: levelNames[currentLevelIndex]); // Inicializa _level
+    if (mode == 'sonoro') {
+      levelNames = ['easy-no-sound.tmx', 'hard-no-sound.tmx'];
+    }
+
+    if (mode == 'visual') {
+      levelNames = ['easy.tmx', 'hard.tmx'];
+    }
+
+    int currentLevelIndex = difficulty == 'easy' ? 0 : 1;
+    List<String> colors = ['blue', 'red', 'green', 'pink', 'yellow'];
+    int flagMode = mode == 'visual' ? 0 : 1;
+
+    if (currentLevelIndex == 0) {
+      colors.shuffle();
+      colors = [colors[0], colors[0]];
+    }
+
+    if (currentLevelIndex == 1) {
+      colors.shuffle();
+      colors = colors.take(2).toList();
+    }
+
+    _level = Level(
+        levelName: levelNames[currentLevelIndex],
+        colors: colors,
+        mode: flagMode); // Inicializa _level
 
     cam = CameraComponent.withFixedResolution(
       world: _level,

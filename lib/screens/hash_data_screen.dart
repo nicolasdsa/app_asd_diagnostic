@@ -31,7 +31,7 @@ class HashDataScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.pushNamed(
                   context,
-                  '/hitRun',
+                  game['link']!,
                   arguments: {'idPatient': idPatient},
                 );
               },

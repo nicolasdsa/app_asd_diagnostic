@@ -9,11 +9,16 @@ import 'package:app_asd_diagnostic/games/hit_run/components/shape.dart';
 import 'package:app_asd_diagnostic/games/hit_run/components/timer.dart';
 import 'package:app_asd_diagnostic/games/hit_run/hit_run.dart';
 import 'package:flame/components.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flame_tiled/flame_tiled.dart';
 
 class Level extends World with HasGameRef<HitRun> {
   final String levelName;
-  Level({required this.levelName});
+  final int mode;
+
+  final List<String> colors;
+
+  Level({required this.levelName, required this.colors, required this.mode});
   late TiledComponent level;
   List<CollisionBlock> _collisionBlocks = [];
   Points? points;
@@ -76,11 +81,13 @@ class Level extends World with HasGameRef<HitRun> {
       for (final spawnPoint in spawnPointsLayer.objects) {
         switch (spawnPoint.class_) {
           case 'Spawn':
+            int randomValue = rng.nextDouble() < 0.5 ? 0 : 1;
             ShapeForm shape = ShapeForm(
                 speed: Vector2.zero(),
                 level: this,
                 isTap: false,
-                isButton: false);
+                isButton: false,
+                color: colors[randomValue]);
             shape.position = Vector2(spawnPoint.x, spawnPoint.y);
             shape.form = spawnedShapeType;
             shape.priority = 9999;
@@ -88,12 +95,14 @@ class Level extends World with HasGameRef<HitRun> {
             spawnShape = shape;
             break;
           case 'Shapes':
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < 4; i++) {
+              int randomValue = rng.nextDouble() < 0.5 ? 0 : 1;
               ShapeForm shape = ShapeForm(
                   speed: _randomSpeed(),
                   level: this,
                   isTap: true,
-                  isButton: false);
+                  isButton: false,
+                  color: colors[randomValue]);
               shape.position = Vector2(
                 spawnPoint.x + rng.nextDouble() * spawnPoint.width,
                 spawnPoint.y + rng.nextDouble() * spawnPoint.height,
@@ -102,12 +111,14 @@ class Level extends World with HasGameRef<HitRun> {
               shape.priority = 9999;
               add(shape);
             }
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < 4; i++) {
+              int randomValue = rng.nextDouble() < 0.5 ? 0 : 1;
               ShapeForm shape = ShapeForm(
                   speed: _randomSpeed(),
                   level: this,
                   isTap: true,
-                  isButton: false);
+                  isButton: false,
+                  color: colors[randomValue]);
               shape.position = Vector2(
                 spawnPoint.x + rng.nextDouble() * spawnPoint.width,
                 spawnPoint.y + rng.nextDouble() * spawnPoint.height,
@@ -116,12 +127,14 @@ class Level extends World with HasGameRef<HitRun> {
               shape.priority = 9999;
               add(shape);
             }
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < 4; i++) {
+              int randomValue = rng.nextDouble() < 0.5 ? 0 : 1;
               ShapeForm shape = ShapeForm(
                   speed: _randomSpeed(),
                   level: this,
                   isTap: true,
-                  isButton: false);
+                  isButton: false,
+                  color: colors[randomValue]);
               shape.position = Vector2(
                 spawnPoint.x + rng.nextDouble() * spawnPoint.width,
                 spawnPoint.y + rng.nextDouble() * spawnPoint.height,
@@ -136,7 +149,8 @@ class Level extends World with HasGameRef<HitRun> {
                 speed: Vector2.zero(),
                 level: this,
                 isTap: true,
-                isButton: true);
+                isButton: true,
+                color: colors[0]);
             shape.position = Vector2(spawnPoint.x, spawnPoint.y);
             shape.form = 'Square';
             shape.priority = 9999;
@@ -147,7 +161,8 @@ class Level extends World with HasGameRef<HitRun> {
                 speed: Vector2.zero(),
                 level: this,
                 isTap: true,
-                isButton: true);
+                isButton: true,
+                color: colors[0]);
             shape.position = Vector2(spawnPoint.x, spawnPoint.y);
             shape.form = 'Circle';
             shape.priority = 9999;
@@ -158,7 +173,44 @@ class Level extends World with HasGameRef<HitRun> {
                 speed: Vector2.zero(),
                 level: this,
                 isTap: true,
-                isButton: true);
+                isButton: true,
+                color: colors[0]);
+            shape.position = Vector2(spawnPoint.x, spawnPoint.y);
+            shape.form = 'Triangle';
+            shape.priority = 9999;
+            add(shape);
+            break;
+          case 'Square 2':
+            ShapeForm shape = ShapeForm(
+                speed: Vector2.zero(),
+                level: this,
+                isTap: true,
+                isButton: true,
+                color: colors[1]);
+            shape.position = Vector2(spawnPoint.x, spawnPoint.y);
+            shape.form = 'Square';
+            shape.priority = 9999;
+            add(shape);
+            break;
+          case 'Circle 2':
+            ShapeForm shape = ShapeForm(
+                speed: Vector2.zero(),
+                level: this,
+                isTap: true,
+                isButton: true,
+                color: colors[1]);
+            shape.position = Vector2(spawnPoint.x, spawnPoint.y);
+            shape.form = 'Circle';
+            shape.priority = 9999;
+            add(shape);
+            break;
+          case 'Triangle 2':
+            ShapeForm shape = ShapeForm(
+                speed: Vector2.zero(),
+                level: this,
+                isTap: true,
+                isButton: true,
+                color: colors[1]);
             shape.position = Vector2(spawnPoint.x, spawnPoint.y);
             shape.form = 'Triangle';
             shape.priority = 9999;
@@ -198,36 +250,56 @@ class Level extends World with HasGameRef<HitRun> {
     final shapes = ['Square', 'Circle', 'Triangle'];
     final rng = Random();
     spawnedShapeType = shapes[rng.nextInt(shapes.length)];
-    print('Next shape to be clicked: $spawnedShapeType'); // For debugging
+    print('Next shape to be clicked: $spawnedShapeType');
 
-    if (spawnShape != null) {
+    if (mode == 1) {
+      FlameAudio.play('hit_run/$spawnedShapeType.ogg');
+    }
+
+    if (spawnShape != null && mode == 0) {
       remove(spawnShape!);
     }
 
     final spawnPointsLayer = level.tileMap.getLayer<ObjectGroup>('Spawnpoints');
+    int randomValue = rng.nextDouble() < 0.5 ? 0 : 1;
+
     if (spawnPointsLayer != null) {
       final shapesLayer = spawnPointsLayer.objects
           .firstWhere((layer) => layer.class_ == 'Shapes',
               // ignore: cast_from_null_always_fails
               orElse: () => null as TiledObject);
       final rng = Random();
+
       ShapeForm shape = ShapeForm(
-          speed: _randomSpeed(), level: this, isTap: true, isButton: false);
+          speed: _randomSpeed(),
+          level: this,
+          isTap: true,
+          isButton: false,
+          color: colors[randomValue]);
       shape.position = Vector2(
         shapesLayer.x + rng.nextDouble() * shapesLayer.width,
         shapesLayer.y + rng.nextDouble() * shapesLayer.height,
       );
       shape.form = spawnedShapeType;
       shape.priority = 9999;
-      add(shape);
+
+      if (mode == 0) {
+        add(shape);
+      }
     }
 
     ShapeForm shape = ShapeForm(
-        speed: Vector2.zero(), level: this, isTap: false, isButton: false);
+        speed: Vector2.zero(),
+        level: this,
+        isTap: false,
+        isButton: false,
+        color: colors[randomValue]);
     shape.position = spawnShape?.position.clone() ?? Vector2.zero();
     shape.form = spawnedShapeType;
     shape.priority = 9999;
-    add(shape);
+    if (mode == 0) {
+      add(shape);
+    }
     spawnShape = shape;
   }
 
