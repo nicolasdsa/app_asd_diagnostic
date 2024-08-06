@@ -1,11 +1,14 @@
+import 'package:app_asd_diagnostic/db/sound_response_dao.dart';
 import 'package:flutter/material.dart';
 import 'package:app_asd_diagnostic/db/form_dao.dart';
 import 'package:app_asd_diagnostic/db/text_response_dao.dart';
 import 'package:app_asd_diagnostic/db/option_response_dao.dart';
 import 'package:app_asd_diagnostic/db/json_data_response_dao.dart';
+import 'package:app_asd_diagnostic/db/sound_response_dao.dart';
 import 'package:app_asd_diagnostic/db/question_dao.dart';
 import 'package:app_asd_diagnostic/screens/components/form_user.dart';
 import 'package:app_asd_diagnostic/screens/components/question.dart';
+import 'package:app_asd_diagnostic/screens/components/sound.dart';
 import 'package:app_asd_diagnostic/screens/components/chart_display.dart';
 import 'package:intl/intl.dart';
 
@@ -19,6 +22,8 @@ class FormDetailScreen extends StatelessWidget {
     final textResponseDao = TextResponseDao();
     final optionResponseDao = OptionResponseDao();
     final jsonDataResponseDao = JsonDataResponseDao();
+    final soundResponseDao =
+        SoundResponseDao(); // Instância do SoundResponseDao
     final questionDao = QuestionDao();
 
     final form = await formDao.getForm(formId);
@@ -26,8 +31,8 @@ class FormDetailScreen extends StatelessWidget {
     final optionResponses = await optionResponseDao.getResponsesForForm(formId);
     final jsonDataResponses =
         await jsonDataResponseDao.getResponsesForForm(formId);
-
-    print(optionResponses);
+    final soundResponses = await soundResponseDao
+        .getResponsesForForm(formId); // Obtém as respostas de som
 
     // Fetch questions for text and option responses
     final questions = <int, Question>{};
@@ -45,6 +50,7 @@ class FormDetailScreen extends StatelessWidget {
       'textResponses': textResponses,
       'optionResponses': optionResponses,
       'jsonDataResponses': jsonDataResponses,
+      'soundResponses': soundResponses, // Adiciona as respostas de som ao mapa
       'questions': questions,
     };
   }
@@ -85,6 +91,8 @@ class FormDetailScreen extends StatelessWidget {
                 snapshot.data!['optionResponses'] as List<Map<String, dynamic>>;
             final jsonDataResponses = snapshot.data!['jsonDataResponses']
                 as List<Map<String, dynamic>>;
+            final soundResponses = snapshot.data!['soundResponses']
+                as List<Map<String, dynamic>>; // Respostas de som
             final questions = snapshot.data!['questions'] as Map<int, Question>;
 
             return SingleChildScrollView(
@@ -152,6 +160,25 @@ class FormDetailScreen extends StatelessWidget {
                           startDate: DateTime.parse(response['start_date']),
                           endDate: DateTime.parse(response['end_date']),
                           game: response['game'],
+                        );
+                      }).toList(),
+                    ],
+                    if (soundResponses.isNotEmpty) ...[
+                      ...soundResponses.map((response) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SoundComponent(soundId: response['sound_id']),
+                            TextFormField(
+                              initialValue: response[
+                                  'text_response'], // Resposta de texto associada ao som
+                              readOnly: true,
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                          ],
                         );
                       }).toList(),
                     ],

@@ -1,4 +1,5 @@
 import 'package:app_asd_diagnostic/screens/questions_create_screen.dart';
+import 'package:app_asd_diagnostic/screens/sound_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:app_asd_diagnostic/screens/components/card_option.dart';
 import 'package:app_asd_diagnostic/screens/components/game.dart';
@@ -29,6 +30,9 @@ class _FormScreenState extends State<FormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _typeFormDao = TypeFormDao();
   final _hashAccessDao = HashAccessDao();
+  final SoundListScreen _soundListScreen =
+      SoundListScreen(onSoundSelected: (int soundId) {});
+
   List<Map<String, dynamic>> _typeFormElements = [];
 
   String _name = '';
@@ -201,8 +205,10 @@ class _FormScreenState extends State<FormScreen> {
                           CardOption('Perguntas', Icons.help,
                               onTap: (name) => _handleCardOptionTap(name)),
                           const SizedBox(width: 8),
-                          CardOption('Sons', Icons.volume_up,
-                              onTap: (name) => _handleCardOptionTap(name)),
+                          CardOption('Sons', Icons.volume_up, onTap: (name) {
+                            _handleCardOptionTap(name);
+                            _soundListScreen.stopCurrentSound();
+                          }),
                           const SizedBox(width: 8),
                           CardOption('Dados', Icons.data_usage,
                               onTap: (name) => _handleCardOptionTap(name)),
@@ -235,7 +241,7 @@ class _FormScreenState extends State<FormScreen> {
                       ),
                     ],
                     if (_name == 'Sons') ...[
-                      // Código para exibir sons
+                      _soundListScreen,
                     ],
                     if (_name == 'Dados') ...[
                       GestureDetector(
@@ -268,12 +274,15 @@ class _FormScreenState extends State<FormScreen> {
                     if (_selectedTypeForm == 'Analise de informações') ...[
                       ElevatedButton(
                         onPressed: () {
+                          _soundListScreen
+                              .stopCurrentSound(); // Para o som atual
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => DisplayElementsScreen(
-                                  elements: _analiseInfoElements,
-                                  idPatient: int.parse(_selectedPatientId)),
+                                elements: _analiseInfoElements,
+                                idPatient: int.parse(_selectedPatientId),
+                              ),
                             ),
                           );
                         },

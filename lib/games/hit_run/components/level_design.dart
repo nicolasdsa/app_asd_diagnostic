@@ -283,9 +283,7 @@ class Level extends World with HasGameRef<HitRun> {
       shape.form = spawnedShapeType;
       shape.priority = 9999;
 
-      if (mode == 0) {
-        add(shape);
-      }
+      add(shape);
     }
 
     ShapeForm shape = ShapeForm(

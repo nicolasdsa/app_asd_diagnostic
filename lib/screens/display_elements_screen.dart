@@ -1,11 +1,13 @@
+import 'package:app_asd_diagnostic/db/sound_response_dao.dart';
 import 'package:app_asd_diagnostic/screens/components/question.dart';
+import 'package:app_asd_diagnostic/screens/components/sound.dart';
 import 'package:flutter/material.dart';
 import 'package:app_asd_diagnostic/db/question_dao.dart';
 import 'package:app_asd_diagnostic/screens/components/chart_display.dart';
 import 'package:app_asd_diagnostic/db/form_dao.dart';
-import 'package:app_asd_diagnostic/db/text_response_dao.dart'; // Novo import para respostas de texto
-import 'package:app_asd_diagnostic/db/option_response_dao.dart'; // Novo import para respostas de múltipla escolha
-import 'package:app_asd_diagnostic/db/json_data_response_dao.dart'; // Novo import para respostas json_data
+import 'package:app_asd_diagnostic/db/text_response_dao.dart';
+import 'package:app_asd_diagnostic/db/option_response_dao.dart';
+import 'package:app_asd_diagnostic/db/json_data_response_dao.dart';
 
 class DisplayElementsScreen extends StatefulWidget {
   final List<List<dynamic>> elements;
@@ -21,8 +23,8 @@ class DisplayElementsScreen extends StatefulWidget {
 
 class _DisplayElementsScreenState extends State<DisplayElementsScreen> {
   List<Question> _questions = [];
-  List<Map<String, dynamic>> _jsonDataElements =
-      []; // Lista para armazenar elementos json_data
+  List<Map<String, dynamic>> _jsonDataElements = [];
+  List<SoundComponent> _soundElements = []; // Ajuste aqui
 
   Future<List<Widget>> componentsPage(List<List<dynamic>> elements) async {
     List<Widget> _avaliarComportamentoElements = [];
@@ -40,12 +42,12 @@ class _DisplayElementsScreenState extends State<DisplayElementsScreen> {
           'start_date': element[2],
           'end_date': element[3],
           'game': element[1],
-        }); // Adiciona json_data à lista
+        });
         _avaliarComportamentoElements.add(jsonData);
       } else if (element.isNotEmpty && element[0] == 'questions') {
         final questionDao = QuestionDao();
         final question = await questionDao.getOne(element[1]);
-        _questions.add(question); // Adiciona a questão à lista de questões
+        _questions.add(question);
         _avaliarComportamentoElements.add(
           Column(
             children: [
@@ -53,6 +55,11 @@ class _DisplayElementsScreenState extends State<DisplayElementsScreen> {
             ],
           ),
         );
+      } else if (element.isNotEmpty && element[0] == 'sounds') {
+        int soundId = element[1];
+        final soundComponent = SoundComponent(soundId: soundId);
+        _soundElements.add(soundComponent);
+        _avaliarComportamentoElements.add(soundComponent);
       }
     }
     return _avaliarComportamentoElements;
@@ -63,14 +70,13 @@ class _DisplayElementsScreenState extends State<DisplayElementsScreen> {
     final textResponseDao = TextResponseDao();
     final optionResponseDao = OptionResponseDao();
     final jsonDataResponseDao = JsonDataResponseDao();
-    final formId = await formDao.insertForm({
-      'name': 'Novo Formulário',
-      'id_patient': widget.idPatient
-    }); // Insere um novo formulário e obtém o ID
+    final soundResponseDao = SoundResponseDao();
+
+    final formId = await formDao.insertForm(
+        {'name': 'Novo Formulário', 'id_patient': widget.idPatient});
 
     for (var question in _questions) {
       if (question.answerOptions != null) {
-        // Questão de múltipla escolha
         final selectedOption = question.selectedOptionNotifier.value;
         if (selectedOption != null) {
           await optionResponseDao.insertResponse({
@@ -80,7 +86,6 @@ class _DisplayElementsScreenState extends State<DisplayElementsScreen> {
           });
         }
       } else {
-        // Questão de texto
         final responseText = question.textController.text;
         await textResponseDao.insertResponse({
           'form_id': formId,
@@ -88,6 +93,14 @@ class _DisplayElementsScreenState extends State<DisplayElementsScreen> {
           'response_text': responseText,
         });
       }
+    }
+
+    for (var sound in _soundElements) {
+      await soundResponseDao.insertResponse({
+        'form_id': formId,
+        'sound_id': sound.soundId,
+        'text_response': sound.textController.text, // Correção aqui
+      });
     }
 
     for (var jsonData in _jsonDataElements) {
