@@ -30,8 +30,6 @@ class _FormScreenState extends State<FormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _typeFormDao = TypeFormDao();
   final _hashAccessDao = HashAccessDao();
-  final SoundListScreen _soundListScreen =
-      SoundListScreen(onSoundSelected: (int soundId) {});
 
   List<Map<String, dynamic>> _typeFormElements = [];
 
@@ -147,6 +145,10 @@ class _FormScreenState extends State<FormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final soundListScreen = SoundListScreen(onSoundSelected: (int soundId) {
+      _addElementToAnaliseInfo('sounds', soundId);
+    });
+
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -207,7 +209,7 @@ class _FormScreenState extends State<FormScreen> {
                           const SizedBox(width: 8),
                           CardOption('Sons', Icons.volume_up, onTap: (name) {
                             _handleCardOptionTap(name);
-                            _soundListScreen.stopCurrentSound();
+                            soundListScreen.stopCurrentSound();
                           }),
                           const SizedBox(width: 8),
                           CardOption('Dados', Icons.data_usage,
@@ -241,7 +243,7 @@ class _FormScreenState extends State<FormScreen> {
                       ),
                     ],
                     if (_name == 'Sons') ...[
-                      _soundListScreen,
+                      soundListScreen,
                     ],
                     if (_name == 'Dados') ...[
                       GestureDetector(
@@ -271,33 +273,31 @@ class _FormScreenState extends State<FormScreen> {
                         buttonText: 'Adicionar pergunta',
                       ),
                     ],
-                    if (_selectedTypeForm == 'Analise de informações') ...[
-                      ElevatedButton(
-                        onPressed: () {
-                          _soundListScreen
-                              .stopCurrentSound(); // Para o som atual
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DisplayElementsScreen(
-                                elements: _analiseInfoElements,
-                                idPatient: int.parse(_selectedPatientId),
-                              ),
-                            ),
-                          );
-                        },
-                        child: const Text('Ver Elementos Analisados'),
-                      ),
-                    ] else if (_selectedTypeForm ==
-                        'Avaliar Comportamento') ...[
-                      ElevatedButton(
-                        onPressed: _createSession,
-                        child: const Text('Criar Sessão'),
-                      ),
-                    ],
                   ],
                 ),
               ),
+              if (_selectedTypeForm == 'Analise de informações') ...[
+                ElevatedButton(
+                  onPressed: () {
+                    soundListScreen.stopCurrentSound(); // Para o som atual
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DisplayElementsScreen(
+                          elements: _analiseInfoElements,
+                          idPatient: int.parse(_selectedPatientId),
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Text('Ver Elementos Analisados'),
+                ),
+              ] else if (_selectedTypeForm == 'Avaliar Comportamento') ...[
+                ElevatedButton(
+                  onPressed: _createSession,
+                  child: const Text('Criar Sessão'),
+                ),
+              ],
             ],
           ),
         ),
