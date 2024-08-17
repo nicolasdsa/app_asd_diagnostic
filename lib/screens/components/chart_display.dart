@@ -8,6 +8,8 @@ class ChartData extends StatefulWidget {
   final DateTime startDate;
   final DateTime endDate;
   final String game;
+  final bool initiallyExpanded;
+  final Function(List<GlobalKey>)? onKeysGenerated;
 
   const ChartData({
     super.key,
@@ -15,6 +17,8 @@ class ChartData extends StatefulWidget {
     required this.startDate,
     required this.endDate,
     required this.game,
+    this.onKeysGenerated,
+    this.initiallyExpanded = false,
   });
 
   @override
@@ -22,13 +26,15 @@ class ChartData extends StatefulWidget {
 }
 
 class _ChartDataState extends State<ChartData> {
+  List<GlobalKey> _repaintBoundaryKeys = [];
   final JsonDataDao jsonDataDao = JsonDataDao();
   late Future<List<List<dynamic>>> futureJsonData;
-  bool isExpanded = false;
+  late bool isExpanded;
 
   @override
   void initState() {
     super.initState();
+    isExpanded = widget.initiallyExpanded;
     futureJsonData = jsonDataDao.getAllJsonDataByGameAndDate(
       widget.game,
       widget.idPatient,
@@ -62,57 +68,66 @@ class _ChartDataState extends State<ChartData> {
                   : '';
             }).toList();
 
-            return Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    chartTitle,
-                    style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                SizedBox(
-                  height: 300,
-                  child: LineChart(
-                    LineChartData(
-                      lineBarsData: [
-                        LineChartBarData(
-                          spots: spots,
-                          isCurved: true,
-                          color: Colors.blue,
-                          barWidth: 4,
-                          isStrokeCapRound: true,
-                          dotData: const FlDotData(show: true),
-                        ),
-                      ],
-                      titlesData: FlTitlesData(
-                        show: true,
-                        rightTitles: AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
-                        ),
-                        topTitles: AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
-                        ),
-                        bottomTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            reservedSize: 32,
-                            interval: 1,
-                            getTitlesWidget: (value, meta) =>
-                                bottomTitleWidgets(value, meta, dates),
-                          ),
-                        ),
-                      ),
-                      minX: 0,
-                      minY: 0,
+            GlobalKey repaintBoundaryKey = GlobalKey();
+            _repaintBoundaryKeys.add(repaintBoundaryKey);
+
+            return RepaintBoundary(
+              key: repaintBoundaryKey,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      chartTitle,
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                   ),
-                ),
-              ],
+                  SizedBox(
+                    height: 300,
+                    child: LineChart(
+                      LineChartData(
+                        lineBarsData: [
+                          LineChartBarData(
+                            spots: spots,
+                            isCurved: true,
+                            color: Colors.blue,
+                            barWidth: 4,
+                            isStrokeCapRound: true,
+                            dotData: const FlDotData(show: true),
+                          ),
+                        ],
+                        titlesData: FlTitlesData(
+                          show: true,
+                          rightTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                          topTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                          bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 32,
+                              interval: 1,
+                              getTitlesWidget: (value, meta) =>
+                                  bottomTitleWidgets(value, meta, dates),
+                            ),
+                          ),
+                        ),
+                        minX: 0,
+                        minY: 0,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             );
           }).toList();
 
+          if (widget.onKeysGenerated != null) {
+            widget.onKeysGenerated!(_repaintBoundaryKeys);
+          }
           return SingleChildScrollView(
             child: Column(
               children: [
