@@ -11,6 +11,7 @@ class Question extends StatefulWidget {
   final ValueNotifier<String?> selectedPositionNotifier; // Novo ValueNotifier
   final TextEditingController textController; // Novo TextEditingController
   final List<String>? answerOptionIds;
+  final Color backgroundColor; // Novo parâmetro
 
   const Question(
       this.id,
@@ -22,7 +23,8 @@ class Question extends StatefulWidget {
       this.textController,
       this.answerOptionIds, // Novo TextEditingController
       this.selectedPositionNotifier, // Novo TextEditingController
-      {Key? key})
+      {this.backgroundColor = Colors.white, // Valor padrão branco
+      Key? key})
       : super(key: key);
 
   @override
@@ -37,43 +39,46 @@ class _QuestionState extends State<Question> {
         return Card(
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: constraints.maxWidth,
-                  child: Text(widget.name),
-                ),
-                if (widget.isSelectable && widget.answerOptions == null)
-                  TextFormField(
-                    controller: widget.textController,
-                    decoration: const InputDecoration(
-                      labelText: 'Resposta',
-                    ),
+            child: Container(
+              color: widget.backgroundColor, // Define a cor de fundo
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: constraints.maxWidth,
+                    child: Text(widget.name),
                   ),
-                if (widget.answerOptions != null)
-                  ...widget.answerOptions!.map((option) {
-                    return RadioListTile(
-                      value: option,
-                      groupValue: widget.selectedPositionNotifier.value,
-                      onChanged: widget.isSelectable
-                          ? (value) {
-                              setState(() {
-                                final position = widget.answerOptions!
-                                    .indexOf(value as String);
+                  if (widget.isSelectable && widget.answerOptions == null)
+                    TextFormField(
+                      controller: widget.textController,
+                      decoration: const InputDecoration(
+                        labelText: 'Resposta',
+                      ),
+                    ),
+                  if (widget.answerOptions != null)
+                    ...widget.answerOptions!.map((option) {
+                      return RadioListTile(
+                        value: option,
+                        groupValue: widget.selectedPositionNotifier.value,
+                        onChanged: widget.isSelectable
+                            ? (value) {
+                                setState(() {
+                                  final position = widget.answerOptions!
+                                      .indexOf(value as String);
 
-                                widget.selectedPositionNotifier.value =
-                                    value as String?;
+                                  widget.selectedPositionNotifier.value =
+                                      value as String?;
 
-                                widget.selectedOptionNotifier.value =
-                                    widget.answerOptionIds?[position];
-                              });
-                            }
-                          : null, // Desabilitar seleção se isSelectable for falso
-                      title: Text(option),
-                    );
-                  }).toList(),
-              ],
+                                  widget.selectedOptionNotifier.value =
+                                      widget.answerOptionIds?[position];
+                                });
+                              }
+                            : null, // Desabilitar seleção se isSelectable for falso
+                        title: Text(option),
+                      );
+                    }).toList(),
+                ],
+              ),
             ),
           ),
         );

@@ -13,11 +13,10 @@ class GameDao {
 
   final dbHelper = DatabaseHelper.instance;
 
-  Future<List<GameComponent>> getAll() async {
+  Future<List<Map<String, dynamic>>> getAll() async {
     final db = await dbHelper.database;
     final List<Map<String, dynamic>> result = await db.query(_tableName);
-    List<GameComponent> games = await toList(result);
-    return games;
+    return result;
   }
 
   Future<List<Map<String, dynamic>>> getAllHash() async {

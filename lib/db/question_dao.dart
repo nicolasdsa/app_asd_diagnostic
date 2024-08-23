@@ -38,11 +38,10 @@ class QuestionDao {
     return newQuestion;
   }
 
-  Future<List<Question>> getAll() async {
+  Future<List<Map<String, dynamic>>> getAll() async {
     final db = await dbHelper.database;
-    final List<Map<String, dynamic>> result = await db.query(_tableName);
-    List<Question> questions = await toList(result);
-    return questions;
+    return await db
+        .query(_tableName); // Retorna o resultado da consulta diretamente
   }
 
   Future<List<Question>> toList(List<Map<String, dynamic>> questionsAll) async {

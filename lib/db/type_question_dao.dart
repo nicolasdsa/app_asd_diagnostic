@@ -15,7 +15,7 @@ class TypeQuestionDao {
     return result;
   }
 
-  Future<String?> getTypeQuestionName(int id) async {
+  Future<String> getTypeQuestionName(int id) async {
     final db = await dbHelper.database;
     final result = await db.query(
       _tableName,
@@ -24,8 +24,8 @@ class TypeQuestionDao {
       whereArgs: [id],
     );
     if (result.isNotEmpty) {
-      return result.first['name'] as String?;
+      return result.first['name'] as String;
     }
-    return null;
+    return 'teste';
   }
 }

@@ -1,5 +1,13 @@
+import 'package:app_asd_diagnostic/db/answer_options_dao.dart';
+import 'package:app_asd_diagnostic/db/json_data_dao.dart';
+import 'package:app_asd_diagnostic/db/sound_dao.dart';
+import 'package:app_asd_diagnostic/db/type_question_dao.dart';
+import 'package:app_asd_diagnostic/models/sound.dart';
 import 'package:app_asd_diagnostic/screens/questions_create_screen.dart';
 import 'package:app_asd_diagnostic/screens/sound_list_screen.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:app_asd_diagnostic/screens/components/card_option.dart';
 import 'package:app_asd_diagnostic/screens/components/game.dart';
@@ -16,6 +24,8 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 
+import 'package:intl/intl.dart';
+
 class FormScreen extends StatefulWidget {
   final ValueNotifier<int> formChangeNotifier;
 
@@ -25,7 +35,7 @@ class FormScreen extends StatefulWidget {
   _FormScreenState createState() => _FormScreenState();
 }
 
-class _FormScreenState extends State<FormScreen> {
+class _FormScreenState extends State<FormScreen> with WidgetsBindingObserver {
   late ValueNotifier<int> questionChangeNotifier;
   final _formKey = GlobalKey<FormState>();
   final _typeFormDao = TypeFormDao();
@@ -35,15 +45,194 @@ class _FormScreenState extends State<FormScreen> {
 
   String _name = '';
   String _selectedTypeForm = '';
-  String _selectedPatientId = '';
+  String _selectedPatientId = '1';
 
   List<List<dynamic>> _analiseInfoElements = [];
   List<List<dynamic>> _avaliarComportamentoElements = [];
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  final SoundDao _soundDao = SoundDao();
+  List<Sound> _sounds = [];
+  String? _currentPlayingSound;
+  String? _selectedFilePath;
+  final JsonDataDao jsonDataDao = JsonDataDao();
+  late Future<Map<String, List<List<dynamic>>>> futureJsonData;
+  DateTime? startDate;
+  DateTime? endDate;
+  Map<String, bool> expandedGames = {};
+  String? selectedGame;
+
+  void _pickStartDate() async {
+    DateTime? date = await showDatePicker(
+      context: context,
+      initialDate: startDate!,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+    );
+    if (date != null && (endDate == null || date.isBefore(endDate!))) {
+      setState(() {
+        startDate = date;
+        int? selectedPatientId = int.tryParse(_selectedPatientId);
+        if (selectedPatientId != null) {
+          futureJsonData = jsonDataDao.getAllJsonDataGroupedByGame(
+              selectedPatientId, startDate!, endDate!);
+        }
+        handleExpansionChange(selectedGame, startDate, endDate, false);
+      });
+    }
+  }
+
+  void _pickEndDate() async {
+    DateTime? date = await showDatePicker(
+      context: context,
+      initialDate: endDate!,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+    );
+    if (date != null && (startDate == null || date.isAfter(startDate!))) {
+      setState(() {
+        endDate = date;
+        int? selectedPatientId = int.tryParse(_selectedPatientId);
+        if (selectedPatientId != null) {
+          futureJsonData = jsonDataDao.getAllJsonDataGroupedByGame(
+              selectedPatientId, startDate!, endDate!);
+        }
+
+        handleExpansionChange(selectedGame, startDate, endDate, false);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _audioPlayer
+        .dispose(); // Libera os recursos do player quando o widget é removido
+    WidgetsBinding.instance
+        .removeObserver(this); // Remove o observador do ciclo de vida
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      _audioPlayer
+          .stop(); // Para o áudio se o aplicativo for para o background ou for fechado
+    }
+  }
+
+  void _showAddSoundDialog() {
+    final nameController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Adicionar Som'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: InputDecoration(labelText: 'Nome'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  FilePickerResult? result =
+                      await FilePicker.platform.pickFiles(type: FileType.audio);
+                  if (result != null) {
+                    setState(() {
+                      _selectedFilePath = result.files.single.path!;
+                    });
+                  }
+                },
+                child: Text('Escolher Arquivo de Som'),
+              ),
+              if (_selectedFilePath != null) Text('Arquivo selecionado!'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (_selectedFilePath != null &&
+                    nameController.text.isNotEmpty) {
+                  final sound = Sound(
+                    name: nameController.text,
+                    filePath: _selectedFilePath!,
+                  );
+                  _addSound(sound);
+                  Navigator.pop(context);
+                }
+              },
+              child: Text('Confirmar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _addSound(Sound sound) async {
+    await _soundDao.insert(sound);
+    _fetchSounds();
+  }
+
+  Future<void> _fetchSounds() async {
+    final sounds = await _soundDao.getAll();
+    setState(() {
+      _sounds = sounds;
+    });
+  }
+
+  Future<void> _deleteSound(int id) async {
+    await _soundDao.delete(id);
+    _fetchSounds();
+  }
+
+  void _playSound(String filePath) async {
+    if (_currentPlayingSound == filePath) {
+      await _audioPlayer.stop();
+      setState(() {
+        _currentPlayingSound = null;
+      });
+    } else {
+      await _audioPlayer.stop();
+      await _audioPlayer.setSource(UrlSource(filePath));
+      _audioPlayer.setReleaseMode(ReleaseMode.loop);
+      await _audioPlayer.play(UrlSource(filePath));
+      setState(() {
+        _currentPlayingSound = filePath;
+      });
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    startDate = DateTime.now().subtract(Duration(days: 30));
+    endDate = DateTime.now();
+
+    int? selectedPatientId = int.tryParse(_selectedPatientId);
+    if (selectedPatientId != null) {
+      futureJsonData = jsonDataDao.getAllJsonDataGroupedByGame(
+          selectedPatientId, startDate!, endDate!);
+    }
+
     questionChangeNotifier = ValueNotifier(0);
+    WidgetsBinding.instance
+        .addObserver(this); // Adiciona o observador do ciclo de vida
+  }
+
+  void stopSound() async {
+    if (_currentPlayingSound != null) {
+      await _audioPlayer.stop();
+      setState(() {
+        _currentPlayingSound = null;
+      });
+    }
   }
 
   void handleExpansionChange(
@@ -145,10 +334,6 @@ class _FormScreenState extends State<FormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final soundListScreen = SoundListScreen(onSoundSelected: (int soundId) {
-      _addElementToAnaliseInfo('sounds', soundId);
-    });
-
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -204,16 +389,20 @@ class _FormScreenState extends State<FormScreen> {
                         _selectedTypeForm == 'Analise de informações') ...[
                       Row(
                         children: [
-                          CardOption('Perguntas', Icons.help,
-                              onTap: (name) => _handleCardOptionTap(name)),
-                          const SizedBox(width: 8),
-                          CardOption('Sons', Icons.volume_up, onTap: (name) {
+                          CardOption('Perguntas', Icons.help, onTap: (name) {
+                            stopSound();
                             _handleCardOptionTap(name);
-                            soundListScreen.stopCurrentSound();
                           }),
                           const SizedBox(width: 8),
-                          CardOption('Dados', Icons.data_usage,
-                              onTap: (name) => _handleCardOptionTap(name)),
+                          CardOption('Sons', Icons.volume_up, onTap: (name) {
+                            stopSound();
+                            _handleCardOptionTap(name);
+                          }),
+                          const SizedBox(width: 8),
+                          CardOption('Dados', Icons.data_usage, onTap: (name) {
+                            stopSound();
+                            _handleCardOptionTap(name);
+                          }),
                         ],
                       ),
                     ],
@@ -228,49 +417,441 @@ class _FormScreenState extends State<FormScreen> {
                       ),
                     ],
                     if (_name == 'Jogos') ...[
-                      ListData<GameComponent>(
-                        questionChangeNotifier: null,
-                        getItems: () => GameDao().getAll(),
-                        buildItem: (item) {
-                          return GestureDetector(
-                            onTap: () {
-                              _addElementToAvaliarComportamento(
-                                  'games', item.id);
-                            },
-                            child: item,
-                          );
+                      FutureBuilder<List<Map<String, dynamic>>>(
+                        future: GameDao().getAll(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const CircularProgressIndicator();
+                          } else if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          } else {
+                            final items = snapshot.data ?? [];
+                            return Column(
+                              children: items.map((item) {
+                                // Cria um ValueNotifier para rastrear se a questão está na lista de análise
+                                ValueNotifier<bool> isIncludedInAnalysisGame =
+                                    ValueNotifier(
+                                  _analiseInfoElements.any(
+                                      (element) => element[1] == item['id']),
+                                );
+
+                                return GestureDetector(
+                                  onTap: () {
+                                    _addElementToAnaliseInfo(
+                                        'games', item['id']);
+                                    isIncludedInAnalysisGame.value =
+                                        !isIncludedInAnalysisGame.value;
+                                  },
+                                  child: ValueListenableBuilder<bool>(
+                                    valueListenable: isIncludedInAnalysisGame,
+                                    builder: (context, isIncluded, _) {
+                                      return GameComponent(
+                                        item['name'],
+                                        item['link'],
+                                        id: item['id'],
+                                        backgroundColor: isIncluded
+                                            ? Colors.green
+                                            : Colors.white,
+                                      );
+                                    },
+                                  ),
+                                );
+                              }).toList(),
+                            );
+                          }
                         },
                       ),
                     ],
                     if (_name == 'Sons') ...[
-                      soundListScreen,
+                      FutureBuilder<List<Sound>>(
+                        future: SoundDao().getAll(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const CircularProgressIndicator();
+                          } else if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          } else {
+                            final sounds = snapshot.data ?? [];
+                            return Column(
+                              children: sounds.map((sound) {
+                                // Cria um ValueNotifier para rastrear se o som está na lista de análise
+                                ValueNotifier<bool> isIncludedInAnalysis =
+                                    ValueNotifier(
+                                  _analiseInfoElements
+                                      .any((element) => element[1] == sound.id),
+                                );
+
+                                return GestureDetector(
+                                  onTap: () {
+                                    _addElementToAnaliseInfo(
+                                        'sounds', sound.id);
+                                    isIncludedInAnalysis.value =
+                                        !isIncludedInAnalysis.value;
+                                  },
+                                  child: ValueListenableBuilder<bool>(
+                                    valueListenable: isIncludedInAnalysis,
+                                    builder: (context, isIncluded, _) {
+                                      return ListTile(
+                                        leading: IconButton(
+                                          icon: Icon(
+                                            _currentPlayingSound ==
+                                                    sound.filePath
+                                                ? Icons.stop
+                                                : Icons.play_arrow,
+                                          ),
+                                          onPressed: () =>
+                                              _playSound(sound.filePath),
+                                        ),
+                                        title: Text(sound.name),
+                                        tileColor: isIncluded
+                                            ? Colors.green
+                                            : Colors.white,
+                                        trailing: IconButton(
+                                          icon: Icon(Icons.delete),
+                                          onPressed: () =>
+                                              _deleteSound(sound.id!),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                );
+                              }).toList(),
+                            );
+                          }
+                        },
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: ElevatedButton(
+                          onPressed: _showAddSoundDialog,
+                          child: Text('Adicionar Som'),
+                        ),
+                      ),
                     ],
                     if (_name == 'Dados') ...[
-                      GestureDetector(
-                          onTap: () {
-                            //_addElementToAnaliseInfo(
-                            //  'json_data', CombinedLineChart());
-                          },
-                          child: CombinedLineChart(
-                              idPatient: int.parse(_selectedPatientId),
-                              onExpansionChange: handleExpansionChange)),
+                      Column(
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ListTile(
+                                  title: Text(
+                                      "Start Date: ${DateFormat('yyyy-MM-dd').format(startDate!)}"),
+                                  trailing: Icon(Icons.calendar_today),
+                                  onTap: _pickStartDate,
+                                ),
+                              ),
+                              Expanded(
+                                child: ListTile(
+                                  title: Text(
+                                      "End Date: ${DateFormat('yyyy-MM-dd').format(endDate!)}"),
+                                  trailing: Icon(Icons.calendar_today),
+                                  onTap: _pickEndDate,
+                                ),
+                              ),
+                            ],
+                          ),
+                          FutureBuilder(
+                            future: futureJsonData,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              } else if (snapshot.hasError) {
+                                return Center(
+                                    child: Text('Error: ${snapshot.error}'));
+                              } else if (!snapshot.hasData ||
+                                  (snapshot.data
+                                          as Map<String, List<List<dynamic>>>)
+                                      .isEmpty) {
+                                return const Center(
+                                    child: Text('No data available'));
+                              } else {
+                                Map<String, List<List<dynamic>>> allJsonData =
+                                    snapshot.data
+                                        as Map<String, List<List<dynamic>>>;
+
+                                return SingleChildScrollView(
+                                  child: Column(
+                                    children: allJsonData.keys.map((game) {
+                                      bool isExpanded =
+                                          expandedGames[game] ?? false;
+
+                                      ValueNotifier<bool> isInAnaliseInfo =
+                                          ValueNotifier(_analiseInfoElements
+                                              .any((element) =>
+                                                  element[0] == 'json_data' &&
+                                                  element[1] == game));
+                                      return ValueListenableBuilder<bool>(
+                                        valueListenable: isInAnaliseInfo,
+                                        builder: (context, isIncluded, _) {
+                                          print(isIncluded);
+                                          return Column(
+                                            children: [
+                                              ListTile(
+                                                tileColor: isIncluded
+                                                    ? Colors.green[100]
+                                                    : Colors.white,
+                                                title: Text(
+                                                  game,
+                                                  style: const TextStyle(
+                                                    fontSize: 20,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                trailing: Icon(
+                                                  isExpanded
+                                                      ? Icons.expand_less
+                                                      : Icons.expand_more,
+                                                ),
+                                                onTap: () {
+                                                  setState(() {
+                                                    expandedGames[game] =
+                                                        !isExpanded;
+                                                    selectedGame = game;
+                                                  });
+                                                },
+                                                onLongPress: () {
+                                                  setState(() {
+                                                    handleExpansionChange(
+                                                        game,
+                                                        startDate,
+                                                        endDate,
+                                                        true);
+                                                  });
+                                                },
+                                              ),
+                                              if (isExpanded)
+                                                ...allJsonData[game]!
+                                                    .map((chartData) {
+                                                  String chartTitle =
+                                                      chartData[0];
+                                                  List<FlSpot> spots =
+                                                      List.generate(
+                                                          chartData[1].length,
+                                                          (index) {
+                                                    var dataPoint =
+                                                        chartData[1][index];
+                                                    return FlSpot(
+                                                        index.toDouble(),
+                                                        double.parse(
+                                                            dataPoint[0]
+                                                                .toString()));
+                                                  });
+
+                                                  List<String> dates =
+                                                      chartData[1].map<String>(
+                                                          (dataPoint) {
+                                                    var date = dataPoint[1];
+                                                    return date != null
+                                                        ? DateFormat('dd/MM')
+                                                            .format(
+                                                                DateTime.parse(
+                                                                    date))
+                                                        : '';
+                                                  }).toList();
+
+                                                  return Column(
+                                                    children: [
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(8.0),
+                                                        child: Text(
+                                                          chartTitle,
+                                                          style: const TextStyle(
+                                                              fontSize: 16,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600),
+                                                        ),
+                                                      ),
+                                                      SizedBox(
+                                                        height: 300,
+                                                        child: LineChart(
+                                                          LineChartData(
+                                                            lineBarsData: [
+                                                              LineChartBarData(
+                                                                spots: spots,
+                                                                isCurved: true,
+                                                                color:
+                                                                    Colors.blue,
+                                                                barWidth: 4,
+                                                                isStrokeCapRound:
+                                                                    true,
+                                                                dotData:
+                                                                    const FlDotData(
+                                                                        show:
+                                                                            true),
+                                                              ),
+                                                            ],
+                                                            titlesData:
+                                                                FlTitlesData(
+                                                              show: true,
+                                                              rightTitles:
+                                                                  AxisTitles(
+                                                                sideTitles:
+                                                                    SideTitles(
+                                                                        showTitles:
+                                                                            false),
+                                                              ),
+                                                              topTitles:
+                                                                  AxisTitles(
+                                                                sideTitles:
+                                                                    SideTitles(
+                                                                        showTitles:
+                                                                            false),
+                                                              ),
+                                                              bottomTitles:
+                                                                  AxisTitles(
+                                                                sideTitles:
+                                                                    SideTitles(
+                                                                  showTitles:
+                                                                      true,
+                                                                  reservedSize:
+                                                                      32,
+                                                                  interval: 1,
+                                                                  getTitlesWidget: (value,
+                                                                          meta) =>
+                                                                      bottomTitleWidgets(
+                                                                          value,
+                                                                          meta,
+                                                                          dates),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            minX: 0,
+                                                            minY: 0,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  );
+                                                }).toList(),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    }).toList(),
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                        ],
+                      ),
                     ],
                     if (_name == 'Perguntas') ...[
-                      ListData<Question>(
-                        questionChangeNotifier: questionChangeNotifier,
-                        getItems: () => QuestionDao().getAll(),
-                        buildItem: (item) {
-                          return GestureDetector(
-                            onTap: () {
-                              _addElementToAnaliseInfo('questions', item.id);
-                            },
-                            child: item,
+                      FutureBuilder<List<Map<String, dynamic>>>(
+                        future: QuestionDao().getAll(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const CircularProgressIndicator();
+                          } else if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          } else {
+                            final items = snapshot.data ?? [];
+                            return Column(
+                              children: items.map((item) {
+                                // Cria um ValueNotifier para rastrear se a questão está na lista de análise
+                                ValueNotifier<bool> isIncludedInAnalysis =
+                                    ValueNotifier(
+                                  _analiseInfoElements.any(
+                                      (element) => element[1] == item['id']),
+                                );
+
+                                return FutureBuilder<String>(
+                                  future: TypeQuestionDao()
+                                      .getTypeQuestionName(item['id_type']),
+                                  builder: (context, typeSnapshot) {
+                                    if (typeSnapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const CircularProgressIndicator();
+                                    } else if (typeSnapshot.hasError) {
+                                      return Text(
+                                          'Error: ${typeSnapshot.error}');
+                                    } else {
+                                      final nameTypeQuestion =
+                                          typeSnapshot.data ?? '';
+
+                                      return FutureBuilder<
+                                          List<Map<String, dynamic>>>(
+                                        future: AnswerOptionsDao()
+                                            .getOptionsForQuestion(item['id']),
+                                        builder: (context, optionsSnapshot) {
+                                          List<String>? answerOptions;
+                                          List<String>? answerOptionIds;
+
+                                          if (optionsSnapshot.hasData) {
+                                            answerOptions = optionsSnapshot
+                                                .data!
+                                                .map((option) =>
+                                                    option['option_text']
+                                                        as String)
+                                                .toList();
+
+                                            answerOptionIds = optionsSnapshot
+                                                .data!
+                                                .map((option) =>
+                                                    option['id'].toString())
+                                                .toList();
+                                          }
+
+                                          return GestureDetector(
+                                            onTap: () {
+                                              _addElementToAnaliseInfo(
+                                                  'questions', item['id']);
+                                              isIncludedInAnalysis.value =
+                                                  !isIncludedInAnalysis.value;
+                                            },
+                                            child: ValueListenableBuilder<bool>(
+                                              valueListenable:
+                                                  isIncludedInAnalysis,
+                                              builder:
+                                                  (context, isIncluded, _) {
+                                                return Question(
+                                                  item['id'],
+                                                  item['question'],
+                                                  nameTypeQuestion,
+                                                  answerOptions,
+                                                  false, // Ou false, dependendo da lógica
+                                                  ValueNotifier<String?>(null),
+                                                  TextEditingController(),
+                                                  answerOptionIds,
+                                                  ValueNotifier<String?>(null),
+                                                  backgroundColor: isIncluded
+                                                      ? Colors.green
+                                                      : Colors.white,
+                                                );
+                                              },
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    }
+                                  },
+                                );
+                              }).toList(),
+                            );
+                          }
+                        },
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => QuestionCreateScreen(
+                                questionChangeNotifier: questionChangeNotifier,
+                              ),
+                            ),
                           );
                         },
-                        navigateTo: (context) => QuestionCreateScreen(
-                          questionChangeNotifier: questionChangeNotifier,
-                        ),
-                        buttonText: 'Adicionar pergunta',
+                        child: const Text('Adicionar pergunta'),
                       ),
                     ],
                   ],
@@ -279,7 +860,7 @@ class _FormScreenState extends State<FormScreen> {
               if (_selectedTypeForm == 'Analise de informações') ...[
                 ElevatedButton(
                   onPressed: () {
-                    soundListScreen.stopCurrentSound(); // Para o som atual
+                    stopSound();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
