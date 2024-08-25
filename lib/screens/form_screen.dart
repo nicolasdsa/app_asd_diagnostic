@@ -215,6 +215,10 @@ class _FormScreenState extends State<FormScreen> with WidgetsBindingObserver {
     startDate = DateTime.now().subtract(Duration(days: 30));
     endDate = DateTime.now();
 
+    _typeFormDao.getAll().then((List<Map<String, dynamic>> elements) {
+      _typeFormElements = elements;
+    });
+
     int? selectedPatientId = int.tryParse(_selectedPatientId);
     if (selectedPatientId != null) {
       futureJsonData = jsonDataDao.getAllJsonDataGroupedByGame(
@@ -348,13 +352,6 @@ class _FormScreenState extends State<FormScreen> with WidgetsBindingObserver {
                 onPatientSelected: (int patientId) {
                   setState(() {
                     _selectedPatientId = patientId.toString();
-                  });
-                  _typeFormDao
-                      .getAll()
-                      .then((List<Map<String, dynamic>> elements) {
-                    setState(() {
-                      _typeFormElements = elements;
-                    });
                   });
                 },
               ),

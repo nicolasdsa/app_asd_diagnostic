@@ -1,4 +1,4 @@
-import 'package:app_asd_diagnostic/screens/patient_details.dart';
+import 'package:app_asd_diagnostic/screens/components/patient_details.dart';
 import 'package:flutter/material.dart';
 import 'package:app_asd_diagnostic/db/patient_dao.dart';
 import 'package:app_asd_diagnostic/db/form_dao.dart';

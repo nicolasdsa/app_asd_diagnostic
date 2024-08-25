@@ -3,7 +3,6 @@ class GameStats {
   DateTime sessionStartTime;
   DateTime? gameStartTime;
   int totalGames = 0;
-  int totalGameTime = 0; // in seconds
 
   GameStats() : sessionStartTime = DateTime.now();
 
@@ -14,8 +13,8 @@ class GameStats {
 
   void endGame() {
     if (gameStartTime != null) {
-      totalGameTime += DateTime.now().difference(gameStartTime!).inSeconds;
       gameStartTime = null;
+      reactionTimes = [];
     }
   }
 
@@ -27,15 +26,11 @@ class GameStats {
       ? 0
       : reactionTimes.reduce((a, b) => a + b) / reactionTimes.length;
 
-  double get averageGameTime =>
-      totalGames == 0 ? 0 : totalGameTime / totalGames;
-
   Map<String, dynamic> toJson() {
     return {
       'Tempo de reação médio': averageReactionTime,
       'Tempo de jogo': DateTime.now().difference(sessionStartTime).inSeconds,
-      'Tempo de jogo médio': averageGameTime,
-      'Total de jogos': totalGames,
+      'Total de jogos na mesma sessão': totalGames,
     };
   }
 }

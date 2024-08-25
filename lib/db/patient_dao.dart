@@ -1,6 +1,6 @@
 import 'package:app_asd_diagnostic/db/database.dart';
 import 'package:app_asd_diagnostic/screens/components/patient.dart';
-import 'package:app_asd_diagnostic/screens/patient_details.dart';
+import 'package:app_asd_diagnostic/screens/components/patient_details.dart';
 
 class PatientDao {
   static const String tableSql = 'CREATE TABLE $_tableName('

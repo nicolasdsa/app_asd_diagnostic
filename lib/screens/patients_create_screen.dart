@@ -39,7 +39,7 @@ class _PatientsCreateScreenState extends State<PatientCreateScreen> {
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Name'),
+                decoration: const InputDecoration(labelText: 'Nome'),
                 validator: (value) {
                   if (value!.isEmpty) {
                     return 'Escreva o nome do paciente';
@@ -49,7 +49,7 @@ class _PatientsCreateScreenState extends State<PatientCreateScreen> {
               ),
               TextFormField(
                 controller: _ageController,
-                decoration: const InputDecoration(labelText: 'Age'),
+                decoration: const InputDecoration(labelText: 'Idade'),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value!.isEmpty) {
@@ -60,7 +60,7 @@ class _PatientsCreateScreenState extends State<PatientCreateScreen> {
               ),
               TextFormField(
                 controller: _genderController,
-                decoration: const InputDecoration(labelText: 'Gender'),
+                decoration: const InputDecoration(labelText: 'Gênero'),
                 validator: (value) {
                   if (value!.isEmpty) {
                     return 'Escreva o sexo do paciente';
@@ -70,16 +70,20 @@ class _PatientsCreateScreenState extends State<PatientCreateScreen> {
               ),
               const SizedBox(height: 16.0),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
-                    _patientDao.insert({
+                    final patientId = await _patientDao.insert({
                       'name': _nameController.text,
                       'age': _ageController.text,
                       'gender': _genderController.text,
                     });
                     widget.patientChangeNotifier.value++;
-                    Navigator.pushReplacementNamed(context, '/');
+                    Navigator.pushReplacementNamed(
+                      context,
+                      '/patient',
+                      arguments: {'patientId': patientId.toString()},
+                    );
                   }
                 },
                 child: const Text('Submit'),

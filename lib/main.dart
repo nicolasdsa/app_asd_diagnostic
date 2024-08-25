@@ -5,6 +5,7 @@ import 'package:app_asd_diagnostic/screens/components/my_bottom_navigation_bar.d
 import 'package:app_asd_diagnostic/screens/export_screen.dart';
 import 'package:app_asd_diagnostic/screens/initial_screen.dart';
 import 'package:app_asd_diagnostic/screens/login_screen.dart';
+import 'package:app_asd_diagnostic/screens/patient_detail_screen.dart';
 import 'package:app_asd_diagnostic/screens/register_screen.dart';
 import 'package:app_asd_diagnostic/screens/test_screen.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,12 @@ void main() async {
         '/register': (context) => RegisterScreen(),
         '/test': (context) => const MyBottomNavigationBar(),
         '/export': (context) => const ExportScreen(),
+        '/patient': (context) {
+          final args =
+              ModalRoute.of(context)!.settings.arguments as Map<String, String>;
+          final idPatient = args['patientId']!;
+          return PatientDetailScreen(patientId: int.parse(idPatient));
+        },
         '/hitRunMenu': (context) {
           final args =
               ModalRoute.of(context)!.settings.arguments as Map<String, String>;

@@ -62,7 +62,7 @@ class ExportButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: _exportToExcel,
-      child: const Text('Export to Excel'),
+      child: const Text('Exportar para Excel'),
     );
   }
 }

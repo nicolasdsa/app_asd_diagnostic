@@ -34,7 +34,7 @@ class _GameSelectionFieldState extends State<GameSelectionField> {
   Widget build(BuildContext context) {
     return DropdownButton<String>(
       value: _selectedGame,
-      hint: Text('Select Game'),
+      hint: const Text('Selecione o jogo'),
       items: _games.map((String game) {
         return DropdownMenuItem<String>(
           value: game,

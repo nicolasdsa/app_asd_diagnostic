@@ -22,9 +22,10 @@ class DisplayElementsScreen extends StatefulWidget {
 }
 
 class _DisplayElementsScreenState extends State<DisplayElementsScreen> {
+  final TextEditingController _formNameController = TextEditingController();
   List<Question> _questions = [];
   List<Map<String, dynamic>> _jsonDataElements = [];
-  List<SoundComponent> _soundElements = []; // Ajuste aqui
+  List<SoundComponent> _soundElements = [];
 
   Future<List<Widget>> componentsPage(List<List<dynamic>> elements) async {
     List<Widget> _avaliarComportamentoElements = [];
@@ -72,8 +73,16 @@ class _DisplayElementsScreenState extends State<DisplayElementsScreen> {
     final jsonDataResponseDao = JsonDataResponseDao();
     final soundResponseDao = SoundResponseDao();
 
-    final formId = await formDao.insertForm(
-        {'name': 'Novo Formulário', 'id_patient': widget.idPatient});
+    final formName = _formNameController.text.trim();
+    if (formName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Por favor, insira o nome do formulário.')),
+      );
+      return;
+    }
+
+    final formId = await formDao
+        .insertForm({'name': formName, 'id_patient': widget.idPatient});
 
     for (var question in _questions) {
       if (question.answerOptions != null) {
@@ -99,7 +108,7 @@ class _DisplayElementsScreenState extends State<DisplayElementsScreen> {
       await soundResponseDao.insertResponse({
         'form_id': formId,
         'sound_id': sound.soundId,
-        'text_response': sound.textController.text, // Correção aqui
+        'text_response': sound.textController.text,
       });
     }
 
@@ -136,6 +145,14 @@ class _DisplayElementsScreenState extends State<DisplayElementsScreen> {
               return SingleChildScrollView(
                 child: Column(
                   children: [
+                    TextField(
+                      controller: _formNameController,
+                      decoration: InputDecoration(
+                        labelText: 'Nome do Formulário',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     ...snapshot.data!,
                     ElevatedButton(
                       onPressed: _createForm,
