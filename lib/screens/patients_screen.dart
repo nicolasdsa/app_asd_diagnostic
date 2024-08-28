@@ -23,6 +23,7 @@ class _PatientScreenState extends State<PatientScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pacientes'),
+        automaticallyImplyLeading: false, // Remove o botão de voltar
       ),
       body: ValueListenableBuilder(
         valueListenable: widget.patientChangeNotifier,

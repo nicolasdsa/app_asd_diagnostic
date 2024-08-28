@@ -16,41 +16,9 @@ class _InitialScreenState extends State<InitialScreen> {
     ]);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Initial Screen'),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text(
-                'Drawer Header',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
-              ),
-            ),
-            ListTile(
-              title: const Text('Item 1'),
-              onTap: () {
-                // Handle drawer item 1 tap
-              },
-            ),
-            ListTile(
-              title: const Text('Item 2'),
-              onTap: () {
-                // Handle drawer item 2 tap
-              },
-            ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: const MyBottomNavigationBar(),
-    );
+        appBar: AppBar(
+      title: const Text('Initial Screen'),
+      automaticallyImplyLeading: false, // Remove o botão de voltar
+    ));
   }
 }

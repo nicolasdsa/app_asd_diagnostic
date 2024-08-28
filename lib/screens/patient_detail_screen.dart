@@ -1,4 +1,5 @@
 import 'package:app_asd_diagnostic/screens/components/patient_details.dart';
+import 'package:app_asd_diagnostic/screens/form_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:app_asd_diagnostic/db/patient_dao.dart';
 import 'package:app_asd_diagnostic/db/form_dao.dart';
@@ -7,9 +8,9 @@ import 'package:app_asd_diagnostic/screens/form_detail_screen.dart';
 
 class PatientDetailScreen extends StatelessWidget {
   final int patientId;
+  final ValueNotifier<int> valueNotifier = ValueNotifier<int>(0);
 
-  const PatientDetailScreen({Key? key, required this.patientId})
-      : super(key: key);
+  PatientDetailScreen({Key? key, required this.patientId}) : super(key: key);
 
   Future<Map<String, dynamic>> _fetchPatientDetails() async {
     final patientDao = PatientDao();
@@ -73,6 +74,18 @@ class PatientDetailScreen extends StatelessWidget {
                       const Text('Nenhum formulário encontrado',
                           style: TextStyle(fontSize: 16)),
                     ],
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                FormScreen(idPatient: patient.id),
+                          ),
+                        );
+                      },
+                      child: const Text('Criar formulario'),
+                    ),
                   ],
                 ),
               ),

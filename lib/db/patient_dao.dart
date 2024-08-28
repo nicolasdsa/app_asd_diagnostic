@@ -76,6 +76,7 @@ class PatientDao {
     final patientData = result.first;
 
     return PatientDetails(
+      id: patientData['id'],
       name: patientData['name'],
       age: patientData['age'], // Parse age as int
       gender: patientData['gender'],
