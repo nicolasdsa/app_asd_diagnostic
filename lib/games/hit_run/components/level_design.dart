@@ -20,12 +20,10 @@ class Level extends World with HasGameRef<HitRun> {
 
   Level({required this.levelName, required this.colors, required this.mode});
   late TiledComponent level;
-  List<CollisionBlock> _collisionBlocks = [];
   Points? points;
   Hearts? hearts; // Reference to the Hearts component
   TimerDisplay? timer; // Reference to the TimerDisplay component
 
-  List<CollisionBlock> get collisionBlocks => _collisionBlocks;
   ShapeForm? selectedShape;
   String spawnedShapeType = 'Square';
   ShapeForm? spawnShape;
@@ -38,7 +36,6 @@ class Level extends World with HasGameRef<HitRun> {
 
     _scrollingBackground();
     _spawingObjects();
-    _addCollisions();
     spawnRandomShapeType();
 
     return super.onLoad();
@@ -55,21 +52,6 @@ class Level extends World with HasGameRef<HitRun> {
         position: Vector2(0, 0),
       );
       add(backgroundTile);
-    }
-  }
-
-  void _addCollisions() {
-    final collisionsLayer = level.tileMap.getLayer<ObjectGroup>('Collisions');
-
-    if (collisionsLayer != null) {
-      for (final collision in collisionsLayer.objects) {
-        final block = CollisionBlock(
-          position: Vector2(collision.x, collision.y),
-          size: Vector2(collision.width, collision.height),
-          isPlatform: false,
-        );
-        _collisionBlocks.add(block);
-      }
     }
   }
 
@@ -250,10 +232,11 @@ class Level extends World with HasGameRef<HitRun> {
     final shapes = ['Square', 'Circle', 'Triangle'];
     final rng = Random();
     spawnedShapeType = shapes[rng.nextInt(shapes.length)];
-    print('Next shape to be clicked: $spawnedShapeType');
+    int randomValue = rng.nextDouble() < 0.5 ? 0 : 1;
+    String color = colors[randomValue];
 
     if (mode == 1) {
-      FlameAudio.play('hit_run/$spawnedShapeType.ogg');
+      FlameAudio.play('hit_run/${spawnedShapeType}_$color.mp4');
     }
 
     if (spawnShape != null && mode == 0) {
@@ -261,7 +244,6 @@ class Level extends World with HasGameRef<HitRun> {
     }
 
     final spawnPointsLayer = level.tileMap.getLayer<ObjectGroup>('Spawnpoints');
-    int randomValue = rng.nextDouble() < 0.5 ? 0 : 1;
 
     if (spawnPointsLayer != null) {
       final shapesLayer = spawnPointsLayer.objects
@@ -275,7 +257,7 @@ class Level extends World with HasGameRef<HitRun> {
           level: this,
           isTap: true,
           isButton: false,
-          color: colors[randomValue]);
+          color: color);
       shape.position = Vector2(
         shapesLayer.x + rng.nextDouble() * shapesLayer.width,
         shapesLayer.y + rng.nextDouble() * shapesLayer.height,

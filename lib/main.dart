@@ -21,7 +21,7 @@ void main() async {
       ),
       initialRoute: '/test',
       routes: {
-        '/initialLogin': (context) => InitialScreen(),
+        '/initialLogin': (context) => const MyBottomNavigationBar(),
         '/': (context) => TestScreen(),
         '/login': (context) => LoginScreen(),
         '/register': (context) => RegisterScreen(),

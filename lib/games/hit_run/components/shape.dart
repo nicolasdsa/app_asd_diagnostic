@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
 import 'dart:math';
-
-import 'package:app_asd_diagnostic/games/hit_run/components/collision_block.dart';
 import 'package:app_asd_diagnostic/games/hit_run/components/level_design.dart';
 import 'package:app_asd_diagnostic/games/hit_run/hit_run.dart';
 import 'package:flame/collisions.dart';
@@ -13,6 +11,9 @@ enum PlayerState {
   square,
   circle,
   triangle,
+  squareSelected,
+  circleSelected,
+  triangleSelected
 }
 
 class ShapeForm extends SpriteAnimationGroupComponent
@@ -43,8 +44,9 @@ class ShapeForm extends SpriteAnimationGroupComponent
   late final SpriteAnimation circleAnimation;
   late final SpriteAnimation squareAnimation;
   late final SpriteAnimation triangleAnimation;
-
-  List<CollisionBlock> collisionBlocks = [];
+  late final SpriteAnimation triangleSelectedAnimation;
+  late final SpriteAnimation squareSelectedAnimation;
+  late final SpriteAnimation circleSelectedAnimation;
 
   double fixedDeltaTime = 1 / 120;
   double accumulatedTime = 0;
@@ -53,8 +55,6 @@ class ShapeForm extends SpriteAnimationGroupComponent
   FutureOr<void> onLoad() {
     _loadAllAnimations();
     startingPosition = Vector2(position.x, position.y);
-
-    collisionBlocks = level.collisionBlocks;
 
     if (form == 'circle') {
       add(CircleHitbox(radius: width / 2));
@@ -88,11 +88,17 @@ class ShapeForm extends SpriteAnimationGroupComponent
     circleAnimation = _spriteAnimation('circle', 1, 0.01);
     squareAnimation = _spriteAnimation('square', 1, 0.01);
     triangleAnimation = _spriteAnimation('rhombus', 1, 0.01);
+    squareSelectedAnimation = _spriteAnimation('square', 1, 0.01, true);
+    circleSelectedAnimation = _spriteAnimation('circle', 1, 0.01, true);
+    triangleSelectedAnimation = _spriteAnimation('rhombus', 1, 0.01, true);
 
     animations = {
       PlayerState.square: squareAnimation,
       PlayerState.circle: circleAnimation,
       PlayerState.triangle: triangleAnimation,
+      PlayerState.squareSelected: squareSelectedAnimation,
+      PlayerState.circleSelected: circleSelectedAnimation,
+      PlayerState.triangleSelected: triangleSelectedAnimation,
     };
 
     if (form == 'Circle') {
@@ -105,7 +111,17 @@ class ShapeForm extends SpriteAnimationGroupComponent
   }
 
   SpriteAnimation _spriteAnimation(String form, int amount,
-      [double stepTime = 0.1]) {
+      [double stepTime = 0.1, bool selected = false]) {
+    if (selected) {
+      return SpriteAnimation.fromFrameData(
+        game.images.fromCache('hit_run/${color}_body_${form}_selected.png'),
+        SpriteAnimationData.sequenced(
+          amount: amount,
+          stepTime: stepTime,
+          textureSize: Vector2.all(32),
+        ),
+      );
+    }
     return SpriteAnimation.fromFrameData(
       game.images.fromCache('hit_run/${color}_body_$form.png'),
       SpriteAnimationData.sequenced(
@@ -127,12 +143,16 @@ class ShapeForm extends SpriteAnimationGroupComponent
       position += smallStep;
 
       bool collisionDetected = false;
-      for (var block in collisionBlocks) {
-        Rect collisionRect = block.toRect();
-        if (collisionRect.overlaps(toRect())) {
-          collisionDetected = true;
-          break;
-        }
+      // Verifica se houve colisão com os blocos de colisão
+      // position.y + height >= gameRef.size.y * 0.75 representa a parte inferior da tela
+      // position.y <= gameRef.size.y * 0.19 representa a parte superior da tela
+      // position.x <= gameRef.size.x * 0.09 representa a parte esquerda da tela
+      // position.x + width >= gameRef.size.x * 0.8 representa a parte direita da tela
+      if (position.x <= gameRef.size.x * 0.09 ||
+          position.x + width >= gameRef.size.x * 0.8 ||
+          position.y <= gameRef.size.y * 0.19 ||
+          position.y + height >= gameRef.size.y * 0.75) {
+        collisionDetected = true;
       }
 
       if (collisionDetected) {
@@ -142,15 +162,6 @@ class ShapeForm extends SpriteAnimationGroupComponent
       }
 
       oldPosition = position.clone();
-    }
-
-    if (position.x <= 0 || position.x + width >= gameRef.size.x) {
-      speed.x = -speed.x;
-      _adjustAngle();
-    }
-    if (position.y <= 0 || position.y + height >= gameRef.size.y) {
-      speed.y = -speed.y;
-      _adjustAngle();
     }
   }
 
@@ -182,6 +193,15 @@ class ShapeForm extends SpriteAnimationGroupComponent
     }
 
     if (isButton) {
+      if (level.selectedShape != null) {
+        // Reverte o sprite da forma anteriormente selecionada
+        level.selectedShape!.updateSprite(false);
+      }
+
+      // Atualiza o sprite para o estado selecionado
+      updateSprite(true);
+
+      // Define esta forma como a selecionada
       level.selectedShape = this;
       print('Shape Selected: $form');
       return;
@@ -204,6 +224,26 @@ class ShapeForm extends SpriteAnimationGroupComponent
       level.points?.increasePoints();
     } else {
       level.hearts?.decreaseHearts();
+    }
+  }
+
+  void updateSprite(bool isSelected) {
+    if (isSelected) {
+      if (form == 'Circle') {
+        current = PlayerState.circleSelected;
+      } else if (form == 'Square') {
+        current = PlayerState.squareSelected;
+      } else if (form == 'Triangle') {
+        current = PlayerState.triangleSelected;
+      }
+    } else {
+      if (form == 'Circle') {
+        current = PlayerState.circle;
+      } else if (form == 'Square') {
+        current = PlayerState.square;
+      } else if (form == 'Triangle') {
+        current = PlayerState.triangle;
+      }
     }
   }
 }

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.0" orientation="orthogonal" renderorder="right-down" width="40" height="23" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="28">
+<map version="1.8" tiledversion="1.8.0" orientation="orthogonal" renderorder="right-down" width="40" height="23" tilewidth="16" tileheight="16" infinite="0" nextlayerid="5" nextobjectid="16">
  <tileset firstgid="1" source="Pixel Adventure.tsx"/>
  <layer id="1" name="Background" width="40" height="23">
   <data encoding="csv">
-24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,25,24,24,23,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,
-24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,25,24,24,23,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,
-24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,26,2,2,27,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,
+24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,112,112,112,112,112,112,112,112,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,
+24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,112,112,112,112,112,112,112,112,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,
+24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,112,112,112,112,112,112,112,112,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,
 24,24,24,92,134,134,134,134,134,134,134,134,134,134,134,134,134,134,134,134,134,134,134,134,134,134,134,134,134,134,134,134,134,134,134,134,93,24,24,24,
 24,24,24,113,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,111,24,24,24,
 24,24,24,113,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,111,24,24,24,
@@ -28,23 +28,22 @@
 24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24
 </data>
  </layer>
- <objectgroup id="2" name="Collisions">
-  <object id="1" x="48" y="64" width="16" height="240"/>
-  <object id="2" x="48" y="48" width="544" height="16"/>
+ <objectgroup id="4" name="Collisions">
   <object id="3" x="576" y="64" width="16" height="256"/>
   <object id="4" x="48" y="304" width="528" height="16"/>
+  <object id="1" x="48" y="64" width="16" height="240"/>
+  <object id="2" x="48" y="48" width="544" height="16"/>
  </objectgroup>
- <objectgroup id="3" name="Spawnpoints">
-  <object id="9" name="Shapes" type="Shapes" x="128" y="112" width="390" height="140"/>
-  <object id="5" name="Square" type="Square" x="96" y="336" width="32" height="32"/>
-  <object id="25" name="Square 2" type="Square 2" x="144" y="336" width="32" height="32"/>
-  <object id="6" name="Circle" type="Circle" x="272" y="336" width="32" height="32"/>
-  <object id="26" name="Circle 2" type="Circle 2" x="320" y="336" width="32" height="32"/>
-  <object id="7" name="Triangle" type="Triangle" x="448" y="336" width="32" height="32"/>
-  <object id="8" name="Spawn" type="Spawn" x="288" y="0" width="32" height="32"/>
-  <object id="10" name="Hearts" type="Hearts" x="432" y="0" width="160" height="32"/>
-  <object id="12" name="Points" type="Points" x="176" y="0" width="80" height="32"/>
-  <object id="11" name="Timer" type="Timer" x="48" y="0" width="80" height="32"/>
-  <object id="27" name="Triangle 2" type="Triangle 2" x="496" y="336" width="32" height="32"/>
+ <objectgroup id="2" name="Spawnpoints" offsetx="0" offsety="-32">
+  <object id="5" name="Shapes" type="Shapes" x="128" y="144" width="390" height="140"/>
+  <object id="6" name="Square" type="Square" x="96" y="368" width="32" height="32"/>
+  <object id="7" name="Square 2" type="Square 2" x="144" y="368" width="32" height="32"/>
+  <object id="8" name="Circle" type="Circle" x="272" y="368" width="32" height="32"/>
+  <object id="9" name="Circle 2" type="Circle 2" x="320" y="368" width="32" height="32"/>
+  <object id="10" name="Triangle" type="Triangle" x="448" y="368" width="32" height="32"/>
+  <object id="12" name="Hearts" type="Hearts" x="432" y="32" width="160" height="32"/>
+  <object id="13" name="Points" type="Points" x="176" y="32" width="80" height="32"/>
+  <object id="14" name="Timer" type="Timer" x="48" y="32" width="80" height="32"/>
+  <object id="15" name="Triangle 2" type="Triangle 2" x="496" y="368" width="32" height="32"/>
  </objectgroup>
 </map>

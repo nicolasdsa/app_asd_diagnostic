@@ -48,15 +48,15 @@ class HitRun extends FlameGame with TapCallbacks, HasCollisionDetection {
 
   void _loadLevel() async {
     if (mode == 'sonoro') {
-      levelNames = ['easy-no-sound.tmx', 'hard-no-sound.tmx'];
-    }
-
-    if (mode == 'visual') {
       levelNames = ['easy.tmx', 'hard.tmx'];
     }
 
+    if (mode == 'visual') {
+      levelNames = ['easy-no-sound.tmx', 'hard-no-sound.tmx'];
+    }
+
     int currentLevelIndex = difficulty == 'easy' ? 0 : 1;
-    List<String> colors = ['blue', 'red', 'green', 'pink', 'yellow'];
+    List<String> colors = ['blue', 'green', 'pink', 'yellow'];
     int flagMode = mode == 'visual' ? 0 : 1;
 
     if (currentLevelIndex == 0) {

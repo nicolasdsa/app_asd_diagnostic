@@ -296,8 +296,10 @@ class _FormScreenState extends State<FormScreen> with WidgetsBindingObserver {
     // Pega o ID do paciente
     final patientId = widget.idPatient;
     // Pega os IDs dos jogos
-    final gameIds =
-        _avaliarComportamentoElements.map((element) => element[1]).join(',');
+    print('Hash gerado: $_avaliarComportamentoElements');
+    final gameIds = _avaliarComportamentoElements.isNotEmpty
+        ? _avaliarComportamentoElements.map((element) => element[1]).join(',')
+        : '';
 
     // Cria o hash
     final hashInput = '$patientId-$gameIds';
@@ -305,7 +307,10 @@ class _FormScreenState extends State<FormScreen> with WidgetsBindingObserver {
     final hash = sha256.convert(bytes).toString();
 
     // Imprime o hash no console
+    print('Hash gerado: $gameIds');
     print('Hash gerado: $hash');
+    print('Hash gerado: $patientId');
+    print('Hash gerado: $hashInput');
 
     // Salva no banco de dados
     final hashAccess = {
@@ -403,13 +408,15 @@ class _FormScreenState extends State<FormScreen> with WidgetsBindingObserver {
                               // Cria um ValueNotifier para rastrear se a questão está na lista de análise
                               ValueNotifier<bool> isIncludedInAnalysisGame =
                                   ValueNotifier(
-                                _analiseInfoElements
+                                _avaliarComportamentoElements
                                     .any((element) => element[1] == item['id']),
                               );
 
                               return GestureDetector(
                                 onTap: () {
-                                  _addElementToAnaliseInfo('games', item['id']);
+                                  //
+                                  _addElementToAvaliarComportamento(
+                                      'games', item['id']);
                                   isIncludedInAnalysisGame.value =
                                       !isIncludedInAnalysisGame.value;
                                 },
