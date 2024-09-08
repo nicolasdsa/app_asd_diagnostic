@@ -1,5 +1,7 @@
 import 'package:app_asd_diagnostic/db/user.dart';
+import 'package:app_asd_diagnostic/screens/initial_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
@@ -8,6 +10,29 @@ class LoginScreen extends StatelessWidget {
   final TextEditingController _passwordController = TextEditingController();
 
   LoginScreen({super.key});
+
+  Future<void> _login(BuildContext context) async {
+    if (_formKey.currentState?.validate() == true) {
+      final username = _usernameController.text;
+      final password = _passwordController.text;
+      final success = await _dao.login(username, password);
+      if (success) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
+
+        // Remove todas as rotas da pilha e adiciona a tela inicial
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => InitialScreen()),
+          (Route<dynamic> route) => false, // Remove todas as rotas anteriores
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Invalid username or password')),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,21 +67,7 @@ class LoginScreen extends StatelessWidget {
               ),
               ElevatedButton(
                 child: const Text('Login'),
-                onPressed: () async {
-                  if (_formKey.currentState?.validate() == true) {
-                    final username = _usernameController.text;
-                    final password = _passwordController.text;
-                    final success = await _dao.login(username, password);
-                    if (success) {
-                      Navigator.pushReplacementNamed(context, '/initialLogin');
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('Invalid username or password')),
-                      );
-                    }
-                  }
-                },
+                onPressed: () => _login(context),
               ),
               ElevatedButton(
                 child: const Text('Registrar'),

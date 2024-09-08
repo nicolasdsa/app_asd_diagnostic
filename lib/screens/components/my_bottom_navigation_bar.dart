@@ -30,9 +30,9 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> children = [
+      InitialScreen(),
       PatientScreen(patientChangeNotifier: patientChangeNotifier),
       ExportScreen(),
-      InitialScreen()
     ];
 
     return Scaffold(

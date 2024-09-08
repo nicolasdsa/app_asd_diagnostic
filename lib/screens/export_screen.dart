@@ -31,6 +31,7 @@ class _ExportScreenState extends State<ExportScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Export Data'),
+        automaticallyImplyLeading: false, // Remove o botão de voltar
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
