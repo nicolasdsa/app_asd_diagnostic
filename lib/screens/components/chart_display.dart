@@ -53,6 +53,9 @@ class _ChartDataState extends State<ChartData> {
         } else {
           List<List<dynamic>> allJsonData =
               snapshot.data as List<List<dynamic>>;
+
+          final tempKeys = <GlobalKey>[];
+
           List<Widget> chartWidgets = allJsonData.map((chartData) {
             String chartTitle = chartData[0];
             List<FlSpot> spots = List.generate(chartData[1].length, (index) {
@@ -69,7 +72,7 @@ class _ChartDataState extends State<ChartData> {
             }).toList();
 
             GlobalKey repaintBoundaryKey = GlobalKey();
-            _repaintBoundaryKeys.add(repaintBoundaryKey);
+            tempKeys.add(repaintBoundaryKey);
 
             return RepaintBoundary(
               key: repaintBoundaryKey,
@@ -126,8 +129,9 @@ class _ChartDataState extends State<ChartData> {
           }).toList();
 
           if (widget.onKeysGenerated != null) {
-            widget.onKeysGenerated!(_repaintBoundaryKeys);
+            widget.onKeysGenerated!(tempKeys);
           }
+
           return SingleChildScrollView(
             child: Column(
               children: [

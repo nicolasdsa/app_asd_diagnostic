@@ -27,11 +27,9 @@ class FormDetailScreen extends StatelessWidget {
   FormDetailScreen({Key? key, required this.formId}) : super(key: key);
 
   void _onKeysGenerated(String game, List<GlobalKey> keys) {
-    if (_repaintBoundaryKeys.containsKey(game)) {
-      _repaintBoundaryKeys[game]!.addAll(keys);
-    } else {
-      _repaintBoundaryKeys[game] = keys;
-    }
+    // Substituir as chaves antigas pelas novas
+    _repaintBoundaryKeys[game] =
+        List.from(keys); // Sobrescreve a lista existente
   }
 
   Future<Map<String, dynamic>> _fetchFormDetails() async {
@@ -86,14 +84,14 @@ class FormDetailScreen extends StatelessWidget {
   Future<Uint8List?> _capturePng(GlobalKey key) async {
     try {
       // Espera pequena para garantir que o render seja concluído
-      await Future.delayed(Duration(milliseconds: 100));
+      await Future.delayed(const Duration(milliseconds: 100));
 
       final RenderRepaintBoundary boundary =
           key.currentContext!.findRenderObject() as RenderRepaintBoundary;
 
       if (boundary.debugNeedsPaint) {
         // Se o render ainda não está pronto, espera e tenta novamente
-        await Future.delayed(Duration(milliseconds: 100));
+        await Future.delayed(const Duration(milliseconds: 100));
         return _capturePng(key);
       }
 
@@ -263,10 +261,10 @@ class FormDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Detalhes do Formulário'),
+        title: const Text('Detalhes do Formulário'),
         actions: [
           IconButton(
-            icon: Icon(Icons.camera_alt),
+            icon: const Icon(Icons.camera_alt),
             onPressed: () => _captureScreenshots(context),
           ),
         ],
@@ -276,11 +274,11 @@ class FormDetailScreen extends StatelessWidget {
           future: _fetchFormDetails(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
+              return const Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (!snapshot.hasData) {
-              return Center(child: Text('Nenhum dado encontrado'));
+              return const Center(child: Text('Nenhum dado encontrado'));
             } else {
               final form = snapshot.data!['form'] as FormUser;
               final textResponses =
@@ -300,9 +298,9 @@ class FormDetailScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Nome do Formulário: ${form.name}',
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontSize: 20, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     if (textResponses.isNotEmpty) ...[
                       ...textResponses.map((response) {
                         final question = questions[response['question_id']]!;
@@ -310,16 +308,16 @@ class FormDetailScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(question.name,
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontSize: 16, fontWeight: FontWeight.bold)),
                             TextFormField(
                               initialValue: response['response_text'],
                               readOnly: true,
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
                               ),
                             ),
-                            SizedBox(height: 10),
+                            const SizedBox(height: 10),
                           ],
                         );
                       }).toList(),
@@ -335,7 +333,7 @@ class FormDetailScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(question.name,
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontSize: 16, fontWeight: FontWeight.bold)),
                             ...question.answerOptions!.map((option) {
                               return RadioListTile(
@@ -346,7 +344,7 @@ class FormDetailScreen extends StatelessWidget {
                                 title: Text(option),
                               );
                             }).toList(),
-                            SizedBox(height: 10),
+                            const SizedBox(height: 10),
                           ],
                         );
                       }).toList(),
@@ -374,11 +372,11 @@ class FormDetailScreen extends StatelessWidget {
                               initialValue: response[
                                   'text_response'], // Resposta de texto associada ao som
                               readOnly: true,
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
                               ),
                             ),
-                            SizedBox(height: 10),
+                            const SizedBox(height: 10),
                           ],
                         );
                       }).toList(),
