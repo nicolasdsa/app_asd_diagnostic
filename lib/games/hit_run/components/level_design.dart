@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:app_asd_diagnostic/games/hit_run/components/background_tile.dart';
-import 'package:app_asd_diagnostic/games/hit_run/components/collision_block.dart';
 import 'package:app_asd_diagnostic/games/hit_run/components/hearts.dart';
 import 'package:app_asd_diagnostic/games/hit_run/components/points.dart';
 import 'package:app_asd_diagnostic/games/hit_run/components/shape.dart';
 import 'package:app_asd_diagnostic/games/hit_run/components/timer.dart';
 import 'package:app_asd_diagnostic/games/hit_run/hit_run.dart';
+import 'package:app_asd_diagnostic/games/pixel_adventure/components/collision_block.dart';
 import 'package:flame/components.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flame_tiled/flame_tiled.dart';
@@ -23,7 +23,8 @@ class Level extends World with HasGameRef<HitRun> {
   Points? points;
   Hearts? hearts; // Reference to the Hearts component
   TimerDisplay? timer; // Reference to the TimerDisplay component
-
+  List<CollisionBlock> _collisionBlocks = [];
+  List<CollisionBlock> get collisionBlocks => _collisionBlocks;
   ShapeForm? selectedShape;
   String spawnedShapeType = 'Square';
   ShapeForm? spawnShape;
@@ -36,9 +37,25 @@ class Level extends World with HasGameRef<HitRun> {
 
     _scrollingBackground();
     _spawingObjects();
+    _addCollisions();
     spawnRandomShapeType();
 
     return super.onLoad();
+  }
+
+  void _addCollisions() {
+    final collisionsLayer = level.tileMap.getLayer<ObjectGroup>('Collisions');
+
+    if (collisionsLayer != null) {
+      for (final collision in collisionsLayer.objects) {
+        final block = CollisionBlock(
+          position: Vector2(collision.x, collision.y),
+          size: Vector2(collision.width, collision.height),
+          isPlatform: false,
+        );
+        _collisionBlocks.add(block);
+      }
+    }
   }
 
   void _scrollingBackground() {

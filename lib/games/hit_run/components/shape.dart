@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'dart:math';
 import 'package:app_asd_diagnostic/games/hit_run/components/level_design.dart';
 import 'package:app_asd_diagnostic/games/hit_run/hit_run.dart';
+import 'package:app_asd_diagnostic/games/pixel_adventure/components/collision_block.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
@@ -47,7 +48,7 @@ class ShapeForm extends SpriteAnimationGroupComponent
   late final SpriteAnimation triangleSelectedAnimation;
   late final SpriteAnimation squareSelectedAnimation;
   late final SpriteAnimation circleSelectedAnimation;
-
+  List<CollisionBlock> collisionBlocks = [];
   double fixedDeltaTime = 1 / 120;
   double accumulatedTime = 0;
 
@@ -55,7 +56,7 @@ class ShapeForm extends SpriteAnimationGroupComponent
   FutureOr<void> onLoad() {
     _loadAllAnimations();
     startingPosition = Vector2(position.x, position.y);
-
+    collisionBlocks = level.collisionBlocks;
     if (form == 'circle') {
       add(CircleHitbox(radius: width / 2));
     } else if (form == 'square') {
@@ -143,16 +144,12 @@ class ShapeForm extends SpriteAnimationGroupComponent
       position += smallStep;
 
       bool collisionDetected = false;
-      // Verifica se houve colisão com os blocos de colisão
-      // position.y + height >= gameRef.size.y * 0.75 representa a parte inferior da tela
-      // position.y <= gameRef.size.y * 0.19 representa a parte superior da tela
-      // position.x <= gameRef.size.x * 0.09 representa a parte esquerda da tela
-      // position.x + width >= gameRef.size.x * 0.8 representa a parte direita da tela
-      if (position.x <= gameRef.size.x * 0.09 ||
-          position.x + width >= gameRef.size.x * 0.8 ||
-          position.y <= gameRef.size.y * 0.19 ||
-          position.y + height >= gameRef.size.y * 0.75) {
-        collisionDetected = true;
+      for (var block in collisionBlocks) {
+        Rect collisionRect = block.toRect();
+        if (collisionRect.overlaps(toRect())) {
+          collisionDetected = true;
+          break;
+        }
       }
 
       if (collisionDetected) {

@@ -77,7 +77,7 @@ class HitRun extends FlameGame with TapCallbacks, HasCollisionDetection {
     cam = CameraComponent.withFixedResolution(
       world: _level,
       width: 640,
-      height: 360,
+      height: 400,
     );
     cam.viewfinder.anchor = Anchor.topLeft;
     cam.priority = 1;

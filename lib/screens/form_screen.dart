@@ -19,6 +19,7 @@ import 'package:app_asd_diagnostic/screens/components/question.dart';
 import 'package:app_asd_diagnostic/screens/display_elements_screen.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'dart:convert';
 
 import 'package:intl/intl.dart';
@@ -319,6 +320,7 @@ class _FormScreenState extends State<FormScreen> with WidgetsBindingObserver {
       'gameLinks': hashInput,
     };
     await _hashAccessDao.insert(hashAccess);
+    await Clipboard.setData(ClipboardData(text: hash));
 
     // Mostra uma mensagem de sucesso
     setState(() {
