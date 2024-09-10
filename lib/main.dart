@@ -3,7 +3,6 @@ import 'package:app_asd_diagnostic/games/hit_run/hit_run.dart';
 import 'package:app_asd_diagnostic/games/hit_run/screens/menu_screen.dart';
 import 'package:app_asd_diagnostic/screens/components/my_bottom_navigation_bar.dart';
 import 'package:app_asd_diagnostic/screens/export_screen.dart';
-import 'package:app_asd_diagnostic/screens/initial_screen.dart';
 import 'package:app_asd_diagnostic/screens/login_screen.dart';
 import 'package:app_asd_diagnostic/screens/patient_detail_screen.dart';
 import 'package:app_asd_diagnostic/screens/register_screen.dart';
@@ -18,6 +17,18 @@ void main() async {
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        textTheme: const TextTheme(
+          labelMedium: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            fontFamily: 'Roboto',
+          ),
+          headlineLarge: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+            fontFamily: 'Roboto',
+          ),
+        ),
       ),
       initialRoute: '/test',
       routes: {
