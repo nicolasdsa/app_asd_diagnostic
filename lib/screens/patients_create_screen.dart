@@ -1,12 +1,14 @@
 import 'dart:io';
 import 'package:app_asd_diagnostic/db/patient_dao.dart';
+import 'package:app_asd_diagnostic/screens/components/my_app_bar.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 class PatientCreateScreen extends StatefulWidget {
   final ValueNotifier<int> patientChangeNotifier;
+  final int? patientId; // Adicionando o id do paciente
 
-  PatientCreateScreen({required this.patientChangeNotifier});
+  PatientCreateScreen({required this.patientChangeNotifier, this.patientId});
 
   @override
   _PatientsCreateScreenState createState() => _PatientsCreateScreenState();
@@ -23,6 +25,14 @@ class _PatientsCreateScreenState extends State<PatientCreateScreen> {
   File? _selectedPhoto;
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.patientId != null) {
+      _loadPatientData(widget.patientId!);
+    }
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     _ageController.dispose();
@@ -30,6 +40,19 @@ class _PatientsCreateScreenState extends State<PatientCreateScreen> {
     _descriptionController.dispose();
     _diagnosisController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadPatientData(int patientId) async {
+    final patientData = await _patientDao.getPatientById(patientId);
+    _nameController.text = patientData['name'];
+    _ageController.text = patientData['age'].toString();
+    _genderController.text = patientData['gender'];
+    _descriptionController.text = patientData['description'];
+    _diagnosisController.text = patientData['diagnosis'];
+    if (patientData['photo'] != null && patientData['photo'].isNotEmpty) {
+      _selectedPhoto = File(patientData['photo']);
+    }
+    setState(() {});
   }
 
   Future<void> _pickPhoto() async {
@@ -48,17 +71,7 @@ class _PatientsCreateScreenState extends State<PatientCreateScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Cadastro de Pacientes',
-            style: Theme.of(context).textTheme.headlineLarge),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          iconSize: 20, // Change the size of the back arrow icon
-        ),
-      ),
+      appBar: const CustomAppBar(title: 'Cadastro de Pacientes'),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -222,44 +235,54 @@ class _PatientsCreateScreenState extends State<PatientCreateScreen> {
                   ],
                 ),
                 const SizedBox(height: 16.0),
-                // Botão de envio do formulário
                 ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
-                      final patientId = await _patientDao.insert({
-                        'name': _nameController.text,
-                        'age': _ageController.text,
-                        'gender': _genderController.text,
-                        'photo': _selectedPhoto?.path ?? '', // Caminho da foto
-                        'description': _descriptionController.text,
-                        'diagnosis': _diagnosisController.text,
-                      });
-                      widget.patientChangeNotifier.value++;
-                      Navigator.pushReplacementNamed(
-                        context,
-                        '/patient',
-                        arguments: {'patientId': patientId.toString()},
-                      );
+                      if (widget.patientId == null) {
+                        final patientId = await _patientDao.insert({
+                          'name': _nameController.text,
+                          'age': _ageController.text,
+                          'gender': _genderController.text,
+                          'photo': _selectedPhoto?.path ?? '',
+                          'description': _descriptionController.text,
+                          'diagnosis': _diagnosisController.text,
+                        });
+                        widget.patientChangeNotifier.value++;
+                        Navigator.pushReplacementNamed(
+                          context,
+                          '/patient',
+                          arguments: {'patientId': patientId.toString()},
+                        );
+                      } else {
+                        await _patientDao.update(widget.patientId!, {
+                          'name': _nameController.text,
+                          'age': _ageController.text,
+                          'gender': _genderController.text,
+                          'photo': _selectedPhoto?.path ?? '',
+                          'description': _descriptionController.text,
+                          'diagnosis': _diagnosisController.text,
+                        });
+                        widget.patientChangeNotifier.value++;
+                        Navigator.pop(context);
+                      }
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        Colors.black, // Cor do fundo (background preto)
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 16.0), // Espaçamento vertical
+                    backgroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(8.0), // Arredondar bordas
+                      borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
-                  child: const SizedBox(
-                    width: double.infinity, // Ocupa toda a largura da tela
+                  child: SizedBox(
+                    width: double.infinity,
                     child: Center(
                       child: Text(
-                        'Salvar Paciente',
-                        style: TextStyle(
-                            color: Colors.white), // Cor do texto branco
+                        widget.patientId == null
+                            ? 'Salvar Paciente'
+                            : 'Editar Paciente',
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
                   ),

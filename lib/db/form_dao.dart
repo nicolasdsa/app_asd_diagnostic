@@ -6,6 +6,7 @@ class FormDao {
       'id INTEGER PRIMARY KEY AUTOINCREMENT, '
       'id_patient INTEGER, '
       'name TEXT,'
+      'created_at TIMESTAMP, '
       'FOREIGN KEY (id_patient) REFERENCES patients(id))';
 
   static const String _tableName = 'forms';
@@ -22,7 +23,10 @@ class FormDao {
   Future<List<FormUser>> getAllForms() async {
     final db = await dbHelper.database;
     final List<Map<String, dynamic>> result = await db.query(_tableName);
-    return result.map((row) => FormUser(row[_id], row[_name])).toList();
+    return result
+        .map((row) => FormUser(
+            id: row[_id], name: row[_name], createdAt: row['created_at']))
+        .toList();
   }
 
   Future<FormUser> getForm(int id) async {
@@ -32,7 +36,10 @@ class FormDao {
       where: 'id = ?',
       whereArgs: [id],
     );
-    return result.map((row) => FormUser(row[_id], row[_name])).first;
+    return result
+        .map((row) => FormUser(
+            id: row[_id], name: row[_name], createdAt: row['created_at']))
+        .first;
   }
 
   Future<List<FormUser>> getFormsByPatientId(int patientId) async {
@@ -42,6 +49,12 @@ class FormDao {
       where: 'id_patient = ?',
       whereArgs: [patientId],
     );
-    return result.map((row) => FormUser(row[_id], row[_name])).toList();
+
+    final forms = result
+        .map((row) => FormUser(
+            id: row[_id], name: row[_name], createdAt: row['created_at']))
+        .toList();
+
+    return forms;
   }
 }

@@ -78,6 +78,7 @@ flutter:
     - assets/images/hit_run/Background/
     - assets/tiles/hit_run/
     - assets/tiles/
+    - assets/images/App/
 
     - assets/images/pixel_adventure/Terrain/
     - assets/images/pixel_adventure/Main Characters/

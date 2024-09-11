@@ -81,8 +81,13 @@ class _DisplayElementsScreenState extends State<DisplayElementsScreen> {
       return;
     }
 
-    final formId = await formDao
-        .insertForm({'name': formName, 'id_patient': widget.idPatient});
+    final createdAt = DateTime.now().toUtc().toString();
+
+    final formId = await formDao.insertForm({
+      'name': formName,
+      'id_patient': widget.idPatient,
+      'created_at': createdAt,
+    });
 
     for (var question in _questions) {
       if (question.answerOptions != null) {

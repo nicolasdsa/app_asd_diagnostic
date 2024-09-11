@@ -23,20 +23,19 @@ class PatientDao {
     return await db.insert(_tableName, patient);
   }
 
-  Future<List<Patient>> getAll() async {
+  Future<List<Map<String, dynamic>>> getAll() async {
     final db = await dbHelper.database;
     final List<Map<String, dynamic>> result = await db.query(_tableName);
-    List<Patient> patients = toList(result);
-    return patients;
+    return result;
   }
 
-  Future<int> update(Map<String, dynamic> patient) async {
+  Future<int> update(int id, Map<String, dynamic> patient) async {
     final db = await dbHelper.database;
     return await db.update(
       _tableName,
       patient,
       where: 'id = ?',
-      whereArgs: [patient['id']],
+      whereArgs: [id],
     );
   }
 
@@ -59,16 +58,7 @@ class PatientDao {
     return result;
   }
 
-  List<Patient> toList(List<Map<String, dynamic>> patientsAll) {
-    final List<Patient> patients = [];
-    for (Map<String, dynamic> linha in patientsAll) {
-      final Patient patient = Patient(linha[_id], linha[_name]);
-      patients.add(patient);
-    }
-    return patients;
-  }
-
-  Future<PatientDetails> getPatient(int id) async {
+  Future<Map<String, dynamic>> getPatientById(int id) async {
     final db = await dbHelper.database;
     final List<Map<String, dynamic>> result = await db.query(
       _tableName,
@@ -78,11 +68,6 @@ class PatientDao {
 
     final patientData = result.first;
 
-    return PatientDetails(
-      id: patientData['id'],
-      name: patientData['name'],
-      age: patientData['age'], // Parse age as int
-      gender: patientData['gender'],
-    );
+    return patientData;
   }
 }
