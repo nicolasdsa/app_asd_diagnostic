@@ -6,18 +6,26 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 
-class HitRun extends FlameGame with TapCallbacks, HasCollisionDetection {
+class HitRun extends FlameGame
+    with TapCallbacks, HasCollisionDetection, DragCallbacks {
   final String idPatient;
   final String difficulty;
   final String mode;
 
-  HitRun(
-      {required this.idPatient, required this.difficulty, required this.mode});
+  HitRun({
+    required this.idPatient,
+    required this.difficulty,
+    required this.mode,
+  });
 
   GameStats stats = GameStats();
   List<String> levelNames = ['easy.tmx', 'hard.tmx', 'easy-no-sound.tmx'];
   late CameraComponent cam;
-  late Level _level; // Atributo privado
+  late Level _level;
+
+  // Variáveis para monitorar o tempo de pressão do toque
+  late DateTime _touchStartTime;
+  double _holdDuration = 0.0; // Armazena o tempo de hold em segundos
 
   Level get level => _level;
 
@@ -26,24 +34,68 @@ class HitRun extends FlameGame with TapCallbacks, HasCollisionDetection {
     stats.startGame();
     await images.loadAllImages();
     _loadLevel();
-    print('ID do Paciente: $idPatient'); // Imprime o idPatient
-    print(
-        'Nível de dificuldade: $difficulty'); // Imprime o nível de dificuldade
-    print('Modo: $mode'); // Imprime o modo
     return super.onLoad();
   }
 
   void resetGame() {
     saveGameStats();
-    stats.endGame();
+    stats.endGame(_level.points);
     stats.startGame();
   }
 
   Future<void> saveGameStats() async {
-    Map<String, dynamic> jsonData = stats.toJson();
+    Map<String, dynamic> jsonData = stats.toJson(_level.points);
+    Map<String, dynamic> jsonDataFlag = stats.toJsonFlag();
+    Map<String, dynamic> jsonDataDescription = stats.toJsonFlagDescription();
+
     print('JSON data before saving: $jsonData');
+    print('JSON data before saving: $jsonDataFlag');
+
     JsonDataDao jsonDataDao = JsonDataDao();
-    await jsonDataDao.insertJson(jsonData, idPatient, 'Hit run');
+    await jsonDataDao.insertJson(
+        jsonData, idPatient, 'Hit run', jsonDataFlag, jsonDataDescription);
+  }
+
+  @override
+  void onDragStart(DragStartEvent event) {
+    super.onDragStart(event);
+
+    // Começa a contar o tempo quando o toque é detectado
+    _touchStartTime = DateTime.now();
+  }
+
+  @override
+  void onDragEnd(DragEndEvent event) {
+    super.onDragEnd(event);
+    // Calcula o tempo total de toque
+    DateTime touchEndTime = DateTime.now();
+    _holdDuration =
+        touchEndTime.difference(_touchStartTime).inMilliseconds / 1000.0;
+    stats.recordHoldTime(_holdDuration);
+  }
+
+  @override
+  void onTapDown(TapDownEvent event) {
+    // Começa a contar o tempo quando o toque é detectado
+    _touchStartTime = DateTime.now();
+  }
+
+  @override
+  void onTapUp(TapUpEvent event) {
+    // Calcula o tempo total de toque
+    DateTime touchEndTime = DateTime.now();
+    _holdDuration =
+        touchEndTime.difference(_touchStartTime).inMilliseconds / 1000.0;
+    stats.recordHoldTime(_holdDuration);
+  }
+
+  @override
+  void onTapCancel(TapCancelEvent event) {
+    // Cancela a contagem se o toque for cancelado
+    DateTime _touchEndTime = DateTime.now();
+    _holdDuration =
+        _touchEndTime.difference(_touchStartTime).inMilliseconds / 1000.0;
+    stats.recordHoldTime(_holdDuration);
   }
 
   void _loadLevel() async {
@@ -70,9 +122,10 @@ class HitRun extends FlameGame with TapCallbacks, HasCollisionDetection {
     }
 
     _level = Level(
-        levelName: levelNames[currentLevelIndex],
-        colors: colors,
-        mode: flagMode); // Inicializa _level
+      levelName: levelNames[currentLevelIndex],
+      colors: colors,
+      mode: flagMode,
+    );
 
     cam = CameraComponent.withFixedResolution(
       world: _level,

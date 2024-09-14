@@ -24,13 +24,13 @@ class Hearts extends PositionComponent with HasGameRef<HitRun> {
     add(heartsText);
   }
 
-  void decreaseHearts() {
+  void decreaseHearts(String cause) {
+    gameRef.stats.causeOfLose.add(cause);
+
     hearts -= 1;
     heartsText.text = 'Hearts: $hearts';
     if (hearts <= 0) {
-      print('JSON data when lives reach zero: ${gameRef.stats.toJson()}');
       gameRef.resetGame();
-      gameRef.stats.endGame();
       resetHearts();
     }
   }

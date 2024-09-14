@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:app_asd_diagnostic/db/json_data_dao.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -31,28 +33,70 @@ class _ChartDataState extends State<ChartData> {
   late Future<List<List<dynamic>>> futureJsonData;
   late bool isExpanded;
 
+  late Future<Map<String, dynamic>> futureData;
+
   @override
   void initState() {
     super.initState();
     isExpanded = widget.initiallyExpanded;
-    futureJsonData = jsonDataDao.getAllJsonDataByGameAndDate(
+
+    futureData = fetchData();
+  }
+
+  Future<Map<String, dynamic>> fetchData() async {
+    // Obtém os dados do jogo e do período
+    List<List<dynamic>> jsonData =
+        await jsonDataDao.getAllJsonDataByGameAndDate(
       widget.game,
       widget.idPatient,
       widget.startDate,
       widget.endDate,
     );
+
+    // Obtém os dados de json_flag e json_flag_description
+    List<Map<String, dynamic>> rows =
+        await jsonDataDao.getRowsByPatientIdAndGame(
+      widget.idPatient.toString(),
+      widget.game,
+    );
+
+    Map<String, dynamic> flagCounts = {};
+    Map<String, dynamic> flagDescriptions = {};
+
+    for (var row in rows) {
+      Map<String, dynamic> jsonFlag = jsonDecode(row['json_flag']);
+      Map<String, dynamic> jsonFlagDescription =
+          jsonDecode(row['json_flag_description']);
+
+      jsonFlag.forEach((key, value) {
+        if (!flagCounts.containsKey(key)) {
+          flagCounts[key] = {};
+        }
+        flagCounts[key][value] = (flagCounts[key][value] ?? 0) + 1;
+      });
+
+      flagDescriptions.addAll(jsonFlagDescription);
+    }
+
+    return {
+      "jsonData": jsonData,
+      "flagCounts": flagCounts,
+      "flagDescriptions": flagDescriptions,
+    };
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: futureJsonData,
+      future: futureData,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else {
-          List<List<dynamic>> allJsonData =
-              snapshot.data as List<List<dynamic>>;
+          Map<String, dynamic> data = snapshot.data!;
+          List<List<dynamic>> allJsonData = data["jsonData"];
+          Map<String, dynamic> flagCounts = data["flagCounts"];
+          Map<String, dynamic> flagDescriptions = data["flagDescriptions"];
 
           final tempKeys = <GlobalKey>[];
 
@@ -151,7 +195,33 @@ class _ChartDataState extends State<ChartData> {
                         isExpanded = !isExpanded;
                       });
                     }),
-                if (isExpanded) ...chartWidgets
+                if (isExpanded) ...[
+                  ...chartWidgets,
+                  // Adicione o novo widget aqui
+                  Column(
+                      children: flagCounts.entries.map((entry) {
+                    String flagKey = entry.key;
+                    Map<int, int> counts = (entry.value as Map).map(
+                      (key, value) => MapEntry<int, int>(
+                          int.parse(key.toString()),
+                          int.parse(value.toString())),
+                    );
+                    int total = counts.values.reduce((a, b) => a + b);
+                    int maxValue = counts.entries
+                        .reduce((a, b) => a.value > b.value ? a : b)
+                        .key;
+                    double percentage = (counts[maxValue]! / total) * 100;
+                    String description = flagDescriptions['$flagKey-$maxValue'];
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Text(
+                        '$flagKey: ${percentage.toStringAsFixed(2)}% $description',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    );
+                  }).toList()),
+                ],
               ],
             ),
           );

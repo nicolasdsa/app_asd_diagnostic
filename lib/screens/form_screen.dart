@@ -297,7 +297,6 @@ class _FormScreenState extends State<FormScreen> with WidgetsBindingObserver {
     // Pega o ID do paciente
     final patientId = widget.idPatient;
     // Pega os IDs dos jogos
-    print('Hash gerado: $_avaliarComportamentoElements');
     final gameIds = _avaliarComportamentoElements.isNotEmpty
         ? _avaliarComportamentoElements.map((element) => element[1]).join(',')
         : '';
@@ -307,11 +306,7 @@ class _FormScreenState extends State<FormScreen> with WidgetsBindingObserver {
     final bytes = utf8.encode(hashInput);
     final hash = sha256.convert(bytes).toString();
 
-    // Imprime o hash no console
-    print('Hash gerado: $gameIds');
     print('Hash gerado: $hash');
-    print('Hash gerado: $patientId');
-    print('Hash gerado: $hashInput');
 
     // Salva no banco de dados
     final hashAccess = {
@@ -565,7 +560,6 @@ class _FormScreenState extends State<FormScreen> with WidgetsBindingObserver {
                                     return ValueListenableBuilder<bool>(
                                       valueListenable: isInAnaliseInfo,
                                       builder: (context, isIncluded, _) {
-                                        print(isIncluded);
                                         return Column(
                                           children: [
                                             ListTile(

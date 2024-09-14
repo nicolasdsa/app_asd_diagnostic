@@ -7,6 +7,8 @@ class JsonDataDao {
   static const String tableSql = 'CREATE TABLE $_tableName('
       'id INTEGER PRIMARY KEY AUTOINCREMENT, '
       'json TEXT, '
+      'json_flag TEXT, '
+      'json_flag_description TEXT, '
       'game TEXT, '
       'created_at TIMESTAMP, '
       'updated_at TIMESTAMP, '
@@ -19,9 +21,16 @@ class JsonDataDao {
   final dbHelper = DatabaseHelper.instance;
 
   Future<int> insertJson(
-      Map<String, dynamic> json, String idPatient, String game) async {
+      Map<String, dynamic> json,
+      String idPatient,
+      String game,
+      Map<String, dynamic> jsonFlag,
+      Map<String, dynamic> jsonDescription) async {
     final db = await dbHelper.database;
     final jsonInsert = jsonEncode(json);
+    final jsonFlagInsert = jsonEncode(jsonFlag);
+    final jsonDescriptionInsert = jsonEncode(jsonDescription);
+
     final DateTime now = DateTime.now();
 
     final String createdAt = now.toIso8601String();
@@ -29,6 +38,8 @@ class JsonDataDao {
 
     return await db.insert('json_data', {
       "json": jsonInsert,
+      "json_flag": jsonFlagInsert,
+      "json_flag_description": jsonDescriptionInsert,
       "id_patient": idPatient,
       "game": game,
       'created_at': createdAt,
