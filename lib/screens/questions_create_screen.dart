@@ -3,9 +3,7 @@ import 'package:app_asd_diagnostic/db/type_question_dao.dart';
 import 'package:flutter/material.dart';
 
 class QuestionCreateScreen extends StatefulWidget {
-  final ValueNotifier<int> questionChangeNotifier;
-
-  QuestionCreateScreen({required this.questionChangeNotifier});
+  QuestionCreateScreen();
 
   @override
   _QuestionsCreateScreenState createState() => _QuestionsCreateScreenState();
@@ -92,7 +90,6 @@ class _QuestionsCreateScreenState extends State<QuestionCreateScreen> {
                     var questionText = _nameController.text;
                     _questionDao.insertSimpleQuestion(
                         {"question": questionText, "id_type": _selectedId});
-                    widget.questionChangeNotifier.value++;
                     Navigator.of(context).pop();
                   },
                 )
@@ -157,7 +154,6 @@ class _QuestionsCreateScreenState extends State<QuestionCreateScreen> {
                         .toList();
                     _questionDao.insertMultipleOptionsQuestion(
                         questionText, options, _selectedId);
-                    widget.questionChangeNotifier.value++;
                     Navigator.of(context).pop();
                   },
                 )

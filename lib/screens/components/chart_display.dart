@@ -12,6 +12,7 @@ class ChartData extends StatefulWidget {
   final String game;
   final bool initiallyExpanded;
   final Function(List<GlobalKey>)? onKeysGenerated;
+  final Color? selectedColor; // Novo parâmetro
 
   const ChartData({
     super.key,
@@ -21,6 +22,7 @@ class ChartData extends StatefulWidget {
     required this.game,
     this.onKeysGenerated,
     this.initiallyExpanded = false,
+    this.selectedColor, // Inicializando o parâmetro
   });
 
   @override
@@ -138,7 +140,8 @@ class _ChartDataState extends State<ChartData> {
                           LineChartBarData(
                             spots: spots,
                             isCurved: true,
-                            color: Colors.blue,
+                            color: widget.selectedColor ??
+                                Colors.blue, // Usando a cor customizável
                             barWidth: 4,
                             isStrokeCapRound: true,
                             dotData: const FlDotData(show: true),
