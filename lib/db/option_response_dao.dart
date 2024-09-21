@@ -1,4 +1,7 @@
+import 'package:app_asd_diagnostic/db/answer_options_dao.dart';
 import 'package:app_asd_diagnostic/db/database.dart';
+import 'package:app_asd_diagnostic/screens/components/question.dart';
+import 'package:flutter/material.dart';
 
 class OptionResponseDao {
   static const String tableSql = 'CREATE TABLE $_tableName('
@@ -17,13 +20,17 @@ class OptionResponseDao {
     return await db.insert(_tableName, response);
   }
 
-  Future<List<Map<String, dynamic>>> getResponsesForForm(int formId) async {
+  Future<List<Question>> getResponsesForForm(int formId) async {
     final db = await dbHelper.database;
-    return await db.query(
-      _tableName,
-      where: 'form_id = ?',
-      whereArgs: [formId],
-    );
+    final questions = await db.rawQuery('''
+      SELECT questions.id, questions.question, $_tableName.option_id
+      FROM $_tableName
+      INNER JOIN questions ON $_tableName.question_id = questions.id
+      WHERE $_tableName.form_id = ?
+      GROUP BY questions.id
+    ''', [formId]);
+
+    return toList(questions);
   }
 
   Future<List<Map<String, dynamic>>> getQuestionsForForm(int formId) async {
@@ -78,5 +85,56 @@ class OptionResponseDao {
     List<Map<String, dynamic>> result = questionsMap.values.toList();
 
     return result;
+  }
+
+  Future<List<Question>> toList(List<Map<String, dynamic>> questionsAll) async {
+    final List<Question> questions = [];
+    for (Map<String, dynamic> linha in questionsAll) {
+      List<Map<String, dynamic>>? answerOptionsAndId;
+
+      List<String>? answerOptions;
+      List<String>? answerOptionIds;
+
+      answerOptionsAndId =
+          await AnswerOptionsDao().getOptionsForQuestion(linha["id"]);
+
+      answerOptions = answerOptionsAndId
+          .map((option) => option['option_text'] as String)
+          .toList();
+
+      answerOptionIds =
+          answerOptionsAndId.map((option) => option['id'].toString()).toList();
+
+      int selectedOptionId = linha["option_id"];
+      int selectedOptionIndex =
+          getSelectedOptionIndex(answerOptionIds, selectedOptionId);
+
+      final Question question = Question(
+        linha["id"],
+        linha["question"],
+        answerOptions,
+        true,
+        ValueNotifier<String?>(null),
+        TextEditingController(),
+        answerOptionIds,
+        ValueNotifier<String?>(answerOptions[selectedOptionIndex]),
+      );
+
+      questions.add(question);
+    }
+    return questions;
+  }
+
+  int getSelectedOptionIndex(
+      List<String>? answerOptions, int selectedOptionId) {
+    if (answerOptions == null) {
+      return 0;
+    }
+    for (int i = 0; i < answerOptions.length; i++) {
+      if (int.parse(answerOptions[i]) == selectedOptionId) {
+        return i;
+      }
+    }
+    return 0;
   }
 }

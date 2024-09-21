@@ -5,13 +5,14 @@ class GameSelectionField extends StatefulWidget {
   final int patientId;
   final Function(String) onGameSelected;
 
-  GameSelectionField({required this.patientId, required this.onGameSelected});
+  const GameSelectionField(
+      {super.key, required this.patientId, required this.onGameSelected});
 
   @override
-  _GameSelectionFieldState createState() => _GameSelectionFieldState();
+  GameSelectionFieldState createState() => GameSelectionFieldState();
 }
 
-class _GameSelectionFieldState extends State<GameSelectionField> {
+class GameSelectionFieldState extends State<GameSelectionField> {
   final JsonDataDao _jsonDataDao = JsonDataDao();
   List<String> _games = [];
   String? _selectedGame;

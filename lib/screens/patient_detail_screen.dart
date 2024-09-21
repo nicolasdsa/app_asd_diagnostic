@@ -92,13 +92,10 @@ class PatientDetailScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    const Center(
+                    Center(
                       child: Text('Informações Médicas',
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          )),
+                          style: Theme.of(context).textTheme.titleLarge),
                     ),
                     const SizedBox(height: 10),
                     Text('Descrição',
@@ -124,9 +121,8 @@ class PatientDetailScreen extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Formulários',
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold)),
+                          Text('Formulários',
+                              style: Theme.of(context).textTheme.titleLarge),
                           ElevatedButton.icon(
                             onPressed: () {
                               Navigator.push(

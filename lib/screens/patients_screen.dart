@@ -48,6 +48,7 @@ class _PatientScreenState extends State<PatientScreen> {
                   borderRadius: BorderRadius.circular(8.0),
                 ),
               ),
+              style: const TextStyle(fontSize: 12),
             ),
           ),
           Expanded(

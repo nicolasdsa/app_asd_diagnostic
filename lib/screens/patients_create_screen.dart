@@ -135,12 +135,13 @@ class _PatientsCreateScreenState extends State<PatientCreateScreen> {
                     contentPadding:
                         EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
                   ),
-                  hint: const Text('Selecione o gênero',
-                      style: TextStyle(fontSize: 12)),
+                  hint: Text('Selecione o gênero',
+                      style: Theme.of(context).textTheme.labelSmall),
                   items: ['Masculino', 'Feminino', 'Outro'].map((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
-                      child: Text(value, style: const TextStyle(fontSize: 12)),
+                      child: Text(value,
+                          style: Theme.of(context).textTheme.labelSmall),
                     );
                   }).toList(),
                   onChanged: (String? newValue) {

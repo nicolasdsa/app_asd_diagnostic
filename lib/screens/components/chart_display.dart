@@ -12,7 +12,7 @@ class ChartData extends StatefulWidget {
   final String game;
   final bool initiallyExpanded;
   final Function(List<GlobalKey>)? onKeysGenerated;
-  final Color? selectedColor; // Novo parâmetro
+  final Color? selectedColor;
 
   const ChartData({
     super.key,
@@ -22,7 +22,7 @@ class ChartData extends StatefulWidget {
     required this.game,
     this.onKeysGenerated,
     this.initiallyExpanded = false,
-    this.selectedColor, // Inicializando o parâmetro
+    this.selectedColor,
   });
 
   @override
@@ -46,7 +46,6 @@ class _ChartDataState extends State<ChartData> {
   }
 
   Future<Map<String, dynamic>> fetchData() async {
-    // Obtém os dados do jogo e do período
     List<List<dynamic>> jsonData =
         await jsonDataDao.getAllJsonDataByGameAndDate(
       widget.game,
@@ -55,7 +54,6 @@ class _ChartDataState extends State<ChartData> {
       widget.endDate,
     );
 
-    // Obtém os dados de json_flag e json_flag_description
     List<Map<String, dynamic>> rows =
         await jsonDataDao.getRowsByPatientIdAndGame(
       widget.idPatient.toString(),
@@ -128,20 +126,26 @@ class _ChartDataState extends State<ChartData> {
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
                       chartTitle,
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold),
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
                   ),
-                  SizedBox(
+                  Container(
                     height: 300,
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        top: BorderSide.none,
+                        right: BorderSide.none,
+                        bottom: BorderSide(color: Colors.grey),
+                        left: BorderSide.none,
+                      ),
+                    ),
                     child: LineChart(
                       LineChartData(
                         lineBarsData: [
                           LineChartBarData(
                             spots: spots,
                             isCurved: true,
-                            color: widget.selectedColor ??
-                                Colors.blue, // Usando a cor customizável
+                            color: Colors.blue,
                             barWidth: 4,
                             isStrokeCapRound: true,
                             dotData: const FlDotData(show: true),
@@ -149,10 +153,10 @@ class _ChartDataState extends State<ChartData> {
                         ],
                         titlesData: FlTitlesData(
                           show: true,
-                          rightTitles: AxisTitles(
+                          rightTitles: const AxisTitles(
                             sideTitles: SideTitles(showTitles: false),
                           ),
-                          topTitles: AxisTitles(
+                          topTitles: const AxisTitles(
                             sideTitles: SideTitles(showTitles: false),
                           ),
                           bottomTitles: AxisTitles(
@@ -182,49 +186,110 @@ class _ChartDataState extends State<ChartData> {
           return SingleChildScrollView(
             child: Column(
               children: [
-                ListTile(
-                    title: Text(
-                      widget.game,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                Container(
+                  decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(4),
+                      color: widget.selectedColor ?? Colors.white),
+                  child: ListTile(
+                      title: Text(
+                        widget.game,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      trailing: Icon(
+                        isExpanded ? Icons.expand_less : Icons.expand_more,
+                      ),
+                      onTap: () {
+                        setState(() {
+                          isExpanded = !isExpanded;
+                        });
+                      }),
+                ),
+                if (isExpanded)
+                  Container(
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        top: BorderSide.none,
+                        right: BorderSide(color: Colors.grey),
+                        bottom: BorderSide(color: Colors.grey),
+                        left: BorderSide(color: Colors.grey),
+                      ),
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(8),
+                        bottomRight: Radius.circular(8),
                       ),
                     ),
-                    trailing: Icon(
-                      isExpanded ? Icons.expand_less : Icons.expand_more,
-                    ),
-                    onTap: () {
-                      setState(() {
-                        isExpanded = !isExpanded;
-                      });
-                    }),
-                if (isExpanded) ...[
-                  ...chartWidgets,
-                  // Adicione o novo widget aqui
-                  Column(
-                      children: flagCounts.entries.map((entry) {
-                    String flagKey = entry.key;
-                    Map<int, int> counts = (entry.value as Map).map(
-                      (key, value) => MapEntry<int, int>(
-                          int.parse(key.toString()),
-                          int.parse(value.toString())),
-                    );
-                    int total = counts.values.reduce((a, b) => a + b);
-                    int maxValue = counts.entries
-                        .reduce((a, b) => a.value > b.value ? a : b)
-                        .key;
-                    double percentage = (counts[maxValue]! / total) * 100;
-                    String description = flagDescriptions['$flagKey-$maxValue'];
+                    padding: const EdgeInsets.all(8),
+                    child: Column(
+                      children: [
+                        Center(
+                          child: Text('Gráficos',
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.titleLarge),
+                        ),
+                        const SizedBox(height: 10),
+                        ...chartWidgets,
+                        const SizedBox(height: 10),
+                        Center(
+                          child: Text('Informações úteis',
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.titleLarge),
+                        ),
+                        const SizedBox(height: 20),
+                        Column(
+                          children: flagCounts.entries.map((entry) {
+                            String flagKey = entry.key;
+                            Map<int, int> counts = (entry.value as Map).map(
+                              (key, value) => MapEntry<int, int>(
+                                int.parse(key.toString()),
+                                int.parse(value.toString()),
+                              ),
+                            );
+                            int total = counts.values.reduce((a, b) => a + b);
+                            int maxValue = counts.entries
+                                .reduce((a, b) => a.value > b.value ? a : b)
+                                .key;
+                            double percentage =
+                                (counts[maxValue]! / total) * 100;
+                            String description =
+                                flagDescriptions['$flagKey-$maxValue'];
 
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Text(
-                        '$flagKey: ${percentage.toStringAsFixed(2)}% $description',
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    );
-                  }).toList()),
-                ],
+                            return Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text.rich(
+                                  TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: '$flagKey:',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelMedium,
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            ' ${percentage.toStringAsFixed(2)}% $description',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelSmall,
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                )
+                              ],
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ),
+                  ),
               ],
             ),
           );

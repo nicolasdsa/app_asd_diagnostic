@@ -1,4 +1,5 @@
 import 'package:app_asd_diagnostic/db/sound_response_dao.dart';
+import 'package:app_asd_diagnostic/screens/components/my_app_bar.dart';
 import 'package:app_asd_diagnostic/screens/components/question.dart';
 import 'package:app_asd_diagnostic/screens/components/sound.dart';
 import 'package:flutter/material.dart';
@@ -13,22 +14,22 @@ class DisplayElementsScreen extends StatefulWidget {
   final List<List<dynamic>> elements;
   final int idPatient;
 
-  DisplayElementsScreen(
+  const DisplayElementsScreen(
       {Key? key, required this.elements, required this.idPatient})
       : super(key: key);
 
   @override
-  _DisplayElementsScreenState createState() => _DisplayElementsScreenState();
+  DisplayElementsScreenState createState() => DisplayElementsScreenState();
 }
 
-class _DisplayElementsScreenState extends State<DisplayElementsScreen> {
+class DisplayElementsScreenState extends State<DisplayElementsScreen> {
   final TextEditingController _formNameController = TextEditingController();
-  List<Question> _questions = [];
-  List<Map<String, dynamic>> _jsonDataElements = [];
-  List<SoundComponent> _soundElements = [];
+  final List<Question> _questions = [];
+  final List<Map<String, dynamic>> _jsonDataElements = [];
+  final List<SoundComponent> _soundElements = [];
 
   Future<List<Widget>> componentsPage(List<List<dynamic>> elements) async {
-    List<Widget> _avaliarComportamentoElements = [];
+    List<Widget> avaliarComportamentoElements = [];
 
     for (List<dynamic> element in elements) {
       if (element.isNotEmpty && element[0] == 'json_data') {
@@ -44,12 +45,12 @@ class _DisplayElementsScreenState extends State<DisplayElementsScreen> {
           'end_date': element[3],
           'game': element[1],
         });
-        _avaliarComportamentoElements.add(jsonData);
+        avaliarComportamentoElements.add(jsonData);
       } else if (element.isNotEmpty && element[0] == 'questions') {
         final questionDao = QuestionDao();
         final question = await questionDao.getOne(element[1]);
         _questions.add(question);
-        _avaliarComportamentoElements.add(
+        avaliarComportamentoElements.add(
           Column(
             children: [
               question,
@@ -60,10 +61,10 @@ class _DisplayElementsScreenState extends State<DisplayElementsScreen> {
         int soundId = element[1];
         final soundComponent = SoundComponent(soundId: soundId);
         _soundElements.add(soundComponent);
-        _avaliarComportamentoElements.add(soundComponent);
+        avaliarComportamentoElements.add(soundComponent);
       }
     }
-    return _avaliarComportamentoElements;
+    return avaliarComportamentoElements;
   }
 
   Future<void> _createForm() async {
@@ -76,7 +77,8 @@ class _DisplayElementsScreenState extends State<DisplayElementsScreen> {
     final formName = _formNameController.text.trim();
     if (formName.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Por favor, insira o nome do formulário.')),
+        const SnackBar(
+            content: Text('Por favor, insira o nome do formulário.')),
       );
       return;
     }
@@ -126,14 +128,20 @@ class _DisplayElementsScreenState extends State<DisplayElementsScreen> {
         'game': jsonData['game'],
       });
     }
+
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/patient',
+      arguments: {'patientId': widget.idPatient.toString()},
+      (Route<dynamic> route) => false, // Remove todas as rotas anteriores
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Display Elements'),
-      ),
+      appBar:
+          const CustomAppBar(title: 'Criar formulário', showBackArrow: true),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: FutureBuilder<List<Widget>>(
@@ -152,16 +160,30 @@ class _DisplayElementsScreenState extends State<DisplayElementsScreen> {
                   children: [
                     TextField(
                       controller: _formNameController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Nome do Formulário',
+                        labelStyle: TextStyle(fontSize: 12),
                         border: OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 16),
                     ...snapshot.data!,
-                    ElevatedButton(
-                      onPressed: _createForm,
-                      child: const Text('Criar Formulário'),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _createForm,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          'Criar Formulário',
+                          style: Theme.of(context).textTheme.labelLarge,
+                        ),
+                      ),
                     ),
                   ],
                 ),

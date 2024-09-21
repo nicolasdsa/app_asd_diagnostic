@@ -20,21 +20,40 @@ void main() async {
       theme: ThemeData(
         primarySwatch: Colors.blue,
         textTheme: const TextTheme(
+          // DetailPatient: Age, Gender, Description, Diagnosis
           labelSmall: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w400,
               fontFamily: 'Roboto',
               color: Color(0xFF6B7495)),
+          // Question: Name and options
+          // CreatePatient: Label Name, age, gender, description, diagnosis, foto
+          // Sounds
+          // Chart
           labelMedium: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w700,
             fontFamily: 'Roboto',
           ),
+          // CreateQuestion: Button
+          labelLarge: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              fontFamily: 'Roboto',
+              color: Colors.white),
+          // DetailPatient: Label Description e Diagnosis
           titleMedium: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w700,
             fontFamily: 'Roboto',
           ),
+          // DetailPatient: Informações médicas e Formulários
+          titleLarge: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Roboto',
+          ),
+          // AppBar: Title
           headlineLarge: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w700,

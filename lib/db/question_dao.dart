@@ -1,6 +1,5 @@
 import 'package:app_asd_diagnostic/db/answer_options_dao.dart';
 import 'package:app_asd_diagnostic/db/database.dart';
-import 'package:app_asd_diagnostic/db/type_question_dao.dart';
 import 'package:app_asd_diagnostic/screens/components/question.dart';
 import 'package:flutter/material.dart';
 
@@ -47,8 +46,6 @@ class QuestionDao {
   Future<List<Question>> toList(List<Map<String, dynamic>> questionsAll) async {
     final List<Question> questions = [];
     for (Map<String, dynamic> linha in questionsAll) {
-      final nameTypeQuestion =
-          await TypeQuestionDao().getTypeQuestionName(linha[_idType]);
       List<Map<String, dynamic>>? answerOptionsAndId;
 
       List<String>? answerOptions;
@@ -69,7 +66,6 @@ class QuestionDao {
       final Question question = Question(
         linha[_id],
         linha[_question],
-        nameTypeQuestion,
         answerOptions,
         false,
         ValueNotifier<String?>(null), // Inicializa o ValueNotifier
@@ -89,8 +85,7 @@ class QuestionDao {
       where: 'id LIKE ?',
       whereArgs: ['%$id%'],
     );
-    final nameTypeQuestion =
-        await TypeQuestionDao().getTypeQuestionName(result[0][_idType]);
+
     List<Map<String, dynamic>>? answerOptionsAndId;
     List<String>? answerOptions;
     List<String>? answerOptionIds;
@@ -109,7 +104,6 @@ class QuestionDao {
     final Question question = Question(
       result[0][_id],
       result[0][_question],
-      nameTypeQuestion,
       answerOptions,
       true,
       ValueNotifier<String?>(null), // Inicializa o ValueNotifier

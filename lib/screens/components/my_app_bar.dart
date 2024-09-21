@@ -23,7 +23,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                iconSize: 20, // Change the size of the back arrow icon
+                iconSize: 20,
               )
             : null,
         automaticallyImplyLeading: showBackArrow);

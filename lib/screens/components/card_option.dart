@@ -4,45 +4,57 @@ class CardOption extends StatefulWidget {
   final String title;
   final IconData icon;
   final ValueChanged<String> onTap;
-  const CardOption(this.title, this.icon, {required this.onTap, Key? key})
-      : super(key: key);
+  final ValueNotifier<String?> nameNotifier;
+
+  const CardOption(
+    this.title,
+    this.icon, {
+    required this.onTap,
+    required this.nameNotifier,
+    Key? key,
+  }) : super(key: key);
 
   @override
-  _CardOptionState createState() => _CardOptionState();
+  CardOptionState createState() => CardOptionState();
 }
 
-class _CardOptionState extends State<CardOption> {
-  bool _isPressed = false;
-
+class CardOptionState extends State<CardOption> {
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Card(
-        color: _isPressed
-            ? Colors.grey
-            : Colors.white, // change color when button is pressed
-        child: InkWell(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(widget.icon, size: 25),
-              const SizedBox(height: 15),
-              Text(widget.title),
-            ],
+    return ValueListenableBuilder<String?>(
+      valueListenable: widget.nameNotifier,
+      builder: (context, name, _) {
+        return Expanded(
+          child: InkWell(
+            onTap: () => widget.onTap(widget.title),
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              decoration: BoxDecoration(
+                color: (name == widget.title) ? Colors.white : Colors.grey[200],
+                boxShadow: (name == widget.title)
+                    ? [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ]
+                    : [],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(widget.icon, size: 18),
+                  const SizedBox(width: 10),
+                  Text(widget.title,
+                      style: Theme.of(context).textTheme.labelSmall),
+                ],
+              ),
+            ),
           ),
-          onTapDown: (details) {
-            setState(() {
-              _isPressed = true;
-            });
-          },
-          onTapUp: (details) {
-            setState(() {
-              _isPressed = false;
-            });
-          },
-          onTap: () => widget.onTap(widget.title),
-        ),
-      ),
+        );
+      },
     );
   }
 }

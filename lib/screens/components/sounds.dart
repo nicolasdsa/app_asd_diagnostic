@@ -10,7 +10,8 @@ class Sounds extends StatefulWidget {
   final ValueNotifier<String?> currentPlaying;
   final AudioPlayer soundPlayer;
 
-  Sounds({
+  const Sounds({
+    super.key,
     required this.analiseInfoElements,
     required this.addElementToAnaliseInfo,
     required this.currentPlaying,
@@ -55,13 +56,13 @@ class SoundsState extends State<Sounds> with WidgetsBindingObserver {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Adicionar Som'),
+          title: const Text('Adicionar Som'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: nameController,
-                decoration: InputDecoration(labelText: 'Nome'),
+                decoration: const InputDecoration(labelText: 'Nome'),
               ),
               ElevatedButton(
                 onPressed: () async {
@@ -73,15 +74,15 @@ class SoundsState extends State<Sounds> with WidgetsBindingObserver {
                     });
                   }
                 },
-                child: Text('Escolher Arquivo de Som'),
+                child: const Text('Escolher Arquivo de Som'),
               ),
-              if (_selectedFilePath != null) Text('Arquivo selecionado!'),
+              if (_selectedFilePath != null) const Text('Arquivo selecionado!'),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Cancelar'),
+              child: const Text('Cancelar'),
             ),
             TextButton(
               onPressed: () {
@@ -95,7 +96,7 @@ class SoundsState extends State<Sounds> with WidgetsBindingObserver {
                   Navigator.pop(context);
                 }
               },
-              child: Text('Confirmar'),
+              child: const Text('Confirmar'),
             ),
           ],
         );
@@ -137,7 +138,7 @@ class SoundsState extends State<Sounds> with WidgetsBindingObserver {
       await widget.soundPlayer.setSource(UrlSource(filePath));
       widget.soundPlayer.setReleaseMode(ReleaseMode.loop);
       await widget.soundPlayer.play(UrlSource(filePath));
-      widget.currentPlaying.value = filePath; // Atualiza o ValueNotifier
+      widget.currentPlaying.value = filePath;
     }
   }
 
@@ -157,8 +158,8 @@ class SoundsState extends State<Sounds> with WidgetsBindingObserver {
               return Column(
                 children: sounds.map((sound) {
                   ValueNotifier<bool> isIncludedInAnalysis = ValueNotifier(
-                    widget.analiseInfoElements
-                        .any((element) => element[1] == sound.id),
+                    widget.analiseInfoElements.any((element) =>
+                        element[1] == sound.id && element[0] == 'sounds'),
                   );
 
                   return GestureDetector(
@@ -172,21 +173,34 @@ class SoundsState extends State<Sounds> with WidgetsBindingObserver {
                         return ValueListenableBuilder<String?>(
                           valueListenable: widget.currentPlaying,
                           builder: (context, currentPlayingSound, _) {
-                            return ListTile(
-                              leading: IconButton(
-                                icon: Icon(
-                                  currentPlayingSound == sound.filePath
-                                      ? Icons.stop
-                                      : Icons.play_arrow,
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(4),
                                 ),
-                                onPressed: () => _playSound(sound.filePath),
-                              ),
-                              title: Text(sound.name),
-                              tileColor:
-                                  isIncluded ? Colors.green : Colors.white,
-                              trailing: IconButton(
-                                icon: Icon(Icons.delete),
-                                onPressed: () => _deleteSound(sound.id!),
+                                child: ListTile(
+                                  leading: IconButton(
+                                    icon: Icon(
+                                      currentPlayingSound == sound.filePath
+                                          ? Icons.stop
+                                          : Icons.play_arrow,
+                                    ),
+                                    onPressed: () => _playSound(sound.filePath),
+                                  ),
+                                  title: Text(sound.name,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelMedium),
+                                  tileColor:
+                                      isIncluded ? Colors.grey : Colors.white,
+                                  trailing: IconButton(
+                                    icon: const Icon(Icons.delete),
+                                    onPressed: () => _deleteSound(sound.id!),
+                                  ),
+                                ),
                               ),
                             );
                           },
@@ -199,13 +213,23 @@ class SoundsState extends State<Sounds> with WidgetsBindingObserver {
             }
           },
         ),
-        Padding(
-          padding: EdgeInsets.all(16.0),
-          child: ElevatedButton(
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
             onPressed: _showAddSoundDialog,
-            child: Text('Adicionar Som'),
+            icon: const Icon(Icons.add, color: Colors.white, size: 20),
+            label: Text(
+              'Adicionar Som',
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
           ),
-        ),
+        )
       ],
     );
   }

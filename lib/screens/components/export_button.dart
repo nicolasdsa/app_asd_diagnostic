@@ -53,8 +53,6 @@ class ExportButton extends StatelessWidget {
       File(path)
         ..createSync(recursive: true)
         ..writeAsBytesSync(excel.encode()!);
-
-      print('Exported to $path');
     }
   }
 

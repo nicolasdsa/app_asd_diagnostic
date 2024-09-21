@@ -1,6 +1,4 @@
 import 'package:app_asd_diagnostic/db/database.dart';
-import 'package:app_asd_diagnostic/screens/components/patient.dart';
-import 'package:app_asd_diagnostic/screens/components/patient_details.dart';
 
 class PatientDao {
   static const String tableSql = 'CREATE TABLE $_tableName('
@@ -8,13 +6,11 @@ class PatientDao {
       'name TEXT, '
       'age INTEGER, '
       'gender TEXT, '
-      'photo TEXT, ' // Campo para o caminho da foto
-      'description TEXT, ' // Campo para a descrição
-      'diagnosis TEXT)'; // Campo para o diagnóstico
+      'photo TEXT, '
+      'description TEXT, '
+      'diagnosis TEXT)';
 
   static const String _tableName = 'patients';
-  static const String _name = 'name';
-  static const String _id = 'id';
 
   final dbHelper = DatabaseHelper.instance;
 

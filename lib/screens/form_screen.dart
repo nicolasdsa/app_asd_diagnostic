@@ -1,12 +1,12 @@
 import 'package:app_asd_diagnostic/db/json_data_dao.dart';
 import 'package:app_asd_diagnostic/screens/components/chart_display.dart';
+import 'package:app_asd_diagnostic/screens/components/games.dart';
+import 'package:app_asd_diagnostic/screens/components/my_app_bar.dart';
 import 'package:app_asd_diagnostic/screens/components/questions.dart';
 import 'package:app_asd_diagnostic/screens/components/sounds.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:app_asd_diagnostic/screens/components/card_option.dart';
-import 'package:app_asd_diagnostic/screens/components/game.dart';
-import 'package:app_asd_diagnostic/db/game_dao.dart';
 import 'package:app_asd_diagnostic/db/type_form_dao.dart';
 import 'package:app_asd_diagnostic/db/hash_access_dao.dart';
 import 'package:app_asd_diagnostic/screens/display_elements_screen.dart';
@@ -27,14 +27,17 @@ class FormScreen extends StatefulWidget {
 }
 
 class FormScreenState extends State<FormScreen> with WidgetsBindingObserver {
-  ValueNotifier<String?> _currentPlayingSound = ValueNotifier<String?>(null);
+  final ValueNotifier<String?> _currentPlayingSound =
+      ValueNotifier<String?>(null);
+  final ValueNotifier<String?> _nameNotifier = ValueNotifier<String?>(null);
+  final ValueNotifier<String?> _selectedTypeFormNotifier =
+      ValueNotifier<String?>(null);
+
   final _formKey = GlobalKey<FormState>();
   final _typeFormDao = TypeFormDao();
   final _hashAccessDao = HashAccessDao();
   final AudioPlayer _audioPlayer = AudioPlayer();
   List<Map<String, dynamic>> _typeFormElements = [];
-  String _name = '';
-  String _selectedTypeForm = '';
   final List<List<dynamic>> _analiseInfoElements = [];
   final List<List<dynamic>> _avaliarComportamentoElements = [];
   final JsonDataDao jsonDataDao = JsonDataDao();
@@ -130,15 +133,12 @@ class FormScreenState extends State<FormScreen> with WidgetsBindingObserver {
   }
 
   void _handleCardOptionTap(String name) {
-    setState(() {
-      _name = name;
-    });
+    _nameNotifier.value = name;
   }
 
   void _handleTypeFormTap(String name) {
-    setState(() {
-      _selectedTypeForm = name;
-    });
+    _selectedTypeFormNotifier.value = name;
+    _nameNotifier.value = null;
   }
 
   void _addElementToAnaliseInfo(String tableName, dynamic id) {
@@ -156,6 +156,7 @@ class FormScreenState extends State<FormScreen> with WidgetsBindingObserver {
 
   void _addElementToAvaliarComportamento(String tableName, int id) {
     final newElement = [tableName, id];
+
     setState(() {
       if (_avaliarComportamentoElements
           .any((element) => listEquals(element, newElement))) {
@@ -169,6 +170,8 @@ class FormScreenState extends State<FormScreen> with WidgetsBindingObserver {
             'Novo elemento adicionado em _avaliarComportamentoElements: $_avaliarComportamentoElements');
       }
     });
+
+    // Mostra o SnackBar fora do setStat
   }
 
   Future<void> _createSession() async {
@@ -205,237 +208,258 @@ class FormScreenState extends State<FormScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final Map<String, Widget Function()> contentWidgets = {
+      'Jogos': () => Games(
+            avaliarComportamentoElements: _avaliarComportamentoElements,
+            addElementToAvaliarComportamento: _addElementToAvaliarComportamento,
+          ),
+      'Sons': () => Sounds(
+            analiseInfoElements: _analiseInfoElements,
+            addElementToAnaliseInfo: _addElementToAnaliseInfo,
+            currentPlaying: _currentPlayingSound,
+            soundPlayer: _audioPlayer,
+          ),
+      'Dados': () => Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                            color: Colors.grey), // Defina a cor da borda aqui
+                        borderRadius: BorderRadius.circular(
+                            8.0), // Opcional: bordas arredondadas
+                      ),
+                      child: ListTile(
+                        leading: const Icon(Icons.calendar_today),
+                        title: Text(
+                            startDate != null
+                                ? "Data inicial: ${DateFormat('yyyy-MM-dd').format(startDate!)}"
+                                : "Data inicial",
+                            style: Theme.of(context).textTheme.labelMedium),
+                        onTap: _pickStartDate,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: ListTile(
+                        leading: const Icon(Icons.calendar_today),
+                        title: Text(
+                            endDate != null
+                                ? "Data final: ${DateFormat('yyyy-MM-dd').format(endDate!)}"
+                                : "Data final",
+                            style: Theme.of(context).textTheme.labelMedium),
+                        onTap: _pickEndDate,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              FutureBuilder(
+                future: futureJsonData,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (!snapshot.hasData ||
+                      (snapshot.data as Map<String, List<List<dynamic>>>)
+                          .isEmpty) {
+                    return const Center(child: Text('No data available'));
+                  } else {
+                    Map<String, List<List<dynamic>>> allJsonData =
+                        snapshot.data as Map<String, List<List<dynamic>>>;
+
+                    return SingleChildScrollView(
+                      child: Column(
+                        children: allJsonData.keys.map((game) {
+                          return ValueListenableBuilder<bool>(
+                            valueListenable: ValueNotifier(
+                                _analiseInfoElements.any((element) =>
+                                    element[0] == 'json_data' &&
+                                    element[1] == game)),
+                            builder: (context, isIncluded, _) {
+                              return Column(
+                                children: [
+                                  GestureDetector(
+                                    onLongPress: () {
+                                      setState(() {
+                                        handleExpansionChange(
+                                            game, startDate, endDate, true);
+                                      });
+                                    },
+                                    child: ChartData(
+                                      idPatient: widget.idPatient,
+                                      startDate: startDate!,
+                                      endDate: endDate!,
+                                      game: game,
+                                      selectedColor:
+                                          isIncluded ? Colors.grey : null,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+      'Perguntas': () => Questions(
+            analiseInfoElements: _analiseInfoElements,
+            addElementToAnaliseInfo: _addElementToAnaliseInfo,
+          ),
+    };
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add Data'),
-      ),
+      appBar: const CustomAppBar(
+          title: 'Cadastro de formulário', showBackArrow: true),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           shrinkWrap: true,
           children: [
             if (_typeFormElements.isNotEmpty) ...[
-              AnimatedOpacity(
-                opacity: _typeFormElements.isEmpty ? 0.0 : 1.0,
-                duration: const Duration(seconds: 3),
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 20.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      CardOption(_typeFormElements[0]['name'], Icons.analytics,
-                          onTap: (name) => _handleTypeFormTap(name)),
-                      const SizedBox(width: 8),
-                      CardOption(_typeFormElements[1]['name'], Icons.psychology,
-                          onTap: (name) => _handleTypeFormTap(name))
-                    ],
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  CardOption(
+                    _typeFormElements[0]['name'],
+                    Icons.analytics,
+                    onTap: (name) => _handleTypeFormTap(name),
+                    nameNotifier: _selectedTypeFormNotifier,
                   ),
-                ),
+                  const SizedBox(width: 8),
+                  CardOption(
+                    _typeFormElements[1]['name'],
+                    Icons.psychology,
+                    onTap: (name) => _handleTypeFormTap(name),
+                    nameNotifier: _selectedTypeFormNotifier,
+                  ),
+                ],
               ),
             ],
             Form(
               key: _formKey,
               child: Column(
                 children: [
-                  if (_selectedTypeForm.isNotEmpty &&
-                      _selectedTypeForm == 'Analise de informações') ...[
-                    Row(
-                      children: [
-                        CardOption('Perguntas', Icons.help, onTap: (name) {
-                          _handleCardOptionTap(name);
-                        }),
-                        const SizedBox(width: 8),
-                        CardOption('Sons', Icons.volume_up, onTap: (name) {
-                          _handleCardOptionTap(name);
-                        }),
-                        const SizedBox(width: 8),
-                        CardOption('Dados', Icons.data_usage, onTap: (name) {
-                          _handleCardOptionTap(name);
-                        }),
-                      ],
-                    ),
-                  ],
-                  if (_selectedTypeForm.isNotEmpty &&
-                      _selectedTypeForm == 'Avaliar Comportamento') ...[
-                    Row(
-                      children: [
-                        CardOption('Jogos', Icons.games,
-                            onTap: (name) => _handleCardOptionTap(name)),
-                      ],
-                    ),
-                  ],
-                  if (_name == 'Jogos') ...[
-                    FutureBuilder<List<Map<String, dynamic>>>(
-                      future: GameDao().getAll(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const CircularProgressIndicator();
-                        } else if (snapshot.hasError) {
-                          return Text('Error: ${snapshot.error}');
-                        } else {
-                          final items = snapshot.data ?? [];
-                          return Column(
-                            children: items.map((item) {
-                              // Cria um ValueNotifier para rastrear se a questão está na lista de análise
-                              ValueNotifier<bool> isIncludedInAnalysisGame =
-                                  ValueNotifier(
-                                _avaliarComportamentoElements
-                                    .any((element) => element[1] == item['id']),
-                              );
-
-                              return GestureDetector(
-                                onTap: () {
-                                  //
-                                  _addElementToAvaliarComportamento(
-                                      'games', item['id']);
-                                  isIncludedInAnalysisGame.value =
-                                      !isIncludedInAnalysisGame.value;
-                                },
-                                child: ValueListenableBuilder<bool>(
-                                  valueListenable: isIncludedInAnalysisGame,
-                                  builder: (context, isIncluded, _) {
-                                    return GameComponent(
-                                      item['name'],
-                                      item['link'],
-                                      id: item['id'],
-                                      backgroundColor: isIncluded
-                                          ? Colors.green
-                                          : Colors.white,
-                                    );
-                                  },
-                                ),
-                              );
-                            }).toList(),
-                          );
-                        }
-                      },
-                    ),
-                  ],
-                  if (_name == 'Sons') ...[
-                    Sounds(
-                        analiseInfoElements: _analiseInfoElements,
-                        addElementToAnaliseInfo: _addElementToAnaliseInfo,
-                        currentPlaying: _currentPlayingSound,
-                        soundPlayer: _audioPlayer),
-                  ],
-                  if (_name == 'Dados') ...[
-                    Column(
-                      children: [
-                        Row(
+                  ValueListenableBuilder<String?>(
+                    valueListenable: _selectedTypeFormNotifier,
+                    builder: (context, selectedType, child) {
+                      if (selectedType == 'Analise de informações') {
+                        return Container(
+                          color: Colors.grey[200],
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 4.0, vertical: 4),
+                          child: Row(
+                            children: [
+                              CardOption(
+                                'Perguntas',
+                                Icons.help,
+                                onTap: (name) => _handleCardOptionTap(name),
+                                nameNotifier: _nameNotifier,
+                              ),
+                              const SizedBox(width: 8),
+                              CardOption(
+                                'Sons',
+                                Icons.volume_up,
+                                onTap: (name) => _handleCardOptionTap(name),
+                                nameNotifier: _nameNotifier,
+                              ),
+                              const SizedBox(width: 8),
+                              CardOption(
+                                'Dados',
+                                Icons.data_usage,
+                                onTap: (name) => _handleCardOptionTap(name),
+                                nameNotifier: _nameNotifier,
+                              ),
+                            ],
+                          ),
+                        );
+                      } else if (selectedType == 'Avaliar Comportamento') {
+                        return Column(
                           children: [
-                            Expanded(
-                              child: ListTile(
-                                title: Text(
-                                    "Start Date: ${DateFormat('yyyy-MM-dd').format(startDate!)}"),
-                                trailing: const Icon(Icons.calendar_today),
-                                onTap: _pickStartDate,
-                              ),
-                            ),
-                            Expanded(
-                              child: ListTile(
-                                title: Text(
-                                    "End Date: ${DateFormat('yyyy-MM-dd').format(endDate!)}"),
-                                trailing: const Icon(Icons.calendar_today),
-                                onTap: _pickEndDate,
-                              ),
+                            Row(
+                              children: [
+                                CardOption(
+                                  'Jogos',
+                                  Icons.games,
+                                  onTap: (name) => _handleCardOptionTap(name),
+                                  nameNotifier: _nameNotifier,
+                                ),
+                              ],
                             ),
                           ],
-                        ),
-                        FutureBuilder(
-                          future: futureJsonData,
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const Center(
-                                  child: CircularProgressIndicator());
-                            } else if (snapshot.hasError) {
-                              return Center(
-                                  child: Text('Error: ${snapshot.error}'));
-                            } else if (!snapshot.hasData ||
-                                (snapshot.data
-                                        as Map<String, List<List<dynamic>>>)
-                                    .isEmpty) {
-                              return const Center(
-                                  child: Text('No data available'));
-                            } else {
-                              Map<String, List<List<dynamic>>> allJsonData =
-                                  snapshot.data
-                                      as Map<String, List<List<dynamic>>>;
-
-                              return SingleChildScrollView(
-                                child: Column(
-                                  children: allJsonData.keys.map((game) {
-                                    return ValueListenableBuilder<bool>(
-                                      valueListenable: ValueNotifier(
-                                          _analiseInfoElements.any((element) =>
-                                              element[0] == 'json_data' &&
-                                              element[1] == game)),
-                                      builder: (context, isIncluded, _) {
-                                        return Column(
-                                          children: [
-                                            GestureDetector(
-                                              onLongPress: () {
-                                                setState(() {
-                                                  handleExpansionChange(game,
-                                                      startDate, endDate, true);
-                                                });
-                                              },
-                                              child: ChartData(
-                                                idPatient: widget.idPatient,
-                                                startDate: startDate!,
-                                                endDate: endDate!,
-                                                game: game,
-                                                selectedColor: isIncluded
-                                                    ? Colors.green
-                                                    : null, // Cor opcional
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
-                                  }).toList(),
+                        );
+                      }
+                      return const SizedBox();
+                    },
+                  ),
+                  ValueListenableBuilder<String?>(
+                    valueListenable: _nameNotifier,
+                    builder: (context, selectedOption, child) {
+                      if (selectedOption != null &&
+                          contentWidgets.containsKey(selectedOption)) {
+                        return contentWidgets[selectedOption]!();
+                      }
+                      return const SizedBox();
+                    },
+                  ),
+                  ValueListenableBuilder<String?>(
+                    valueListenable: _selectedTypeFormNotifier,
+                    builder: (context, selectedOption, child) {
+                      if (_selectedTypeFormNotifier.value ==
+                          'Analise de informações') {
+                        return ElevatedButton(
+                          onPressed: () {
+                            _audioPlayer.stop();
+                            _currentPlayingSound.value = null;
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DisplayElementsScreen(
+                                  elements: _analiseInfoElements,
+                                  idPatient: widget.idPatient,
                                 ),
-                              );
-                            }
+                              ),
+                            );
                           },
-                        ),
-                      ],
-                    ),
-                  ],
-                  if (_name == 'Perguntas') ...[
-                    Questions(
-                      analiseInfoElements: _analiseInfoElements,
-                      addElementToAnaliseInfo: _addElementToAnaliseInfo,
-                    ),
-                  ],
+                          child: const Text('Ver Elementos Analisados'),
+                        );
+                      }
+                      if (_selectedTypeFormNotifier.value ==
+                          'Avaliar Comportamento') {
+                        return ElevatedButton(
+                          onPressed: _createSession,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text(
+                            'Criar Sessão',
+                            style: Theme.of(context).textTheme.labelLarge,
+                          ),
+                        );
+                      }
+                      return const SizedBox();
+                    },
+                  ),
                 ],
               ),
             ),
-            if (_selectedTypeForm == 'Analise de informações') ...[
-              ElevatedButton(
-                onPressed: () {
-                  _audioPlayer.stop();
-                  _currentPlayingSound.value = null;
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => DisplayElementsScreen(
-                        elements: _analiseInfoElements,
-                        idPatient: widget.idPatient,
-                      ),
-                    ),
-                  );
-                },
-                child: const Text('Ver Elementos Analisados'),
-              ),
-            ] else if (_selectedTypeForm == 'Avaliar Comportamento') ...[
-              ElevatedButton(
-                onPressed: _createSession,
-                child: const Text('Criar Sessão'),
-              ),
-            ],
           ],
         ),
       ),

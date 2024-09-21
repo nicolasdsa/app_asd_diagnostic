@@ -5,16 +5,17 @@ import 'package:app_asd_diagnostic/models/sound.dart';
 
 class SoundComponent extends StatefulWidget {
   final int soundId;
+  final String? initialText;
 
-  SoundComponent({required this.soundId});
+  SoundComponent({super.key, required this.soundId, this.initialText});
 
   final TextEditingController textController = TextEditingController();
 
   @override
-  _SoundComponentState createState() => _SoundComponentState();
+  SoundComponentState createState() => SoundComponentState();
 }
 
-class _SoundComponentState extends State<SoundComponent>
+class SoundComponentState extends State<SoundComponent>
     with WidgetsBindingObserver {
   late AudioPlayer _audioPlayer;
   bool isPlaying = false;
@@ -24,6 +25,8 @@ class _SoundComponentState extends State<SoundComponent>
   void initState() {
     super.initState();
     _audioPlayer = AudioPlayer();
+    widget.textController.text =
+        widget.initialText ?? ''; // Definir valor inicial
     _loadSoundData();
     WidgetsBinding.instance.addObserver(this);
   }
@@ -72,26 +75,37 @@ class _SoundComponentState extends State<SoundComponent>
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (soundData != null)
-          Row(
-            children: [
-              IconButton(
-                icon: Icon(isPlaying ? Icons.stop : Icons.play_arrow),
-                onPressed: _togglePlay,
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (soundData != null)
+            Row(
+              children: [
+                IconButton(
+                  icon: Icon(isPlaying ? Icons.stop : Icons.play_arrow),
+                  onPressed: _togglePlay,
+                ),
+                Text(soundData!.name,
+                    style: Theme.of(context).textTheme.labelMedium),
+              ],
+            ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
+              controller: widget.textController,
+              decoration: const InputDecoration(
+                labelText: 'Observações',
+                labelStyle: TextStyle(fontSize: 12),
               ),
-              Text(soundData!.name),
-            ],
+            ),
           ),
-        TextField(
-          controller: widget.textController,
-          decoration: InputDecoration(
-            labelText: 'Observações',
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

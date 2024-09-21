@@ -52,8 +52,8 @@ class QuestionsState extends State<Questions> {
             return Column(
               children: items.map((item) {
                 ValueNotifier<bool> isIncludedInAnalysis = ValueNotifier(
-                  widget.analiseInfoElements
-                      .any((element) => element[1] == item['id']),
+                  widget.analiseInfoElements.any((element) =>
+                      element[1] == item['id'] && element[0] == 'questions'),
                 );
 
                 return FutureBuilder<String>(
@@ -66,8 +66,6 @@ class QuestionsState extends State<Questions> {
                     } else if (typeSnapshot.hasError) {
                       return Text('Error: ${typeSnapshot.error}');
                     } else {
-                      final nameTypeQuestion = typeSnapshot.data ?? '';
-
                       return FutureBuilder<List<Map<String, dynamic>>>(
                         future: AnswerOptionsDao()
                             .getOptionsForQuestion(item['id']),
@@ -99,7 +97,6 @@ class QuestionsState extends State<Questions> {
                                 child: Question(
                                   item['id'],
                                   item['question'],
-                                  nameTypeQuestion,
                                   answerOptions,
                                   false,
                                   ValueNotifier<String?>(null),
@@ -107,7 +104,7 @@ class QuestionsState extends State<Questions> {
                                   answerOptionIds,
                                   ValueNotifier<String?>(null),
                                   backgroundColor:
-                                      isIncluded ? Colors.green : Colors.white,
+                                      isIncluded ? Colors.grey : Colors.white,
                                 ),
                               );
                             },
@@ -121,17 +118,29 @@ class QuestionsState extends State<Questions> {
             );
           },
         ),
-        ElevatedButton(
-          onPressed: () async {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => QuestionCreateScreen(),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => QuestionCreateScreen(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.add, color: Colors.white, size: 20),
+            label: Text(
+              'Adicionar pergunta',
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
               ),
-            );
-            _loadQuestions();
-          },
-          child: const Text('Adicionar pergunta'),
+            ),
+          ),
         ),
       ],
     );

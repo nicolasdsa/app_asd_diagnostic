@@ -1,5 +1,7 @@
 import 'package:app_asd_diagnostic/db/database.dart';
 import 'package:app_asd_diagnostic/db/question_dao.dart';
+import 'package:app_asd_diagnostic/screens/components/question.dart';
+import 'package:flutter/material.dart';
 
 class TextResponseDao {
   static const String tableSql = 'CREATE TABLE $_tableName('
@@ -18,13 +20,16 @@ class TextResponseDao {
     return await db.insert(_tableName, response);
   }
 
-  Future<List<Map<String, dynamic>>> getResponsesForForm(int formId) async {
+  Future<List<Question>> getResponsesForForm(int formId) async {
     final db = await dbHelper.database;
-    return await db.query(
-      _tableName,
-      where: 'form_id = ?',
-      whereArgs: [formId],
-    );
+
+    final questions = await db.rawQuery('''
+      SELECT $_tableName.response_text, questions.question, questions.id
+      FROM $_tableName
+      INNER JOIN questions ON $_tableName.question_id = questions.id
+      WHERE $_tableName.form_id = ?
+    ''', [formId]);
+    return toList(questions);
   }
 
   Future<List<Map<String, dynamic>>> getQuestionsForForm(int formId) async {
@@ -49,5 +54,24 @@ class TextResponseDao {
     }
 
     return result;
+  }
+
+  Future<List<Question>> toList(List<Map<String, dynamic>> questionsAll) async {
+    final List<Question> questions = [];
+    for (Map<String, dynamic> linha in questionsAll) {
+      final Question question = Question(
+        linha["id"],
+        linha["question"],
+        null,
+        true,
+        ValueNotifier<String?>(null), // Inicializa o ValueNotifier
+        TextEditingController(),
+        null,
+        ValueNotifier<String?>(null),
+        initialAnswer: linha["response_text"],
+      );
+      questions.add(question);
+    }
+    return questions;
   }
 }
