@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:ui';
 import 'dart:math';
+import 'package:app_asd_diagnostic/games/hit_run/components/collision_block.dart';
 import 'package:app_asd_diagnostic/games/hit_run/components/level_design.dart';
 import 'package:app_asd_diagnostic/games/hit_run/hit_run.dart';
-import 'package:app_asd_diagnostic/games/pixel_adventure/components/collision_block.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';

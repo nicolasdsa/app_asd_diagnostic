@@ -5,13 +5,14 @@ import 'package:flame/palette.dart';
 
 class Hearts extends PositionComponent with HasGameRef<HitRun> {
   late TextComponent heartsText;
-  int hearts = 3;
+  late int hearts;
 
   Hearts({super.position});
 
   @override
   Future<void> onLoad() async {
     super.onLoad();
+    hearts = gameRef.properties['Vidas'] as int;
     heartsText = TextComponent(
       text: 'Hearts: $hearts',
       textRenderer: TextPaint(
@@ -36,7 +37,7 @@ class Hearts extends PositionComponent with HasGameRef<HitRun> {
   }
 
   void resetHearts() {
-    hearts = 3;
+    hearts = gameRef.properties['Vidas'] as int;
     heartsText.text = 'Hearts: $hearts';
   }
 }

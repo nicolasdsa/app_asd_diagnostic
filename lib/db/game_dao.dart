@@ -5,7 +5,8 @@ class GameDao {
   static const String tableSql = 'CREATE TABLE $_tableName('
       'id INTEGER PRIMARY KEY AUTOINCREMENT, '
       'link TEXT, '
-      'name TEXT)';
+      'name TEXT, '
+      'config TEXT)';
 
   static const String _tableName = 'games';
   static const String _name = 'name';
@@ -17,6 +18,19 @@ class GameDao {
     final db = await dbHelper.database;
     final List<Map<String, dynamic>> result = await db.query(_tableName);
     return result;
+  }
+
+  Future<Map<String, dynamic>> getOne(String id) async {
+    final db = await dbHelper.database;
+    final List<Map<String, dynamic>> result = await db.query(
+      _tableName,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    if (result.isNotEmpty) {
+      return result.first;
+    }
+    throw Exception('No result found');
   }
 
   Future<List<Map<String, dynamic>>> getAllHash() async {

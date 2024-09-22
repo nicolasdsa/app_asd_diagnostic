@@ -56,7 +56,12 @@ class DatabaseHelper {
     await db.insert('type_questions', {'name': 'Simples'});
     await db.insert('type_questions', {'name': 'Multipla escolha'});
 
-    await db.insert('games', {'name': 'Hit run', 'link': '/hitRunMenu'});
+    await db.insert('games', {
+      'name': 'Hit run',
+      'link': '/hitRunMenu',
+      'config':
+          "{\"Modos\": [\"Sonoro\", \"Visual\"],\"Dificuldade\": [\"Difícil\", \"Fácil\"],\"Vidas\": 3,\"Tempo\": 5}"
+    });
   }
 
   _initDatabase() async {

@@ -4,6 +4,7 @@ import 'package:app_asd_diagnostic/games/hit_run/screens/menu_screen.dart';
 import 'package:app_asd_diagnostic/screens/components/my_bottom_navigation_bar.dart';
 import 'package:app_asd_diagnostic/screens/export_screen.dart';
 import 'package:app_asd_diagnostic/screens/form_detail_screen.dart';
+import 'package:app_asd_diagnostic/screens/hash_create_screen.dart';
 import 'package:app_asd_diagnostic/screens/login_screen.dart';
 import 'package:app_asd_diagnostic/screens/patient_detail_screen.dart';
 import 'package:app_asd_diagnostic/screens/register_screen.dart';
@@ -69,6 +70,17 @@ void main() async {
         '/register': (context) => RegisterScreen(),
         '/test': (context) => const MyBottomNavigationBar(),
         '/export': (context) => const ExportScreen(),
+        '/game': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments
+              as Map<String, dynamic>;
+          final idPatient = args['idPatient']!;
+          final elements = args['elements']!;
+
+          return HashCreateScreen(
+            idPatient: idPatient,
+            elements: elements,
+          );
+        },
         '/patient': (context) {
           final args =
               ModalRoute.of(context)!.settings.arguments as Map<String, String>;
@@ -81,21 +93,19 @@ void main() async {
           final formId = args['formId']!;
           return FormDetailScreen(formId: int.parse(formId));
         },
-        '/hitRunMenu': (context) {
+        /*'/hitRunMenu': (context) {
           final args =
               ModalRoute.of(context)!.settings.arguments as Map<String, String>;
           final idPatient = args['idPatient']!;
           return HitRunMenuScreen(idPatient: idPatient);
-        },
+        },*/
       },
       onGenerateRoute: (settings) {
-        if (settings.name == '/hitRun') {
-          final args = settings.arguments as Map<String, String>;
+        if (settings.name == '/hitRunMenu') {
+          final args = settings.arguments as Map<String, dynamic>;
           final idPatient = args['idPatient']!;
-          final difficulty = args['difficulty']!;
-          final mode = args['mode']!;
-          final game =
-              HitRun(idPatient: idPatient, difficulty: difficulty, mode: mode);
+          final properties = args['properties']!;
+          final game = HitRun(idPatient: idPatient, properties: properties);
           return MaterialPageRoute(
             builder: (context) => GameScreen(game: game),
           );

@@ -5,9 +5,18 @@ import 'package:flame/palette.dart';
 
 class TimerDisplay extends PositionComponent with HasGameRef<HitRun> {
   late TextComponent timerText;
-  double timer = 5.0;
+  late double timer;
 
-  TimerDisplay({super.position}) {
+  TimerDisplay({super.position});
+
+  @override
+  Future<void> onLoad() async {
+    await super.onLoad();
+
+    // Convert 'Tempo' to double, whether it's an int or double
+    timer = (gameRef.properties['Tempo'] as num).toDouble();
+
+    // Initialize the text component and add it
     timerText = TextComponent(
       text: 'Timer: ${timer.toStringAsFixed(1)}',
       textRenderer: TextPaint(
@@ -21,7 +30,7 @@ class TimerDisplay extends PositionComponent with HasGameRef<HitRun> {
   }
 
   void resetTimer() {
-    timer = 5.0;
+    timer = (gameRef.properties['Tempo'] as num).toDouble();
     timerText.text = 'Timer: ${timer.toStringAsFixed(1)}';
   }
 

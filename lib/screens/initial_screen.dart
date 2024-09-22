@@ -1,4 +1,5 @@
 import 'package:app_asd_diagnostic/screens/login_screen.dart';
+import 'package:app_asd_diagnostic/screens/test_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,7 +15,7 @@ class _InitialScreenState extends State<InitialScreen> {
     await prefs.setBool('isLoggedIn', false);
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (context) => LoginScreen()),
+      MaterialPageRoute(builder: (context) => TestScreen()),
       (route) => false, // Remove todas as rotas anteriores
     );
   }

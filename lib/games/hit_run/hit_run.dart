@@ -9,13 +9,11 @@ import 'package:flame/game.dart';
 class HitRun extends FlameGame
     with TapCallbacks, HasCollisionDetection, DragCallbacks {
   final String idPatient;
-  final String difficulty;
-  final String mode;
+  final Map<String, dynamic> properties;
 
   HitRun({
     required this.idPatient,
-    required this.difficulty,
-    required this.mode,
+    required this.properties,
   });
 
   GameStats stats = GameStats();
@@ -53,7 +51,11 @@ class HitRun extends FlameGame
 
     JsonDataDao jsonDataDao = JsonDataDao();
     await jsonDataDao.insertJson(
-        jsonData, idPatient, 'Hit run', jsonDataFlag, jsonDataDescription);
+        jsonData,
+        idPatient,
+        'Hit run - Dificuldade: ${properties['Dificuldade']} - Modo: ${properties['Modos']}',
+        jsonDataFlag,
+        jsonDataDescription);
   }
 
   @override
@@ -99,17 +101,17 @@ class HitRun extends FlameGame
   }
 
   void _loadLevel() async {
-    if (mode == 'sonoro') {
+    if (properties["Modos"] == 'Sonoro') {
       levelNames = ['easy.tmx', 'hard.tmx'];
     }
 
-    if (mode == 'visual') {
+    if (properties["Modos"] == 'Visual') {
       levelNames = ['easy-no-sound.tmx', 'hard-no-sound.tmx'];
     }
 
-    int currentLevelIndex = difficulty == 'easy' ? 0 : 1;
+    int currentLevelIndex = properties["Dificuldade"] == 'Fácil' ? 0 : 1;
     List<String> colors = ['blue', 'green', 'pink', 'yellow'];
-    int flagMode = mode == 'visual' ? 0 : 1;
+    int flagMode = properties["Modos"] == 'Visual' ? 0 : 1;
 
     if (currentLevelIndex == 0) {
       colors.shuffle();

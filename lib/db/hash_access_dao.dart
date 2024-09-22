@@ -16,4 +16,17 @@ class HashAccessDao {
     final db = await dbHelper.database;
     return await db.insert('hash_access', hash);
   }
+
+  Future<Map<String, dynamic>?> getOne(String hash) async {
+    final db = await dbHelper.database;
+    final List<Map<String, dynamic>> results = await db.query(
+      _tableName,
+      where: 'accessHash = ?',
+      whereArgs: [hash],
+    );
+    if (results.isNotEmpty) {
+      return results.first;
+    }
+    return null;
+  }
 }

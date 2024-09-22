@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:app_asd_diagnostic/games/hit_run/components/background_tile.dart';
+import 'package:app_asd_diagnostic/games/hit_run/components/collision_block.dart';
 import 'package:app_asd_diagnostic/games/hit_run/components/hearts.dart';
 import 'package:app_asd_diagnostic/games/hit_run/components/points.dart';
 import 'package:app_asd_diagnostic/games/hit_run/components/shape.dart';
 import 'package:app_asd_diagnostic/games/hit_run/components/timer.dart';
 import 'package:app_asd_diagnostic/games/hit_run/hit_run.dart';
-import 'package:app_asd_diagnostic/games/pixel_adventure/components/collision_block.dart';
 import 'package:flame/components.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flame_tiled/flame_tiled.dart';
@@ -51,7 +51,6 @@ class Level extends World with HasGameRef<HitRun> {
         final block = CollisionBlock(
           position: Vector2(collision.x, collision.y),
           size: Vector2(collision.width, collision.height),
-          isPlatform: false,
         );
         _collisionBlocks.add(block);
       }

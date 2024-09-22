@@ -8,12 +8,8 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:app_asd_diagnostic/screens/components/card_option.dart';
 import 'package:app_asd_diagnostic/db/type_form_dao.dart';
-import 'package:app_asd_diagnostic/db/hash_access_dao.dart';
 import 'package:app_asd_diagnostic/screens/display_elements_screen.dart';
-import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
-import 'dart:convert';
 
 import 'package:intl/intl.dart';
 
@@ -35,7 +31,6 @@ class FormScreenState extends State<FormScreen> with WidgetsBindingObserver {
 
   final _formKey = GlobalKey<FormState>();
   final _typeFormDao = TypeFormDao();
-  final _hashAccessDao = HashAccessDao();
   final AudioPlayer _audioPlayer = AudioPlayer();
   List<Map<String, dynamic>> _typeFormElements = [];
   final List<List<dynamic>> _analiseInfoElements = [];
@@ -157,53 +152,18 @@ class FormScreenState extends State<FormScreen> with WidgetsBindingObserver {
   void _addElementToAvaliarComportamento(String tableName, int id) {
     final newElement = [tableName, id];
 
-    setState(() {
-      if (_avaliarComportamentoElements
-          .any((element) => listEquals(element, newElement))) {
-        _avaliarComportamentoElements
-            .removeWhere((element) => element[1] == id);
-        print(
-            'Elemento removido de _avaliarComportamentoElements: $_avaliarComportamentoElements');
-      } else {
-        _avaliarComportamentoElements.add(newElement);
-        print(
-            'Novo elemento adicionado em _avaliarComportamentoElements: $_avaliarComportamentoElements');
-      }
-    });
+    if (_avaliarComportamentoElements
+        .any((element) => listEquals(element, newElement))) {
+      _avaliarComportamentoElements.removeWhere((element) => element[1] == id);
+      print(
+          'Elemento removido de _avaliarComportamentoElements: $_avaliarComportamentoElements');
+    } else {
+      _avaliarComportamentoElements.add(newElement);
+      print(
+          'Novo elemento adicionado em _avaliarComportamentoElements: $_avaliarComportamentoElements');
+    }
 
     // Mostra o SnackBar fora do setStat
-  }
-
-  Future<void> _createSession() async {
-    // Pega o ID do paciente
-    final patientId = widget.idPatient;
-    // Pega os IDs dos jogos
-    final gameIds = _avaliarComportamentoElements.isNotEmpty
-        ? _avaliarComportamentoElements.map((element) => element[1]).join(',')
-        : '';
-
-    // Cria o hash
-    final hashInput = '$patientId-$gameIds';
-    final bytes = utf8.encode(hashInput);
-    final hash = sha256.convert(bytes).toString();
-
-    print('Hash gerado: $hash');
-
-    // Salva no banco de dados
-    final hashAccess = {
-      'id_patient': patientId,
-      'accessHash': hash,
-      'gameLinks': hashInput,
-    };
-    await _hashAccessDao.insert(hashAccess);
-    await Clipboard.setData(ClipboardData(text: hash));
-
-    // Mostra uma mensagem de sucesso
-    setState(() {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Sessão criada com sucesso! Hash: $hash')),
-      );
-    });
   }
 
   @override
@@ -441,7 +401,18 @@ class FormScreenState extends State<FormScreen> with WidgetsBindingObserver {
                       if (_selectedTypeFormNotifier.value ==
                           'Avaliar Comportamento') {
                         return ElevatedButton(
-                          onPressed: _createSession,
+                          onPressed: () {
+                            _audioPlayer.stop();
+                            _currentPlayingSound.value = null;
+                            Navigator.pushNamed(
+                              context,
+                              '/game',
+                              arguments: {
+                                'idPatient': widget.idPatient,
+                                'elements': _avaliarComportamentoElements
+                              },
+                            );
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.black,
                             shape: RoundedRectangleBorder(
