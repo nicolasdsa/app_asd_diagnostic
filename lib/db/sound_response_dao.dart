@@ -7,7 +7,7 @@ class SoundResponseDao {
       'sound_id INTEGER,'
       'form_id INTEGER, '
       'text_response TEXT,'
-      'FOREIGN KEY(sound_id) REFERENCES sounds(id))'; // Corrigido aqui
+      'FOREIGN KEY(sound_id) REFERENCES sounds(id))';
 
   static const String _tableName = 'sound_text_response';
 

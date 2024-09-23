@@ -8,18 +8,12 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 
-enum PlayerState {
-  square,
-  circle,
-  triangle,
-  squareSelected,
-  circleSelected,
-  triangleSelected
-}
+enum PlayerState { shape, shapeSelected }
 
 class ShapeForm extends SpriteAnimationGroupComponent
     with TapCallbacks, DragCallbacks, HasGameRef<HitRun> {
   String form;
+  int amount;
   String color;
   Level level;
   bool isTap;
@@ -30,6 +24,7 @@ class ShapeForm extends SpriteAnimationGroupComponent
   ShapeForm({
     super.position,
     this.form = 'circle',
+    this.amount = 4,
     required this.color,
     required this.speed,
     required this.level,
@@ -43,12 +38,9 @@ class ShapeForm extends SpriteAnimationGroupComponent
   Vector2 speed;
   bool isSelected = false;
 
-  late final SpriteAnimation circleAnimation;
-  late final SpriteAnimation squareAnimation;
-  late final SpriteAnimation triangleAnimation;
-  late final SpriteAnimation triangleSelectedAnimation;
-  late final SpriteAnimation squareSelectedAnimation;
-  late final SpriteAnimation circleSelectedAnimation;
+  late final SpriteAnimation shapeAnimation;
+  late final SpriteAnimation shapeSelectedAnimation;
+
   List<CollisionBlock> collisionBlocks = [];
   double fixedDeltaTime = 1 / 120;
   double accumulatedTime = 0;
@@ -58,20 +50,11 @@ class ShapeForm extends SpriteAnimationGroupComponent
     _loadAllAnimations();
     startingPosition = Vector2(position.x, position.y);
     collisionBlocks = level.collisionBlocks;
-    if (form == 'circle') {
-      add(CircleHitbox(radius: width / 2));
-    } else if (form == 'square') {
-      add(RectangleHitbox(
-        position: Vector2(position.x, position.y),
-        size: Vector2(width, height),
-      ));
-    } else if (form == 'triangle') {
-      add(PolygonHitbox([
-        Vector2(0, 0),
-        Vector2(width, 0),
-        Vector2(width / 2, height),
-      ]));
-    }
+
+    add(RectangleHitbox(
+      position: Vector2(position.x, position.y),
+      size: Vector2(width, height),
+    ));
 
     return super.onLoad();
   }
@@ -87,36 +70,22 @@ class ShapeForm extends SpriteAnimationGroupComponent
   }
 
   void _loadAllAnimations() {
-    circleAnimation = _spriteAnimation('circle', 1, 0.01);
-    squareAnimation = _spriteAnimation('square', 1, 0.01);
-    triangleAnimation = _spriteAnimation('rhombus', 1, 0.01);
-    squareSelectedAnimation = _spriteAnimation('square', 1, 0.01, true);
-    circleSelectedAnimation = _spriteAnimation('circle', 1, 0.01, true);
-    triangleSelectedAnimation = _spriteAnimation('rhombus', 1, 0.01, true);
+    shapeAnimation = _spriteAnimation(form, amount, 0.05);
+    shapeSelectedAnimation = _spriteAnimation(form, amount, 0.05, true);
 
     animations = {
-      PlayerState.square: squareAnimation,
-      PlayerState.circle: circleAnimation,
-      PlayerState.triangle: triangleAnimation,
-      PlayerState.squareSelected: squareSelectedAnimation,
-      PlayerState.circleSelected: circleSelectedAnimation,
-      PlayerState.triangleSelected: triangleSelectedAnimation,
+      PlayerState.shape: shapeAnimation,
+      PlayerState.shapeSelected: shapeSelectedAnimation,
     };
 
-    if (form == 'Circle') {
-      current = PlayerState.circle;
-    } else if (form == 'Square') {
-      current = PlayerState.square;
-    } else if (form == 'Triangle') {
-      current = PlayerState.triangle;
-    }
+    current = PlayerState.shape;
   }
 
   SpriteAnimation _spriteAnimation(String form, int amount,
       [double stepTime = 0.1, bool selected = false]) {
     if (selected) {
       return SpriteAnimation.fromFrameData(
-        game.images.fromCache('hit_run/${color}_body_${form}_selected.png'),
+        game.images.fromCache('hit_run/${color}_${form}_selected.png'),
         SpriteAnimationData.sequenced(
           amount: amount,
           stepTime: stepTime,
@@ -125,7 +94,7 @@ class ShapeForm extends SpriteAnimationGroupComponent
       );
     }
     return SpriteAnimation.fromFrameData(
-      game.images.fromCache('hit_run/${color}_body_$form.png'),
+      game.images.fromCache('hit_run/${color}_$form.png'),
       SpriteAnimationData.sequenced(
         amount: amount,
         stepTime: stepTime,
@@ -284,7 +253,6 @@ class ShapeForm extends SpriteAnimationGroupComponent
 
     // Define esta forma como a selecionada
     level.selectedShape = this;
-    print('Shape Selected: $form');
   }
 
   bool _isCorrectShapeTapped() {
@@ -340,21 +308,9 @@ class ShapeForm extends SpriteAnimationGroupComponent
 
   void updateSprite(bool isSelected) {
     if (isSelected) {
-      if (form == 'Circle') {
-        current = PlayerState.circleSelected;
-      } else if (form == 'Square') {
-        current = PlayerState.squareSelected;
-      } else if (form == 'Triangle') {
-        current = PlayerState.triangleSelected;
-      }
+      current = PlayerState.shapeSelected;
     } else {
-      if (form == 'Circle') {
-        current = PlayerState.circle;
-      } else if (form == 'Square') {
-        current = PlayerState.square;
-      } else if (form == 'Triangle') {
-        current = PlayerState.triangle;
-      }
+      current = PlayerState.shape;
     }
   }
 }

@@ -107,7 +107,8 @@ void main() async {
           final properties = args['properties']!;
           final game = HitRun(idPatient: idPatient, properties: properties);
           return MaterialPageRoute(
-            builder: (context) => GameScreen(game: game),
+            builder: (context) =>
+                GameScreen(game: game, idPatient: int.parse(idPatient)),
           );
         }
         return null; // Unknown route

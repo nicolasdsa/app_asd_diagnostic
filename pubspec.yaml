@@ -94,6 +94,10 @@ flutter:
     - assets/audio/hit_run/
     - assets/images/Gift_Grab/
     - assets/fonts/
+  fonts:
+    - family: PressStart2P-Regular
+      fonts:
+        - asset: assets/fonts/PressStart2P-Regular.ttf
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

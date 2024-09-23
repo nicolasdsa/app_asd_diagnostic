@@ -18,7 +18,8 @@ class Hearts extends PositionComponent with HasGameRef<HitRun> {
       textRenderer: TextPaint(
         style: TextStyle(
           color: BasicPalette.white.color,
-          fontSize: 24.0,
+          fontSize: 10,
+          fontFamily: 'PressStart2P-Regular',
         ),
       ),
     );

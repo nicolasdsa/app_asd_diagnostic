@@ -1,12 +1,13 @@
 import 'package:app_asd_diagnostic/db/answer_options_dao.dart';
 import 'package:app_asd_diagnostic/db/form_dao.dart';
-import 'package:app_asd_diagnostic/db/form_question_dao.dart';
 import 'package:app_asd_diagnostic/db/game_dao.dart';
 import 'package:app_asd_diagnostic/db/hash_access_dao.dart';
+import 'package:app_asd_diagnostic/db/hit_run_objects_dao.dart';
 import 'package:app_asd_diagnostic/db/json_data_dao.dart';
 import 'package:app_asd_diagnostic/db/json_data_response_dao.dart';
 import 'package:app_asd_diagnostic/db/option_response_dao.dart';
 import 'package:app_asd_diagnostic/db/patient_dao.dart';
+import 'package:app_asd_diagnostic/db/patient_object_hit_run_dao.dart';
 import 'package:app_asd_diagnostic/db/question_dao.dart';
 import 'package:app_asd_diagnostic/db/sound_dao.dart';
 import 'package:app_asd_diagnostic/db/sound_response_dao.dart';
@@ -34,7 +35,6 @@ class DatabaseHelper {
 
   Future _onCreate(Database db, int version) async {
     await db.execute(FormDao.tableSql);
-    await db.execute(FormQuestionDao.tableSql);
     await db.execute(AnswerOptionsDao.tableSql);
     await db.execute(PatientDao.tableSql);
     await db.execute(TypeQuestionDao.tableSql);
@@ -49,12 +49,19 @@ class DatabaseHelper {
     await db.execute(JsonDataResponseDao.tableSql);
     await db.execute(SoundDao.tableSql);
     await db.execute(SoundResponseDao.tableSql);
+    await db.execute(HitRunObjectDao.tableSql);
+    await db.execute(PatientObjectHitRunDao.tableSql);
 
     await db.insert('type_forms', {'name': 'Analise de informações'});
     await db.insert('type_forms', {'name': 'Avaliar Comportamento'});
 
     await db.insert('type_questions', {'name': 'Simples'});
     await db.insert('type_questions', {'name': 'Multipla escolha'});
+
+    await db.insert('hit_run_objects',
+        {'name': 'Formas', 'objects': '["circle", "square", "rhombus"]'});
+    await db.insert('hit_run_objects',
+        {'name': 'Animais da Fazenda', 'objects': '["chicken", "pig", "cow"]'});
 
     await db.insert('games', {
       'name': 'Hit run',

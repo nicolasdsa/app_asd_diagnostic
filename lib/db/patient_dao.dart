@@ -1,4 +1,5 @@
 import 'package:app_asd_diagnostic/db/database.dart';
+import 'package:app_asd_diagnostic/db/patient_object_hit_run_dao.dart';
 
 class PatientDao {
   static const String tableSql = 'CREATE TABLE $_tableName('
@@ -15,8 +16,14 @@ class PatientDao {
   final dbHelper = DatabaseHelper.instance;
 
   Future<int> insert(Map<String, dynamic> patient) async {
+    final objects = PatientObjectHitRunDao();
     final db = await dbHelper.database;
-    return await db.insert(_tableName, patient);
+    final create = await db.insert(_tableName, patient);
+    await objects.insert({
+      'patient_id': create,
+      'hit_run_object_id': 1,
+    });
+    return create;
   }
 
   Future<List<Map<String, dynamic>>> getAll() async {

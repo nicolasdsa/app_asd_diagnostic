@@ -10,7 +10,11 @@ class Points extends PositionComponent {
     pointsText = TextComponent(
       text: 'Points: $points',
       textRenderer: TextPaint(
-        style: TextStyle(color: BasicPalette.white.color, fontSize: 18),
+        style: TextStyle(
+          color: BasicPalette.white.color,
+          fontSize: 10,
+          fontFamily: 'PressStart2P-Regular',
+        ),
       ),
     );
     add(pointsText);

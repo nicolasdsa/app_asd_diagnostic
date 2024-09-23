@@ -17,24 +17,30 @@ class Level extends World with HasGameRef<HitRun> {
   final int mode;
 
   final List<String> colors;
+  final List<String> objects;
 
-  Level({required this.levelName, required this.colors, required this.mode});
+  Level(
+      {required this.levelName,
+      required this.colors,
+      required this.mode,
+      required this.objects});
   late TiledComponent level;
   Points? points;
-  Hearts? hearts; // Reference to the Hearts component
-  TimerDisplay? timer; // Reference to the TimerDisplay component
+  Hearts? hearts;
+  TimerDisplay? timer;
   List<CollisionBlock> _collisionBlocks = [];
   List<CollisionBlock> get collisionBlocks => _collisionBlocks;
   ShapeForm? selectedShape;
-  String spawnedShapeType = 'Square';
+  String spawnedShapeType = '';
   ShapeForm? spawnShape;
 
   @override
   FutureOr<void> onLoad() async {
+    spawnedShapeType = objects[Random().nextInt(objects.length)];
+
     level = await TiledComponent.load('hit_run/$levelName', Vector2(16, 16));
     level.priority = 10;
     add(level);
-
     _scrollingBackground();
     _spawingObjects();
     _addCollisions();
@@ -89,6 +95,7 @@ class Level extends World with HasGameRef<HitRun> {
             shape.position = Vector2(spawnPoint.x, spawnPoint.y);
             shape.form = spawnedShapeType;
             shape.priority = 9999;
+            shape.amount = 1;
             add(shape);
             spawnShape = shape;
             break;
@@ -105,7 +112,7 @@ class Level extends World with HasGameRef<HitRun> {
                 spawnPoint.x + rng.nextDouble() * spawnPoint.width,
                 spawnPoint.y + rng.nextDouble() * spawnPoint.height,
               );
-              shape.form = 'Circle';
+              shape.form = objects[0];
               shape.priority = 9999;
               add(shape);
             }
@@ -121,7 +128,7 @@ class Level extends World with HasGameRef<HitRun> {
                 spawnPoint.x + rng.nextDouble() * spawnPoint.width,
                 spawnPoint.y + rng.nextDouble() * spawnPoint.height,
               );
-              shape.form = 'Square';
+              shape.form = objects[1];
               shape.priority = 9999;
               add(shape);
             }
@@ -137,7 +144,7 @@ class Level extends World with HasGameRef<HitRun> {
                 spawnPoint.x + rng.nextDouble() * spawnPoint.width,
                 spawnPoint.y + rng.nextDouble() * spawnPoint.height,
               );
-              shape.form = 'Triangle';
+              shape.form = objects[2];
               shape.priority = 9999;
               add(shape);
             }
@@ -150,8 +157,9 @@ class Level extends World with HasGameRef<HitRun> {
                 isButton: true,
                 color: colors[0]);
             shape.position = Vector2(spawnPoint.x, spawnPoint.y);
-            shape.form = 'Square';
+            shape.form = objects[0];
             shape.priority = 9999;
+            shape.amount = 1;
             add(shape);
             break;
           case 'Circle':
@@ -162,8 +170,9 @@ class Level extends World with HasGameRef<HitRun> {
                 isButton: true,
                 color: colors[0]);
             shape.position = Vector2(spawnPoint.x, spawnPoint.y);
-            shape.form = 'Circle';
+            shape.form = objects[1];
             shape.priority = 9999;
+            shape.amount = 1;
             add(shape);
             break;
           case 'Triangle':
@@ -174,8 +183,9 @@ class Level extends World with HasGameRef<HitRun> {
                 isButton: true,
                 color: colors[0]);
             shape.position = Vector2(spawnPoint.x, spawnPoint.y);
-            shape.form = 'Triangle';
+            shape.form = objects[2];
             shape.priority = 9999;
+            shape.amount = 1;
             add(shape);
             break;
           case 'Square 2':
@@ -186,9 +196,10 @@ class Level extends World with HasGameRef<HitRun> {
                 isButton: true,
                 color: colors[1]);
             shape.position = Vector2(spawnPoint.x, spawnPoint.y);
-            shape.form = 'Square';
+            shape.form = objects[0];
             shape.priority = 9999;
             add(shape);
+            shape.amount = 1;
             break;
           case 'Circle 2':
             ShapeForm shape = ShapeForm(
@@ -198,8 +209,9 @@ class Level extends World with HasGameRef<HitRun> {
                 isButton: true,
                 color: colors[1]);
             shape.position = Vector2(spawnPoint.x, spawnPoint.y);
-            shape.form = 'Circle';
+            shape.form = objects[1];
             shape.priority = 9999;
+            shape.amount = 1;
             add(shape);
             break;
           case 'Triangle 2':
@@ -210,8 +222,9 @@ class Level extends World with HasGameRef<HitRun> {
                 isButton: true,
                 color: colors[1]);
             shape.position = Vector2(spawnPoint.x, spawnPoint.y);
-            shape.form = 'Triangle';
+            shape.form = objects[2];
             shape.priority = 9999;
+            shape.amount = 1;
             add(shape);
             break;
           case 'Timer':
@@ -220,8 +233,7 @@ class Level extends World with HasGameRef<HitRun> {
             );
             add(timer);
             timer.priority = 9999;
-            this.timer =
-                timer; // Assign the TimerDisplay reference to the level
+            this.timer = timer;
             break;
           case 'Points':
             final points = Points(
@@ -237,7 +249,7 @@ class Level extends World with HasGameRef<HitRun> {
             );
             hearts.priority = 9999;
             add(hearts);
-            this.hearts = hearts; // Assign the Hearts reference to the level
+            this.hearts = hearts;
             break;
         }
       }
@@ -245,9 +257,8 @@ class Level extends World with HasGameRef<HitRun> {
   }
 
   void spawnRandomShapeType() {
-    final shapes = ['Square', 'Circle', 'Triangle'];
     final rng = Random();
-    spawnedShapeType = shapes[rng.nextInt(shapes.length)];
+    spawnedShapeType = objects[rng.nextInt(objects.length)];
     int randomValue = rng.nextDouble() < 0.5 ? 0 : 1;
     String color = colors[randomValue];
 
