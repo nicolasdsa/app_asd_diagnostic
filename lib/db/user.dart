@@ -7,14 +7,16 @@ class UserDao {
       'name TEXT,'
       'username TEXT,'
       'email TEXT,'
+      'institute TEXT,'
+      'crm TEXT,'
       'password TEXT)';
 
   static const String _tableName = 'users';
 
   final dbHelper = DatabaseHelper.instance;
 
-  Future<int> insert(
-      String name, String email, String username, String password) async {
+  Future<int> insert(String name, String email, String username,
+      String password, String institute, String crm) async {
     final db = await dbHelper.database;
     final hashedPassword = _hashPassword(password);
     Map<String, dynamic> row = {
@@ -22,16 +24,18 @@ class UserDao {
       'email': email,
       'username': username,
       'password': hashedPassword.toString(),
+      'institute': institute,
+      'crm': crm
     };
     return await db.insert(_tableName, row);
   }
 
-  Future<bool> login(String username, String password) async {
+  Future<bool> login(String email, String password) async {
     final db = await dbHelper.database;
     final List<Map<String, dynamic>> rows = await db.query(
       _tableName,
-      where: 'username = ?',
-      whereArgs: [username],
+      where: 'email = ?',
+      whereArgs: [email],
     );
 
     if (rows.isEmpty) {

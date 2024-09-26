@@ -86,6 +86,7 @@ flutter:
     - assets/images/pixel_adventure/Main Characters/Virtual Guy/
     - assets/images/pixel_adventure/Enemies/Chicken/
     - assets/images/HUD/
+    - assets/images/screens/
     - assets/images/pixel_adventure/Items/Fruits/
     - assets/images/pixel_adventure/Background/
     - assets/images/pixel_adventure/Traps/Saw/
