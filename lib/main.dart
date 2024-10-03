@@ -6,8 +6,12 @@ import 'package:app_asd_diagnostic/screens/export_screen.dart';
 import 'package:app_asd_diagnostic/screens/form_detail_screen.dart';
 import 'package:app_asd_diagnostic/screens/hash_create_screen.dart';
 import 'package:app_asd_diagnostic/screens/patient_detail_screen.dart';
+import 'package:app_asd_diagnostic/screens/questions_create_screen.dart';
+import 'package:app_asd_diagnostic/screens/questions_screen.dart';
 import 'package:app_asd_diagnostic/screens/register_screen.dart';
 import 'package:app_asd_diagnostic/screens/login_and_hash_screen.dart';
+import 'package:app_asd_diagnostic/screens/sounds_create_screen.dart';
+import 'package:app_asd_diagnostic/screens/sounds_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -63,6 +67,25 @@ void main() async {
       ),
       initialRoute: '/check',
       routes: {
+        '/sounds': (context) => const SoundsScreen(),
+        '/createSound': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments
+              as Map<String, dynamic>?;
+          final idSound = args?['idSound'];
+          final notifier = args?['notifier'];
+
+          return SoundCreateEditScreen(soundId: idSound, notifier: notifier);
+        },
+        '/createQuestion': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments
+              as Map<String, dynamic>?;
+          final idQuestion = args?['idQuestion'];
+          final notifier = args?['notifier'];
+
+          return QuestionCreateScreen(
+              questionId: idQuestion, notifier: notifier);
+        },
+        '/questions': (context) => const QuestionsScreen(),
         '/check': (context) => const InitialCheckScreen(),
         '/initial': (context) => const MyBottomNavigationBar(),
         '/': (context) => const LoginAndHashScreen(),
@@ -92,12 +115,6 @@ void main() async {
           final formId = args['formId']!;
           return FormDetailScreen(formId: int.parse(formId));
         },
-        /*'/hitRunMenu': (context) {
-          final args =
-              ModalRoute.of(context)!.settings.arguments as Map<String, String>;
-          final idPatient = args['idPatient']!;
-          return HitRunMenuScreen(idPatient: idPatient);
-        },*/
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/hitRunMenu') {

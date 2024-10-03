@@ -23,6 +23,77 @@ class QuestionDao {
     return await db.insert(_tableName, form);
   }
 
+  Future<bool> checkQuestionIsInForm(int id) async {
+    final db = await dbHelper.database;
+
+    final textResponseResult = await db.query(
+      'text_responses',
+      where: 'question_id = ?',
+      whereArgs: [id],
+    );
+    if (textResponseResult.isNotEmpty) {
+      return true;
+    }
+
+    final optionResponseResult = await db.query(
+      'option_responses',
+      where: 'question_id = ?',
+      whereArgs: [id],
+    );
+    if (optionResponseResult.isNotEmpty) {
+      return true;
+    }
+
+    return false;
+  }
+
+  Future<bool> deleteQuestionById(int id) async {
+    final db = await dbHelper.database;
+
+    final textResponseResult = await db.query(
+      'text_responses',
+      where: 'question_id = ?',
+      whereArgs: [id],
+    );
+    if (textResponseResult.isNotEmpty) {
+      return false;
+    }
+
+    final optionResponseResult = await db.query(
+      'option_responses',
+      where: 'question_id = ?',
+      whereArgs: [id],
+    );
+    if (optionResponseResult.isNotEmpty) {
+      return false;
+    }
+
+    // Excluir as opções de resposta da questão
+    await db.delete(
+      'answer_options',
+      where: 'id_question = ?',
+      whereArgs: [id],
+    );
+    // Excluir a questão
+    await db.delete(
+      _tableName,
+      where: '$_id = ?',
+      whereArgs: [id],
+    );
+
+    return true;
+  }
+
+  Future<int> editSimpleQuestionById(int id, String question) async {
+    final db = await dbHelper.database;
+    return await db.update(
+      _tableName,
+      {'question': question},
+      where: '$_id = ?',
+      whereArgs: [id],
+    );
+  }
+
   Future<int> insertMultipleOptionsQuestion(
       String form, List<String> teste, int idType) async {
     final db = await dbHelper.database;
@@ -37,10 +108,67 @@ class QuestionDao {
     return newQuestion;
   }
 
+  Future<void> updateMultipleOptionsQuestion(
+      int questionId, String newQuestionText, List<String> newOptions) async {
+    final db = await dbHelper.database;
+
+    // Atualizar o texto da pergunta
+    await db.update(
+      _tableName,
+      {'question': newQuestionText},
+      where: 'id = ?',
+      whereArgs: [questionId],
+    );
+
+    // Excluir as opções de resposta antigas
+    await db.delete(
+      'answer_options',
+      where: 'id_question = ?',
+      whereArgs: [questionId],
+    );
+
+    // Inserir as novas opções de resposta
+    for (String option in newOptions) {
+      await db.insert(
+        'answer_options',
+        {
+          'id_question': questionId,
+          'option_text': option,
+        },
+      );
+    }
+  }
+
   Future<List<Map<String, dynamic>>> getAll() async {
     final db = await dbHelper.database;
-    return await db
-        .query(_tableName); // Retorna o resultado da consulta diretamente
+    final result = await db.query(_tableName);
+
+    final List<Map<String, dynamic>> resultAnswer = [];
+
+    for (Map<String, dynamic> question in result) {
+      final resultQuestion = Map<String, dynamic>.from(question);
+
+      if (resultQuestion[_idType] == 2) {
+        final answerOptionsAndId =
+            await AnswerOptionsDao().getOptionsForQuestion(resultQuestion[_id]);
+
+        final answerOptions = answerOptionsAndId
+            .map((option) => option['option_text'] as String)
+            .toList();
+
+        final answerOptionIds = answerOptionsAndId
+            .map((option) => option['id'].toString())
+            .toList();
+
+        resultQuestion['answerOptions'] = answerOptions;
+        resultQuestion['answerOptionIds'] = answerOptionIds;
+      } else {
+        resultQuestion['answerOptions'] = null;
+      }
+
+      resultAnswer.add(resultQuestion);
+    }
+    return resultAnswer;
   }
 
   Future<List<Question>> toList(List<Map<String, dynamic>> questionsAll) async {

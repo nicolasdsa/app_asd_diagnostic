@@ -1,3 +1,4 @@
+import 'package:app_asd_diagnostic/db/question_dao.dart';
 import 'package:flutter/material.dart';
 
 class Question extends StatefulWidget {
@@ -7,10 +8,12 @@ class Question extends StatefulWidget {
   final bool isSelectable;
   final ValueNotifier<String?> selectedOptionNotifier;
   final ValueNotifier<String?> selectedPositionNotifier;
+  final ValueNotifier<List<Map<String, dynamic>>>? testNotifier;
   final TextEditingController textController;
   final List<String>? answerOptionIds;
   final Color backgroundColor;
   final String? initialAnswer;
+  final bool? showIcons;
 
   const Question(
       this.id,
@@ -23,6 +26,8 @@ class Question extends StatefulWidget {
       this.selectedPositionNotifier,
       {this.backgroundColor = Colors.white,
       this.initialAnswer,
+      this.showIcons,
+      this.testNotifier,
       Key? key})
       : super(key: key);
 
@@ -54,10 +59,71 @@ class _QuestionState extends State<Question> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: SizedBox(
-                    width: constraints.maxWidth,
-                    child: Text(widget.name,
-                        style: Theme.of(context).textTheme.labelMedium),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Use Flexible para garantir que o texto ocupe o espaço necessário
+                      Flexible(
+                        child: Text(
+                          widget.name,
+                          style: Theme.of(context).textTheme.labelMedium,
+                          overflow: TextOverflow
+                              .ellipsis, // Adiciona reticências para textos longos
+                        ),
+                      ),
+                      if (widget.showIcons == true)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () async {
+                                final questionDao = QuestionDao();
+                                bool isUse = await questionDao
+                                    .checkQuestionIsInForm(widget.id);
+                                if (isUse) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            'Essa questão não pode ser editada pois já foi adicionada em um formulário')),
+                                  );
+                                  return;
+                                }
+                                Navigator.pushNamed(context, '/createQuestion',
+                                    arguments: {
+                                      "idQuestion": widget.id,
+                                      "notifier": widget.testNotifier
+                                    });
+                              },
+                            ),
+                            IconButton(
+                                icon: const Icon(Icons.delete),
+                                onPressed: () async {
+                                  final questionDao = QuestionDao();
+                                  bool success = await questionDao
+                                      .deleteQuestionById(widget.id);
+                                  if (success) {
+                                    var questions = widget.testNotifier!.value;
+                                    questions.removeWhere(
+                                        (q) => q['id'] == widget.id);
+                                    widget.testNotifier!.value = [...questions];
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text(
+                                              'Questão deletada com sucesso')),
+                                    );
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text(
+                                              'Essa questão não pode ser deletada pois já foi adicionada em um formulário')),
+                                    );
+                                  }
+                                }),
+                          ],
+                        ),
+                    ],
                   ),
                 ),
                 if (widget.isSelectable && widget.answerOptions == null)
@@ -73,7 +139,6 @@ class _QuestionState extends State<Question> {
                   ),
                 if (widget.answerOptions != null)
                   ...widget.answerOptions!.map((option) {
-                    print(option);
                     return RadioListTile(
                       visualDensity: VisualDensity.compact,
                       contentPadding: const EdgeInsets.only(left: 6),
@@ -90,7 +155,6 @@ class _QuestionState extends State<Question> {
 
                                 widget.selectedOptionNotifier.value =
                                     widget.answerOptionIds?[position];
-                                print(widget.selectedOptionNotifier.value);
                               });
                             }
                           : null, // Desabilitar seleção se isSelectable for falso

@@ -35,13 +35,49 @@ class SoundDao {
     });
   }
 
-  Future<void> insert(Sound sound) async {
+  Future<List<Map<String, dynamic>>> index() async {
     final db = await dbHelper.database;
-    await db.insert(
+    final List<Map<String, dynamic>> maps = await db.query(_tableName);
+
+    // Return a new list where each map is a copy of the original
+    return maps.map((map) => Map<String, dynamic>.from(map)).toList();
+  }
+
+  Future<Map<String, dynamic>?> getOne(int id) async {
+    final db = await dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
       _tableName,
-      sound.toMap(),
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    if (maps.isNotEmpty) {
+      return maps.first;
+    }
+    return null;
+  }
+
+  Future<int> update(int id, String name, String filepath) async {
+    final db = await dbHelper.database;
+    return await db.update(
+      _tableName,
+      {'name': name, 'filePath': filepath},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<int> insert(name, filepath) async {
+    final db = await dbHelper.database;
+    final insert = await db.insert(
+      _tableName,
+      {
+        "name": name,
+        "filePath": filepath,
+      },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+
+    return insert;
   }
 
   Future<void> delete(int id) async {
@@ -51,5 +87,20 @@ class SoundDao {
       where: 'id = ?',
       whereArgs: [id],
     );
+  }
+
+  Future<bool> checkSoundIsInForm(int id) async {
+    final db = await dbHelper.database;
+
+    final textResponseResult = await db.query(
+      'sound_text_response',
+      where: 'sound_id = ?',
+      whereArgs: [id],
+    );
+    if (textResponseResult.isNotEmpty) {
+      return true;
+    }
+
+    return false;
   }
 }

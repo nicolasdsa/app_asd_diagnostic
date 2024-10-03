@@ -105,7 +105,7 @@ class SoundsState extends State<Sounds> with WidgetsBindingObserver {
   }
 
   Future<void> _addSound(Sound sound) async {
-    await _soundDao.insert(sound);
+    await _soundDao.insert(sound.name, sound.filePath);
     _fetchSounds();
   }
 

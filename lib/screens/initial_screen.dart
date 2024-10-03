@@ -15,7 +15,7 @@ class _InitialScreenState extends State<InitialScreen> {
     await prefs.setBool('isLoggedIn', false);
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (context) => LoginAndHashScreen()),
+      MaterialPageRoute(builder: (context) => const LoginAndHashScreen()),
       (route) => false, // Remove todas as rotas anteriores
     );
   }
@@ -30,17 +30,51 @@ class _InitialScreenState extends State<InitialScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Initial Screen'),
-        automaticallyImplyLeading: false, // Remove o botão de voltar
+        title: Text(
+          'Tela inicial',
+          style: Theme.of(context).textTheme.headlineLarge,
+        ),
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: _logout, // Chama o método de logout ao pressionar
+            icon: const Icon(Icons.logout),
+            onPressed: _logout,
           ),
         ],
       ),
       body: Center(
-        child: Text('Bem-vindo à Tela Inicial!'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            InkWell(
+              onTap: () {
+                Navigator.pushNamed(context, '/questions');
+              },
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                color: Colors.blue,
+                child: const Text(
+                  'Minhas questões',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            InkWell(
+              onTap: () {
+                Navigator.pushNamed(context, '/sounds');
+              },
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                color: Colors.red,
+                child: const Text(
+                  'Meus sons',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
