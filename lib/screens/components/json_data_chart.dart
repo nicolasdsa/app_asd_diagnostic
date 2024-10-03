@@ -100,7 +100,10 @@ class _CombinedLineChartState extends State<CombinedLineChart> {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (!snapshot.hasData ||
                 (snapshot.data as Map<String, List<List<dynamic>>>).isEmpty) {
-              return const Center(child: Text('No data available'));
+              return const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Center(child: Text('Nenhum dado encontrado')),
+              );
             } else {
               Map<String, List<List<dynamic>>> allJsonData =
                   snapshot.data as Map<String, List<List<dynamic>>>;
