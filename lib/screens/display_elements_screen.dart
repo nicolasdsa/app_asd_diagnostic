@@ -2,6 +2,7 @@ import 'package:app_asd_diagnostic/db/sound_response_dao.dart';
 import 'package:app_asd_diagnostic/screens/components/my_app_bar.dart';
 import 'package:app_asd_diagnostic/screens/components/question.dart';
 import 'package:app_asd_diagnostic/screens/components/sound.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:app_asd_diagnostic/db/question_dao.dart';
 import 'package:app_asd_diagnostic/screens/components/chart_display.dart';
@@ -22,11 +23,39 @@ class DisplayElementsScreen extends StatefulWidget {
   DisplayElementsScreenState createState() => DisplayElementsScreenState();
 }
 
-class DisplayElementsScreenState extends State<DisplayElementsScreen> {
+class DisplayElementsScreenState extends State<DisplayElementsScreen>
+    with WidgetsBindingObserver {
   final TextEditingController _formNameController = TextEditingController();
   final List<Question> _questions = [];
   final List<Map<String, dynamic>> _jsonDataElements = [];
   final List<SoundComponent> _soundElements = [];
+  final ValueNotifier<String> _currentSoundNotifier = ValueNotifier('');
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _currentSoundNotifier.value = '';
+    _audioPlayer.stop();
+    _audioPlayer.dispose();
+    _currentSoundNotifier.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      _audioPlayer.stop();
+      _currentSoundNotifier.value = '';
+    }
+  }
 
   Future<List<Widget>> componentsPage(List<List<dynamic>> elements) async {
     List<Widget> avaliarComportamentoElements = [];
@@ -59,7 +88,11 @@ class DisplayElementsScreenState extends State<DisplayElementsScreen> {
         );
       } else if (element.isNotEmpty && element[0] == 'sounds') {
         int soundId = element[1];
-        final soundComponent = SoundComponent(soundId: soundId);
+        final soundComponent = SoundComponent(
+          soundId: soundId,
+          currentPlaying: _currentSoundNotifier,
+          audioPlayer: _audioPlayer,
+        );
         _soundElements.add(soundComponent);
         avaliarComportamentoElements.add(soundComponent);
       }

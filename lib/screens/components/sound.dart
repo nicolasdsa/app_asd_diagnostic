@@ -114,7 +114,7 @@ class SoundComponentState extends State<SoundComponent>
                     ),
                     Expanded(
                       child: Text(
-                        widget.name ?? '',
+                        widget.name ?? soundData!.name,
                         style: Theme.of(context).textTheme.labelMedium,
                       ),
                     ),

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:app_asd_diagnostic/db/sound_response_dao.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:app_asd_diagnostic/db/form_dao.dart';
 import 'package:app_asd_diagnostic/db/text_response_dao.dart';
@@ -19,11 +20,47 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-class FormDetailScreen extends StatelessWidget {
+class FormDetailScreen extends StatefulWidget {
   final int formId;
-  Map<String, List<GlobalKey>> _repaintBoundaryKeys = {};
 
   FormDetailScreen({Key? key, required this.formId}) : super(key: key);
+
+  @override
+  State<FormDetailScreen> createState() => _FormDetailScreenState();
+}
+
+class _FormDetailScreenState extends State<FormDetailScreen>
+    with WidgetsBindingObserver {
+  Map<String, List<GlobalKey>> _repaintBoundaryKeys = {};
+
+  final ValueNotifier<String> _currentSoundNotifier = ValueNotifier('');
+
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _currentSoundNotifier.value = '';
+    _audioPlayer.stop();
+    _audioPlayer.dispose();
+    _currentSoundNotifier.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      _audioPlayer.stop();
+      _currentSoundNotifier.value = '';
+    }
+  }
 
   void _onKeysGenerated(String game, List<GlobalKey> keys) {
     // Substituir as chaves antigas pelas novas
@@ -38,19 +75,35 @@ class FormDetailScreen extends StatelessWidget {
     final jsonDataResponseDao = JsonDataResponseDao();
     final soundResponseDao = SoundResponseDao();
 
-    final form = await formDao.getForm(formId);
-    final textResponses = await textResponseDao.getResponsesForForm(formId);
-    final optionResponses = await optionResponseDao.getResponsesForForm(formId);
+    final form = await formDao.getForm(widget.formId);
+    final textResponses =
+        await textResponseDao.getResponsesForForm(widget.formId);
+    final optionResponses =
+        await optionResponseDao.getResponsesForForm(widget.formId);
     final jsonDataResponses =
-        await jsonDataResponseDao.getResponsesForForm(formId);
-    final soundResponses = await soundResponseDao.getResponsesForForm(formId);
+        await jsonDataResponseDao.getResponsesForForm(widget.formId);
+    final soundResponsesTest =
+        await soundResponseDao.getResponsesForForm(widget.formId);
+    List<SoundComponent> soundComponents = [];
+
+    for (var soundResponse in soundResponsesTest) {
+      var soundComponent = SoundComponent(
+        soundId: soundResponse["id"] as int,
+        showEditDeleteButtons: false,
+        initialText: soundResponse["text_response"] as String,
+        name: soundResponse["name"] as String,
+        currentPlaying: _currentSoundNotifier,
+        audioPlayer: _audioPlayer,
+      );
+      soundComponents.add(soundComponent);
+    }
 
     return {
       'form': form,
       'textResponses': textResponses,
       'optionResponses': optionResponses,
       'jsonDataResponses': jsonDataResponses,
-      'soundResponses': soundResponses, // Adiciona as respostas de som ao mapa
+      'soundResponses': soundComponents, // Adiciona as respostas de som ao mapa
     };
   }
 
@@ -87,10 +140,12 @@ class FormDetailScreen extends StatelessWidget {
         pw.Font.ttf(await rootBundle.load('assets/fonts/Roboto-Bold.ttf'));
 
     final optionResponseDao = OptionResponseDao();
-    final questionOptions = await optionResponseDao.getQuestionsForForm(formId);
+    final questionOptions =
+        await optionResponseDao.getQuestionsForForm(widget.formId);
 
     final textResponseDao = TextResponseDao();
-    final textQuestions = await textResponseDao.getQuestionsForForm(formId);
+    final textQuestions =
+        await textResponseDao.getQuestionsForForm(widget.formId);
 
     for (var textData in textQuestions) {
       pdf.addPage(

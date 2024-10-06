@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:app_asd_diagnostic/db/game_dao.dart';
 import 'package:app_asd_diagnostic/db/hash_access_dao.dart';
+import 'package:app_asd_diagnostic/screens/components/my_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:crypto/crypto.dart';
@@ -40,30 +41,41 @@ class HashCreateScreenState extends State<HashCreateScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Seleção de Jogos')),
-      body: ListView.builder(
-        itemCount: widget.elements.length,
-        itemBuilder: (context, index) {
-          final gameId = widget.elements[index][1]; // ID do jogo
+      appBar: const CustomAppBar(title: 'Seleção de Jogos'),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView.builder(
+          itemCount: widget.elements.length,
+          itemBuilder: (context, index) {
+            final gameId = widget.elements[index][1]; // ID do jogo
 
-          return FutureBuilder<Map<String, dynamic>>(
-            future: _fetchGameConfig(gameId), // Carrega o jogo pelo ID
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const CircularProgressIndicator();
-              }
+            return FutureBuilder<Map<String, dynamic>>(
+              future: _fetchGameConfig(gameId), // Carrega o jogo pelo ID
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const CircularProgressIndicator();
+                }
 
-              final game = snapshot.data!;
-              return _buildGameConfig(game, gameId);
-            },
-          );
-        },
+                final game = snapshot.data!;
+                return _buildGameConfig(game, gameId);
+              },
+            );
+          },
+        ),
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ElevatedButton(
           onPressed: _isFormValid() ? _createSection : null,
-          child: const Text('Criar seção'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.black,
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+          ),
+          child:
+              const Text('Criar seção', style: TextStyle(color: Colors.white)),
         ),
       ),
     );
@@ -77,28 +89,43 @@ class HashCreateScreenState extends State<HashCreateScreen> {
   Widget _buildGameConfig(Map<String, dynamic> game, int gameId) {
     final config = jsonDecode(game['config']);
 
-    return Card(
-      margin: const EdgeInsets.all(8.0),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(game['name'], style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 8.0),
-            ...config.keys.map((key) {
-              if (config[key] is List) {
-                List<String> options = List<String>.from(config[key]);
-                return _buildRadioListTile(key, options, gameId);
-              }
-              if (config[key] is int) {
-                return _buildTextField(key, config[key], gameId);
-              }
-              return Container();
-            }).toList(),
-          ],
+    if (_selectedConfigs[gameId] == null) {
+      _selectedConfigs[gameId] = {};
+    }
+
+    config.forEach((key, value) {
+      if (!_selectedConfigs[gameId]!.containsKey(key)) {
+        // Verifica se o valor já foi configurado
+        if (value is List) {
+          _selectedConfigs[gameId]![key] = value.first;
+        } else if (value is int) {
+          _selectedConfigs[gameId]![key] = value;
+        }
+      }
+    });
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Jogo: ${game['name']}",
+            style: Theme.of(context).textTheme.titleMedium),
+        Container(
+          height: 1,
+          color: Colors.grey,
+          margin: const EdgeInsets.symmetric(vertical: 8.0),
         ),
-      ),
+        ...config.keys.map((key) {
+          if (config[key] is List) {
+            List<String> options = List<String>.from(config[key]);
+            const SizedBox(height: 12.0);
+            return _buildRadioListTile(key, options, gameId);
+          }
+          if (config[key] is int) {
+            return _buildTextField(key, config[key], gameId);
+          }
+          return Container();
+        }).toList(),
+      ],
     );
   }
 
@@ -112,6 +139,8 @@ class HashCreateScreenState extends State<HashCreateScreen> {
             title: Text(option),
             value: option,
             groupValue: _selectedConfigs[gameId]?[key],
+            visualDensity: VisualDensity.compact,
+            contentPadding: const EdgeInsets.only(left: 6),
             onChanged: (value) {
               setState(() {
                 _selectedConfigs[gameId] = {
@@ -122,6 +151,7 @@ class HashCreateScreenState extends State<HashCreateScreen> {
             },
           );
         }).toList(),
+        const SizedBox(height: 18.0),
       ],
     );
   }
@@ -139,10 +169,17 @@ class HashCreateScreenState extends State<HashCreateScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(key, style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text(key, style: Theme.of(context).textTheme.labelMedium),
+        const SizedBox(height: 12.0),
         TextField(
           controller: controller,
           keyboardType: TextInputType.number,
+          decoration: const InputDecoration(
+            labelStyle: TextStyle(fontSize: 12),
+            border: OutlineInputBorder(),
+            contentPadding:
+                EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+          ),
           onChanged: (value) {
             setState(() {
               _selectedConfigs[gameId] = {
@@ -152,6 +189,7 @@ class HashCreateScreenState extends State<HashCreateScreen> {
             });
           },
         ),
+        const SizedBox(height: 18.0),
       ],
     );
   }
@@ -177,6 +215,7 @@ class HashCreateScreenState extends State<HashCreateScreen> {
     });
 
     final String result = '${widget.idPatient}-${sectionData.join(",")}';
+
     final bytes = utf8.encode(result);
     final hash = sha256.convert(bytes).toString();
 
@@ -211,7 +250,7 @@ class HashCreateScreenState extends State<HashCreateScreen> {
               ),
               const SizedBox(height: 10),
               const Text(
-                  'Você será redirecionado para a página do paciente ao fechar.'),
+                  'Ele já está copiado no seu teclado. Você será redirecionado para a página do paciente ao fechar.'),
             ],
           ),
           actions: [

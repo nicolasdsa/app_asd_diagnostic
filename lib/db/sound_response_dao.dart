@@ -18,26 +18,14 @@ class SoundResponseDao {
     return await db.insert(_tableName, response);
   }
 
-  Future<List<SoundComponent>> getResponsesForForm(int formId) async {
+  Future<List<Map<String, Object?>>> getResponsesForForm(int formId) async {
     final db = await dbHelper.database;
-    final sounds = await db.query(
-      _tableName,
-      where: 'form_id = ?',
-      whereArgs: [formId],
-    );
-    return toList(sounds);
-  }
-
-  List<SoundComponent> toList(List<Map<String, dynamic>> soundsAll) {
-    final List<SoundComponent> sounds = [];
-    for (Map<String, dynamic> linha in soundsAll) {
-      final sound = SoundComponent(
-        soundId: linha['sound_id'],
-        initialText: linha['text_response'],
-      );
-
-      sounds.add(sound);
-    }
+    final sounds = await db.rawQuery('''
+      SELECT sound_text_response.*, sounds.name
+      FROM $_tableName
+      INNER JOIN sounds ON sound_text_response.sound_id = sounds.id
+      WHERE form_id = ?
+    ''', [formId]);
     return sounds;
   }
 }

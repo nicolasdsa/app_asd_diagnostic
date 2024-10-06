@@ -58,10 +58,18 @@ class DatabaseHelper {
     await db.insert('type_questions', {'name': 'Simples'});
     await db.insert('type_questions', {'name': 'Multipla escolha'});
 
-    await db.insert('hit_run_objects',
-        {'name': 'Formas', 'objects': '["circle", "square", "rhombus"]'});
-    await db.insert('hit_run_objects',
-        {'name': 'Animais da Fazenda', 'objects': '["chicken", "pig", "cow"]'});
+    await db.insert('hit_run_objects', {
+      'name': 'Formas',
+      'objects': '["circle", "square", "rhombus"]',
+      'path': 'assets/images/hit_run/pecas.gif',
+      'amount': 1
+    });
+    await db.insert('hit_run_objects', {
+      'name': 'Animais da Fazenda',
+      'objects': '["chicken", "pig", "cow"]',
+      'path': 'assets/images/hit_run/animais.gif',
+      'amount': 4
+    });
 
     await db.insert('games', {
       'name': 'Hit run',
