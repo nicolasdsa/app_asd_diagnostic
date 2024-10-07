@@ -5,6 +5,7 @@ class HitRunObjectDao {
       'id INTEGER PRIMARY KEY AUTOINCREMENT, '
       'path TEXT, '
       'name TEXT, '
+      'amount INTEGER,'
       'objects TEXT)';
 
   static const String _tableName = 'hit_run_objects';

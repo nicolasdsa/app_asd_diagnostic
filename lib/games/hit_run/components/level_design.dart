@@ -15,6 +15,7 @@ import 'package:flame_tiled/flame_tiled.dart';
 class Level extends World with HasGameRef<HitRun> {
   final String levelName;
   final int mode;
+  final int amount;
 
   final List<String> colors;
   final List<String> objects;
@@ -23,7 +24,8 @@ class Level extends World with HasGameRef<HitRun> {
       {required this.levelName,
       required this.colors,
       required this.mode,
-      required this.objects});
+      required this.objects,
+      required this.amount});
   late TiledComponent level;
   Points? points;
   Hearts? hearts;
@@ -114,6 +116,7 @@ class Level extends World with HasGameRef<HitRun> {
               );
               shape.form = objects[0];
               shape.priority = 9999;
+              shape.amount = amount;
               add(shape);
             }
             for (int i = 0; i < 4; i++) {
@@ -130,6 +133,7 @@ class Level extends World with HasGameRef<HitRun> {
               );
               shape.form = objects[1];
               shape.priority = 9999;
+              shape.amount = amount;
               add(shape);
             }
             for (int i = 0; i < 4; i++) {
@@ -144,6 +148,7 @@ class Level extends World with HasGameRef<HitRun> {
                 spawnPoint.x + rng.nextDouble() * spawnPoint.width,
                 spawnPoint.y + rng.nextDouble() * spawnPoint.height,
               );
+              shape.amount = amount;
               shape.form = objects[2];
               shape.priority = 9999;
               add(shape);
@@ -198,8 +203,8 @@ class Level extends World with HasGameRef<HitRun> {
             shape.position = Vector2(spawnPoint.x, spawnPoint.y);
             shape.form = objects[0];
             shape.priority = 9999;
-            add(shape);
             shape.amount = 1;
+            add(shape);
             break;
           case 'Circle 2':
             ShapeForm shape = ShapeForm(
@@ -291,6 +296,7 @@ class Level extends World with HasGameRef<HitRun> {
       );
       shape.form = spawnedShapeType;
       shape.priority = 9999;
+      shape.amount = amount;
 
       add(shape);
     }
@@ -304,6 +310,8 @@ class Level extends World with HasGameRef<HitRun> {
     shape.position = spawnShape?.position.clone() ?? Vector2.zero();
     shape.form = spawnedShapeType;
     shape.priority = 9999;
+    shape.amount = amount;
+
     if (mode == 0) {
       add(shape);
     }

@@ -19,7 +19,12 @@ class HitRun extends FlameGame
   });
 
   GameStats stats = GameStats();
-  List<String> levelNames = ['easy.tmx', 'hard.tmx', 'easy-no-sound.tmx'];
+  List<String> levelNames = [
+    'easy.tmx',
+    'hard.tmx',
+    'easy-no-sound.tmx',
+    'hard-no-sound.tmx'
+  ];
 
   late CameraComponent cam;
   late Level _level;
@@ -157,11 +162,11 @@ class HitRun extends FlameGame
     }
 
     _level = Level(
-      levelName: levelNames[currentLevelIndex],
-      colors: colors,
-      objects: objectList,
-      mode: flagMode,
-    );
+        levelName: levelNames[currentLevelIndex],
+        colors: colors,
+        objects: objectList,
+        mode: flagMode,
+        amount: objects["amount"]);
 
     cam = CameraComponent.withFixedResolution(
       world: _level,

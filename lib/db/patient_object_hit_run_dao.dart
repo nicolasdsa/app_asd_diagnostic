@@ -30,7 +30,7 @@ class PatientObjectHitRunDao {
   Future<Map<String, dynamic>> getObject(int patientId) async {
     final db = await dbHelper.database;
     final result = await db.rawQuery('''
-      SELECT hit_run_objects.objects FROM $_tableName
+      SELECT hit_run_objects.objects, hit_run_objects.amount FROM $_tableName
       INNER JOIN hit_run_objects ON $_tableName.hit_run_object_id = hit_run_objects.id
       WHERE $_tableName.patient_id = $patientId
     ''');
