@@ -35,6 +35,21 @@ class _PatientSearchFieldState extends State<PatientSearchField> {
           widget.onPatientSelected(int.parse(_selectedPatientId));
         }
       },
+      fieldViewBuilder: (BuildContext context,
+          TextEditingController textEditingController,
+          FocusNode focusNode,
+          VoidCallback onFieldSubmitted) {
+        return TextField(
+          controller: textEditingController,
+          focusNode: focusNode,
+          decoration: const InputDecoration(
+            hintText: 'Digite o nome do paciente',
+          ),
+          onSubmitted: (String value) {
+            onFieldSubmitted();
+          },
+        );
+      },
     );
   }
 }

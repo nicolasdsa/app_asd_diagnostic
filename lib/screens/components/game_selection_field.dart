@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:app_asd_diagnostic/db/json_data_dao.dart';
 
 class GameSelectionField extends StatefulWidget {
-  final int patientId;
+  final int? patientId;
   final Function(String) onGameSelected;
 
   const GameSelectionField(
@@ -20,7 +20,9 @@ class GameSelectionFieldState extends State<GameSelectionField> {
   @override
   void initState() {
     super.initState();
-    _fetchGames();
+    if (widget.patientId != null) {
+      _fetchGames();
+    }
   }
 
   void _fetchGames() async {
@@ -32,10 +34,19 @@ class GameSelectionFieldState extends State<GameSelectionField> {
   }
 
   @override
+  void didUpdateWidget(covariant GameSelectionField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.patientId != widget.patientId) {
+      _fetchGames();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return DropdownButton<String>(
       value: _selectedGame,
       hint: const Text('Selecione o jogo'),
+      isExpanded: true, // Ensures the dropdown fits the available width
       items: _games.map((String game) {
         return DropdownMenuItem<String>(
           value: game,

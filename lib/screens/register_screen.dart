@@ -176,15 +176,23 @@ class RegisterScreen extends StatelessWidget {
                       final crm = _crmController.text;
                       final hospital = _hospitalController.text;
 
-                      await _dao.insert(
-                          name, email, username, password, hospital, crm);
-                      Navigator.pushReplacementNamed(context, '/');
+                      try {
+                        await _dao.insert(
+                            name, email, username, password, hospital, crm);
+                        Navigator.pushReplacementNamed(context, '/');
 
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Registro criado com sucesso!'),
-                        ),
-                      );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Registro criado com sucesso!'),
+                          ),
+                        );
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Erro ao criar registro: $e'),
+                          ),
+                        );
+                      }
                     }
                   },
                   style: ElevatedButton.styleFrom(

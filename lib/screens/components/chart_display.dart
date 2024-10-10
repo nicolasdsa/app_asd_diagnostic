@@ -54,10 +54,11 @@ class _ChartDataState extends State<ChartData> {
       widget.endDate,
     );
 
-    List<Map<String, dynamic>> rows =
-        await jsonDataDao.getRowsByPatientIdAndGame(
+    List<Map<String, dynamic>> rows = await jsonDataDao.getJsonFlag(
       widget.idPatient.toString(),
       widget.game,
+      widget.startDate,
+      widget.endDate,
     );
 
     Map<String, dynamic> flagCounts = {};

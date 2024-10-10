@@ -47,6 +47,12 @@ class JsonDataDao {
     });
   }
 
+  Future<int> insert(Map<String, dynamic> json) async {
+    final db = await dbHelper.database;
+
+    return await db.insert('json_data', json);
+  }
+
   Future<List<JsonData>> getAll() async {
     final db = await dbHelper.database;
     final List<Map<String, dynamic>> result = await db.query(_tableName);
@@ -67,6 +73,7 @@ class JsonDataDao {
         startDate.toIso8601String(),
         endDate.toIso8601String()
       ],
+      orderBy: 'created_at DESC',
     );
 
     Map<String, List<List<dynamic>>> groupedData = {};
@@ -170,6 +177,23 @@ class JsonDataDao {
     return games;
   }
 
+  Future<List<Map<String, dynamic>>> getJsonFlag(String idPatient,
+      String gameName, DateTime startDate, DateTime endDate) async {
+    final db = await dbHelper.database;
+    final List<Map<String, dynamic>> rows = await db.query(
+      _tableName,
+      where: 'game = ? AND id_patient = ? AND created_at BETWEEN ? AND ?',
+      whereArgs: [
+        gameName,
+        idPatient,
+        startDate.toIso8601String(),
+        endDate.toIso8601String()
+      ],
+    );
+
+    return rows;
+  }
+
   Future<List<Map<String, dynamic>>> getRowsByPatientIdAndGame(
       String idPatient, String gameName) async {
     final db = await dbHelper.database;
@@ -178,8 +202,22 @@ class JsonDataDao {
       _tableName,
       where: 'id_patient = ? AND game = ?',
       whereArgs: [idPatient, gameName],
+      orderBy: 'created_at DESC',
     );
 
     return rows;
+  }
+
+  Future<bool> exists(int patientId, String game, String createdAt) async {
+    // Verificar no banco de dados se já existe um registro com o mesmo patientId, game e createdAt
+    // Retorne true se existir, caso contrário false
+    final db = await dbHelper.database;
+    final List<Map<String, dynamic>> result = await db.query(
+      _tableName,
+      where: 'id_patient = ? AND game = ? AND created_at = ?',
+      whereArgs: [patientId, game, createdAt],
+    );
+
+    return result.isNotEmpty; // Se a lista não estiver vazia, o registro existe
   }
 }

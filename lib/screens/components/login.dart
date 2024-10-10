@@ -22,7 +22,7 @@ class LoginComponent extends StatelessWidget {
             context, '/initial', (route) => false);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid username or password')),
+          const SnackBar(content: Text('Senha ou email inválidos')),
         );
       }
     }
@@ -68,7 +68,6 @@ class LoginComponent extends StatelessWidget {
               contentPadding:
                   EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
             ),
-            keyboardType: TextInputType.number,
             validator: (value) {
               if (value!.isEmpty) {
                 return 'Escreva a senha';
