@@ -147,63 +147,85 @@ class _FormDetailScreenState extends State<FormDetailScreen>
     final textQuestions =
         await textResponseDao.getQuestionsForForm(widget.formId);
 
-    for (var textData in textQuestions) {
-      pdf.addPage(
-        pw.Page(
-          build: (pw.Context context) {
+    final soundResponseDao = SoundResponseDao();
+    final soundResponses =
+        await soundResponseDao.getResponsesForForm(widget.formId);
+
+    // Fonte de fallback para suportar o caractere "●"
+    final symbolFont =
+        pw.Font.ttf(await rootBundle.load('assets/fonts/NotoSansSymbols.ttf'));
+
+    final boldTextStyleWithFallback = pw.TextStyle(
+      font: customFontBold,
+      fontFallback: [symbolFont],
+    );
+
+    // Seção de Questões Simples
+    pdf.addPage(
+      pw.MultiPage(
+        build: (pw.Context context) => [
+          pw.Text(
+            'Questões - Simples',
+            style: pw.TextStyle(fontSize: 18, font: customFontBold),
+          ),
+          pw.SizedBox(height: 10),
+          ...textQuestions.map((textData) {
             return pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
                 pw.Text(
                   textData['question_text'],
-                  style: pw.TextStyle(
-                    fontSize: 16,
-                    font: customFontBold,
-                  ),
+                  style: pw.TextStyle(fontSize: 16, font: customFontBold),
                 ),
                 pw.SizedBox(height: 5),
                 pw.Text(
                   textData['response_text'],
-                  style: pw.TextStyle(
-                    fontSize: 14,
-                    font: customFont,
-                  ),
+                  style: pw.TextStyle(fontSize: 14, font: customFont),
                 ),
-                pw.SizedBox(height: 10), // Espaço após a resposta
+                pw.SizedBox(height: 10),
+                pw.Divider(),
               ],
             );
-          },
-        ),
-      );
-    }
+          }).toList(),
+        ],
+      ),
+    );
 
-    // Adiciona cada pergunta e suas opções ao PDF
-    for (var questionData in questionOptions) {
-      String questionText = questionData['question_text'];
-      List<dynamic> options = questionData['options'];
-      int selectedOptionIndex = questionData['answer'];
-
-      pdf.addPage(
-        pw.Page(
-          build: (pw.Context context) {
+    // Seção de Questões Múltipla Escolha
+    // Seção de Questões Múltipla Escolha
+    pdf.addPage(
+      pw.MultiPage(
+        build: (pw.Context context) => [
+          pw.Text(
+            'Questões - Múltipla Escolha',
+            style: pw.TextStyle(fontSize: 18, font: customFontBold),
+          ),
+          pw.SizedBox(height: 10),
+          ...questionOptions.map((questionData) {
             return pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
                 pw.Text(
-                  questionText,
-                  style: pw.TextStyle(
-                    fontSize: 16,
-                    font: customFontBold,
-                  ),
+                  questionData['question_text'],
+                  style: pw.TextStyle(fontSize: 16, font: customFontBold),
                 ),
                 pw.SizedBox(height: 5),
-                ...options.asMap().entries.map((entry) {
+                ...questionData['options'].asMap().entries.map((entry) {
                   int index = entry.key;
                   String option = entry.value;
+                  bool isSelected = index == questionData['answer'];
+
                   return pw.Container(
                     padding: const pw.EdgeInsets.symmetric(vertical: 4),
                     child: pw.Row(
                       children: [
+                        pw.Text(
+                          isSelected
+                              ? '•'
+                              : 'O', // ● para marcado, O para não marcado
+                          style: boldTextStyleWithFallback,
+                        ),
+                        pw.SizedBox(width: 5),
                         pw.Text(
                           option,
                           style: pw.TextStyle(
@@ -211,27 +233,48 @@ class _FormDetailScreenState extends State<FormDetailScreen>
                             font: customFont,
                           ),
                         ),
-                        if (index == selectedOptionIndex)
-                          pw.Text(
-                            ' (Selecionado)',
-                            style: pw.TextStyle(
-                              fontSize: 14,
-                              color: PdfColors.blue,
-                              font: customFontBold,
-                            ),
-                          ),
                       ],
                     ),
                   );
                 }).toList(),
-                pw.SizedBox(height: 10), // Espaço após as opções
+                pw.SizedBox(height: 10),
+                pw.Divider(),
               ],
             );
-          },
-        ),
-      );
-    }
-
+          }).toList(),
+        ],
+      ),
+    );
+    // Seção de Sons
+    pdf.addPage(
+      pw.MultiPage(
+        build: (pw.Context context) => [
+          pw.Text(
+            'Sons',
+            style: pw.TextStyle(fontSize: 18, font: customFontBold),
+          ),
+          pw.SizedBox(height: 10),
+          ...soundResponses.map((soundData) {
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text(
+                  soundData['name'] as String,
+                  style: pw.TextStyle(fontSize: 16, font: customFontBold),
+                ),
+                pw.SizedBox(height: 5),
+                pw.Text(
+                  soundData['text_response'] as String,
+                  style: pw.TextStyle(fontSize: 14, font: customFont),
+                ),
+                pw.SizedBox(height: 10),
+                pw.Divider(),
+              ],
+            );
+          }).toList(),
+        ],
+      ),
+    );
     // Adiciona as imagens e o título conforme o código existente
     for (var entry in _repaintBoundaryKeys.entries) {
       String game = entry.key;
@@ -255,7 +298,7 @@ class _FormDetailScreenState extends State<FormDetailScreen>
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
                 pw.Text(
-                  'Título: $game',
+                  game,
                   style: pw.TextStyle(
                     fontSize: 18,
                     font: customFontBold,
@@ -300,7 +343,7 @@ class _FormDetailScreenState extends State<FormDetailScreen>
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.camera_alt),
+            icon: const Icon(Icons.picture_as_pdf),
             onPressed: () => _captureScreenshots(context),
           ),
         ],

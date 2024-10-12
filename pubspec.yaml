@@ -99,6 +99,9 @@ flutter:
     - family: PressStart2P-Regular
       fonts:
         - asset: assets/fonts/PressStart2P-Regular.ttf
+    - family: NotoSansSymbols
+      fonts:
+        - asset: assets/fonts/NotoSansSymbols.ttf
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

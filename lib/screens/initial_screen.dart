@@ -13,6 +13,7 @@ class _InitialScreenState extends State<InitialScreen> {
   Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', false);
+    await prefs.setString('inf', '');
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => const LoginAndHashScreen()),

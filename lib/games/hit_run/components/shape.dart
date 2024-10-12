@@ -7,8 +7,9 @@ import 'package:app_asd_diagnostic/games/hit_run/hit_run.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
+import 'package:flame_audio/flame_audio.dart';
 
-enum PlayerState { shape, shapeSelected }
+enum PlayerState { shape, shapeSelected, hit }
 
 class ShapeForm extends SpriteAnimationGroupComponent
     with TapCallbacks, DragCallbacks, HasGameRef<HitRun> {
@@ -40,6 +41,7 @@ class ShapeForm extends SpriteAnimationGroupComponent
 
   late final SpriteAnimation shapeAnimation;
   late final SpriteAnimation shapeSelectedAnimation;
+  late final SpriteAnimation hitAnimation;
 
   List<CollisionBlock> collisionBlocks = [];
   double fixedDeltaTime = 1 / 120;
@@ -72,13 +74,23 @@ class ShapeForm extends SpriteAnimationGroupComponent
   void _loadAllAnimations() {
     shapeAnimation = _spriteAnimation(form, amount, 0.05);
     shapeSelectedAnimation = _spriteAnimation(form, amount, 0.05, true);
+    hitAnimation = _spriteHitAnimation();
 
     animations = {
       PlayerState.shape: shapeAnimation,
       PlayerState.shapeSelected: shapeSelectedAnimation,
+      PlayerState.hit: hitAnimation
     };
 
     current = PlayerState.shape;
+  }
+
+  SpriteAnimation _spriteHitAnimation() {
+    return SpriteAnimation.fromFrameData(
+      game.images.fromCache('hit_run/delete.png'),
+      SpriteAnimationData.sequenced(
+          amount: 5, stepTime: 0.05, textureSize: Vector2.all(32), loop: false),
+    );
   }
 
   SpriteAnimation _spriteAnimation(String form, int amount,
@@ -176,9 +188,11 @@ class ShapeForm extends SpriteAnimationGroupComponent
     // Verifica se a forma correta foi tocada
     if (_isCorrectShapeTapped()) {
       _handleCorrectTap(event);
+      FlameAudio.play('hit_run/right_choose.wav', volume: 0.5);
       return;
     }
 
+    FlameAudio.play('hit_run/wrong_choose.mp3', volume: 0.5);
     _handleIncorrectTap();
   }
 
@@ -198,9 +212,11 @@ class ShapeForm extends SpriteAnimationGroupComponent
 
     if (_isCorrectShapeTapped()) {
       _handleCorrectTap(event);
+      FlameAudio.play('hit_run/right_choose.wav', volume: 0.5);
       return;
     }
 
+    FlameAudio.play('hit_run/wrong_choose.mp3', volume: 0.5);
     _handleIncorrectTap();
   }
 
@@ -220,9 +236,11 @@ class ShapeForm extends SpriteAnimationGroupComponent
     // Verifica se a forma correta foi tocada
     if (_isCorrectShapeTapped()) {
       _handleCorrectTap(event);
+      FlameAudio.play('hit_run/right_choose.wav', volume: 0.5);
       return;
     }
 
+    FlameAudio.play('hit_run/wrong_choose.mp3', volume: 0.5);
     _handleIncorrectTap();
   }
 
@@ -249,6 +267,7 @@ class ShapeForm extends SpriteAnimationGroupComponent
     }
 
     // Atualiza o sprite para o estado selecionado
+    FlameAudio.play('hit_run/choose.wav', volume: 0.5);
     updateSprite(true);
 
     // Define esta forma como a selecionada
@@ -261,13 +280,17 @@ class ShapeForm extends SpriteAnimationGroupComponent
         level.selectedShape?.color == color;
   }
 
-  void _handleCorrectTap(dynamic event) {
+  void _handleCorrectTap(dynamic event) async {
     DateTime now = DateTime.now();
     double reactionTime = now.difference(lastTapTime).inMilliseconds / 1000.0;
     gameRef.stats.recordReactionTime(reactionTime);
 
     double accuracy = _calculateTapAccuracy(event.localPosition);
     gameRef.stats.recordTapAccuracy(accuracy);
+
+    current = PlayerState.hit;
+    await animationTicker?.completed;
+    animationTicker?.reset();
 
     // Gera uma nova forma aleatória para o jogador
     level.spawnRandomShapeType();
