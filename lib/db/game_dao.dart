@@ -1,10 +1,12 @@
 import 'package:app_asd_diagnostic/db/database.dart';
-import 'package:app_asd_diagnostic/screens/components/game.dart';
 
 class GameDao {
   static const String tableSql = 'CREATE TABLE $_tableName('
       'id INTEGER PRIMARY KEY AUTOINCREMENT, '
       'link TEXT, '
+      'short_description TEXT, '
+      'long_description TEXT, '
+      'path TEXT, '
       'name TEXT, '
       'config TEXT)';
 
@@ -42,14 +44,28 @@ class GameDao {
     return result;
   }
 
-  Future<List<GameComponent>> toList(
-      List<Map<String, dynamic>> gamesAll) async {
-    final List<GameComponent> games = [];
-    for (Map<String, dynamic> linha in gamesAll) {
-      final GameComponent game =
-          GameComponent(linha[_name], linha['link'], id: linha[_id]);
-      games.add(game);
-    }
-    return games;
+  Future<Map<String, dynamic>> getAllGamesWithObjectives(String gameId) async {
+    final db = await dbHelper.database;
+
+    final List<Map<String, dynamic>> objectivesResult = await db.query(
+      'objectives',
+      where: 'game_id = ?',
+      whereArgs: [gameId],
+    );
+
+    final List objectives =
+        objectivesResult.map((obj) => obj['objective']).toList();
+
+    final List<Map<String, dynamic>> result = await db.query(
+      _tableName,
+      where: 'id = ?',
+      whereArgs: [gameId],
+    );
+
+    final Map<String, dynamic> game = Map<String, dynamic>.from(result.first);
+
+    game['objectives'] = objectives;
+
+    return game;
   }
 }

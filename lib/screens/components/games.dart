@@ -45,7 +45,9 @@ class Games extends StatelessWidget {
                       item['name'],
                       item['link'],
                       id: item['id'],
-                      backgroundColor: isIncluded ? Colors.green : Colors.white,
+                      shortDescription: item['short_description'],
+                      path: item['path'],
+                      backgroundColor: isIncluded ? Colors.grey : Colors.white,
                     );
                   },
                 ),

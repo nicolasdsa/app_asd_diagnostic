@@ -9,11 +9,13 @@ import 'package:flame/game.dart';
 
 class HitRun extends FlameGame
     with TapCallbacks, HasCollisionDetection, DragCallbacks {
+  final int id;
   final String idPatient;
   final Map<String, dynamic> properties;
   bool isPaused = false;
 
   HitRun({
+    required this.id,
     required this.idPatient,
     required this.properties,
   });

@@ -6,6 +6,7 @@ class HitRunObjectDao {
       'path TEXT, '
       'name TEXT, '
       'amount INTEGER,'
+      'points INTEGER,'
       'objects TEXT)';
 
   static const String _tableName = 'hit_run_objects';

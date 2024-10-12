@@ -42,10 +42,12 @@ class _InitialScreenState extends State<InitialScreen> {
           ),
         ],
       ),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const Text("Bem vindo de volta, Nicolas!"),
             InkWell(
               onTap: () {
                 Navigator.pushNamed(context, '/questions');
@@ -69,6 +71,31 @@ class _InitialScreenState extends State<InitialScreen> {
                 color: Colors.red,
                 child: const Text(
                   'Meus sons',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            InkWell(
+              onTap: () {
+                Navigator.pushNamed(context, '/games');
+              },
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                color: Colors.green,
+                child: const Text(
+                  'Jogos disponíveis',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            InkWell(
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                color: Colors.grey,
+                child: const Text(
+                  'Minha consultas',
                   style: TextStyle(color: Colors.white),
                 ),
               ),

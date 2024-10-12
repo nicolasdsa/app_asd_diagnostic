@@ -4,6 +4,8 @@ import 'package:app_asd_diagnostic/screens/check_credential_screen.dart';
 import 'package:app_asd_diagnostic/screens/components/my_bottom_navigation_bar.dart';
 import 'package:app_asd_diagnostic/screens/export_screen.dart';
 import 'package:app_asd_diagnostic/screens/form_detail_screen.dart';
+import 'package:app_asd_diagnostic/screens/game_screen.dart';
+import 'package:app_asd_diagnostic/screens/games_screen.dart';
 import 'package:app_asd_diagnostic/screens/hash_create_screen.dart';
 import 'package:app_asd_diagnostic/screens/patient_detail_screen.dart';
 import 'package:app_asd_diagnostic/screens/questions_create_screen.dart';
@@ -67,6 +69,12 @@ void main() async {
       ),
       initialRoute: '/check',
       routes: {
+        '/gameView': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as int;
+          final idGame = args;
+          return GameView(id: idGame);
+        },
+        '/games': (context) => const GamesScreen(),
         '/sounds': (context) => const SoundsScreen(),
         '/createSound': (context) {
           final args = ModalRoute.of(context)!.settings.arguments
@@ -121,7 +129,10 @@ void main() async {
           final args = settings.arguments as Map<String, dynamic>;
           final idPatient = args['idPatient']!;
           final properties = args['properties']!;
-          final game = HitRun(idPatient: idPatient, properties: properties);
+          final id = args['id']!;
+
+          final game =
+              HitRun(idPatient: idPatient, properties: properties, id: id);
           return MaterialPageRoute(
             builder: (context) =>
                 GameScreen(game: game, idPatient: int.parse(idPatient)),

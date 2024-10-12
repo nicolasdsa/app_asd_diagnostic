@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:app_asd_diagnostic/db/game_dao.dart';
 import 'package:app_asd_diagnostic/db/hash_access_dao.dart';
+import 'package:app_asd_diagnostic/screens/components/game.dart';
 import 'package:app_asd_diagnostic/screens/login_and_hash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -49,13 +50,10 @@ class _HashDataScreenState extends State<HashDataScreen> {
     final games = gameLinks.split('-')[1].split(', ');
 
     for (var game in games) {
-      print(jsonDecode(game));
       final gameDecode = jsonDecode(game);
-      print(gameDecode["Id"]);
       final gameData = await gameDao.getOne(gameDecode["Id"].toString());
-      final link = gameData['link'];
       gameDetails.add({
-        'link': link,
+        'game': gameData,
         'properties': gameDecode,
       });
     }
@@ -99,22 +97,27 @@ class _HashDataScreenState extends State<HashDataScreen> {
       body: ListView.builder(
         itemCount: gameDetails.length,
         itemBuilder: (context, index) {
-          print(gameDetails[index]);
-          final game = gameDetails[index];
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(
-                  context,
-                  game['link'],
-                  arguments: {
-                    'idPatient': idPatient,
-                    'properties': game['properties'],
-                  },
-                );
-              },
-              child: Text('Jogo ${index + 1}'),
+          final game = gameDetails[index]['game'];
+          final properties = gameDetails[index]['properties'];
+
+          return ElevatedButton(
+            onPressed: () {
+              Navigator.pushNamed(
+                context,
+                game['link'],
+                arguments: {
+                  'idPatient': idPatient,
+                  'properties': properties,
+                  'id': game['id'],
+                },
+              );
+            },
+            child: GameComponent(
+              game['name'],
+              game['link'],
+              id: game['id'],
+              path: game['path'],
+              shortDescription: game['short_description'],
             ),
           );
         },

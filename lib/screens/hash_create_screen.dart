@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:app_asd_diagnostic/db/game_dao.dart';
 import 'package:app_asd_diagnostic/db/hash_access_dao.dart';
+import 'package:app_asd_diagnostic/db/patient_points_hit_run_dao.dart';
 import 'package:app_asd_diagnostic/screens/components/my_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -207,19 +208,24 @@ class HashCreateScreenState extends State<HashCreateScreen> {
 
   Future<void> _createSection() async {
     final hashAccessDao = HashAccessDao();
+    final PatientPointsHitRunDao patientPointsHitRunDao =
+        PatientPointsHitRunDao();
 
     final List<String> sectionData = [];
     _selectedConfigs.forEach((gameId, config) {
       config['Id'] = gameId; // Add the 'Id' key with gameId as the value
-      sectionData.add(jsonEncode(config)); // Use jsonEncode instead of toString
+      sectionData.add(jsonEncode(config));
+      patientPointsHitRunDao.insert({
+        'patient_id': widget.idPatient,
+        'game_id': gameId,
+        'points': 0,
+      });
     });
 
     final String result = '${widget.idPatient}-${sectionData.join(",")}';
 
     final bytes = utf8.encode(result);
     final hash = sha256.convert(bytes).toString();
-
-    print('Hash gerado: $hash');
 
     // Salva no banco de dados
     final hashAccess = {
@@ -229,8 +235,6 @@ class HashCreateScreenState extends State<HashCreateScreen> {
     };
     await hashAccessDao.insert(hashAccess);
     await Clipboard.setData(ClipboardData(text: hash));
-
-    print('Seção criada: $result');
 
     // Exibe o modal com o hash gerado
     showDialog(

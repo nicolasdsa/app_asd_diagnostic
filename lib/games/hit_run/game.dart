@@ -1,5 +1,7 @@
+import 'package:app_asd_diagnostic/db/highscore_hit_run_dao.dart';
 import 'package:app_asd_diagnostic/db/hit_run_objects_dao.dart';
 import 'package:app_asd_diagnostic/db/patient_object_hit_run_dao.dart';
+import 'package:app_asd_diagnostic/db/patient_points_hit_run_dao.dart';
 import 'package:app_asd_diagnostic/games/hit_run/hit_run.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,6 +19,29 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> {
   bool _isShopVisible = false;
+  bool _isPodiumVisible = false;
+  List<Map<String, dynamic>> _podiumScores = [];
+  Map<String, dynamic>? _userBestScore;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPodiumAndUserScore();
+  }
+
+  Future<void> _fetchPodiumAndUserScore() async {
+    final highScoreDao = HighScoreHitRunDao();
+    final patientPointsHitRunDao = PatientPointsHitRunDao();
+
+    final topScores = await highScoreDao.getTopScores(widget.game.id);
+    final userScore = await patientPointsHitRunDao.getUserBestScore(
+        widget.game.id, widget.idPatient);
+
+    setState(() {
+      _podiumScores = topScores;
+      _userBestScore = userScore;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +53,6 @@ class _GameScreenState extends State<GameScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // O jogo
           GameWidget(
             game: widget.game,
             overlayBuilderMap: {
@@ -69,6 +93,18 @@ class _GameScreenState extends State<GameScreen> {
                               },
                               child: const Text('Loja',
                                   style: TextStyle(
+                                    fontSize: 10,
+                                    fontFamily: 'PressStart2P-Regular',
+                                  )),
+                            ),
+                            ElevatedButton(
+                              onPressed: () => setState(
+                                  () => _isPodiumVisible = !_isPodiumVisible),
+                              child: Text(
+                                  _isPodiumVisible
+                                      ? 'Fechar Pódio'
+                                      : 'Abrir Pódio',
+                                  style: const TextStyle(
                                     fontSize: 10,
                                     fontFamily: 'PressStart2P-Regular',
                                   )),
@@ -213,9 +249,89 @@ class _GameScreenState extends State<GameScreen> {
                 ),
               ),
             ),
+          if (_isPodiumVisible) _buildPodium(),
         ],
       ),
     );
+  }
+
+  Widget _buildPodium() {
+    return Center(
+      child: Container(
+        color: Colors.black.withOpacity(0.7),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('Pódio',
+                style: TextStyle(color: Colors.white, fontSize: 24)),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _podiumScores.length,
+                itemBuilder: (context, index) {
+                  final score = _podiumScores[index];
+                  return ListTile(
+                    title: Text(
+                        '${index + 1}. ${score['name']} - ${score['points']}',
+                        style: const TextStyle(color: Colors.white)),
+                  );
+                },
+              ),
+            ),
+            if (_userBestScore != null &&
+                _userBestScore!['points'] > _podiumScores.last['points'])
+              ElevatedButton(
+                onPressed: _addUserToPodium,
+                child: const Text('Inserir Minha Pontuação'),
+              ),
+            ElevatedButton(
+              onPressed: () =>
+                  setState(() => _isPodiumVisible = !_isPodiumVisible),
+              child: Text(_isPodiumVisible ? 'Fechar Pódio' : 'Abrir Pódio',
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontFamily: 'PressStart2P-Regular',
+                  )),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _addUserToPodium() async {
+    final newInitials = await _getUserInitials();
+    final highScoreDao = HighScoreHitRunDao();
+    await highScoreDao.insert({
+      'game_id': widget.game.id,
+      'name': newInitials,
+      'points': _userBestScore!['points'],
+    });
+    _fetchPodiumAndUserScore();
+  }
+
+  Future<String> _getUserInitials() async {
+    String? initials = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        String tempInitials = '';
+        return AlertDialog(
+          title: const Text('Insira suas iniciais'),
+          content: TextField(
+            onChanged: (value) => tempInitials = value.toUpperCase(),
+            maxLength: 3,
+            decoration: const InputDecoration(hintText: 'Ex: ABC'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(tempInitials),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+    return initials ?? '';
   }
 
   Future<bool> isObjectAssignedToPatient(int objectId, int patientId) async {
