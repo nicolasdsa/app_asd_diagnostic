@@ -330,13 +330,15 @@ class _GameScreenState extends State<GameScreen> {
                       fontFamily: 'PressStart2P-Regular',
                     )),
               ),
-            if (_userBestScore!['points'] <= _podiumScores.last['points'])
+            if (_userBestScore!['points'] <= _podiumScores.last['points'] ||
+                _podiumScores.any(
+                    (score) => score['points'] == _userBestScore!['points']))
               Opacity(
                 opacity: 0.5,
                 child: Column(
                   children: [
                     const Text(
-                      'Sua maior pontuação não é o suficiente para entrar no pódio',
+                      'Sua maior pontuação não é o suficiente para entrar no pódio ou já está lá.',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 10,
