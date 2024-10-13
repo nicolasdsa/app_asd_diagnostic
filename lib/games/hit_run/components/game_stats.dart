@@ -1,3 +1,4 @@
+import 'package:app_asd_diagnostic/db/patient_points_hit_run_dao.dart';
 import 'package:app_asd_diagnostic/games/hit_run/components/points.dart';
 
 class GameStats {
@@ -77,12 +78,24 @@ class GameStats {
       ? 0
       : reactionTimes.reduce((a, b) => a + b) / reactionTimes.length;
 
-  Map<String, dynamic> toJson(Points? pointsComponent) {
+  Future<Map<String, dynamic>> toJson(
+      Points? pointsComponent, String idPatient, id) async {
+    PatientPointsHitRunDao patientPointsHitRunDao = PatientPointsHitRunDao();
+    final bestScore =
+        await patientPointsHitRunDao.getUserBestScore(id, int.parse(idPatient));
+
+    if (pointsComponent!.getTotalPoints() > bestScore?['points']) {
+      await patientPointsHitRunDao.update({
+        'patient_id': int.parse(idPatient),
+        'game_id': id,
+        'points': pointsComponent.getTotalPoints(),
+      });
+    }
     return {
       'Tempo de reação médio': averageReactionTime,
       'Tempo de jogo': DateTime.now().difference(sessionStartTime).inSeconds,
       'Total de jogos na mesma sessão': totalGames,
-      'Total de pontos': pointsComponent!.getTotalPoints(),
+      'Total de pontos': pointsComponent.getTotalPoints(),
       'Tempo de pressão médio': getAverageHoldTime(),
       'Precisão média dos toques': getAverageAccuracy(),
     };

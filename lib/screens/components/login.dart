@@ -19,7 +19,7 @@ class LoginComponent extends StatelessWidget {
         final user = await _dao.getOne(_emailController.text);
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
-        await prefs.setString('inf', user['id']);
+        await prefs.setString('inf', user['id'].toString());
         Navigator.pushNamedAndRemoveUntil(
             context, '/initial', (route) => false);
       } else {

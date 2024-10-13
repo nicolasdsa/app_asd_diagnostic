@@ -101,9 +101,7 @@ class _GameScreenState extends State<GameScreen> {
                               onPressed: () => setState(
                                   () => _isPodiumVisible = !_isPodiumVisible),
                               child: Text(
-                                  _isPodiumVisible
-                                      ? 'Fechar Pódio'
-                                      : 'Abrir Pódio',
+                                  _isPodiumVisible ? 'Fechar Pódio' : 'Pódio',
                                   style: const TextStyle(
                                     fontSize: 10,
                                     fontFamily: 'PressStart2P-Regular',
@@ -171,33 +169,56 @@ class _GameScreenState extends State<GameScreen> {
                             itemCount: hitRunObjects.length,
                             itemBuilder: (context, index) {
                               final object = hitRunObjects[index];
+                              final requiredPoints = object['points'];
+                              final userPoints = _userBestScore!['points'];
+
+                              // Verifica se o objeto está desbloqueado
+                              final isUnlocked = userPoints >= requiredPoints;
+
+                              // Usa FutureBuilder para lidar com a verificação assíncrona de atribuição ao paciente
                               return FutureBuilder<bool>(
                                 future: isObjectAssignedToPatient(
                                     object['id'], widget.idPatient),
                                 builder: (context, snapshot) {
                                   if (!snapshot.hasData) {
+                                    // Exibe um indicador de carregamento enquanto aguarda o resultado
                                     return const CircularProgressIndicator();
                                   }
-                                  final isAssigned = snapshot.data!;
+
+                                  final isSelected = snapshot.data!;
+
+                                  // Define a cor de fundo
+                                  Color backgroundColor;
+                                  if (isSelected) {
+                                    backgroundColor =
+                                        Colors.green; // Selecionado
+                                  } else if (!isUnlocked) {
+                                    backgroundColor = Colors.red; // Bloqueado
+                                  } else {
+                                    backgroundColor =
+                                        Colors.white; // Disponível
+                                  }
+
                                   return GestureDetector(
-                                    onTap: () {
-                                      assignObjectToPatient(
-                                          object['id'], widget.idPatient);
-                                      setState(() {
-                                        _isShopVisible = false;
-                                      });
-                                    },
+                                    onTap: isUnlocked
+                                        ? () {
+                                            assignObjectToPatient(
+                                                object['id'], widget.idPatient);
+                                            setState(() {
+                                              _isShopVisible = false;
+                                            });
+                                          }
+                                        : null, // Bloqueia a seleção se não tiver pontos suficientes
                                     child: Container(
                                       padding: const EdgeInsets.all(8),
                                       decoration: BoxDecoration(
-                                        color: isAssigned
-                                            ? Colors.green
-                                            : Colors.white10,
+                                        color:
+                                            backgroundColor, // Cor de fundo baseada na lógica
                                         borderRadius: BorderRadius.circular(10),
                                         border: Border.all(
-                                          color: isAssigned
+                                          color: isUnlocked
                                               ? Colors.yellow
-                                              : Colors.white30,
+                                              : Colors.grey,
                                           width: 2,
                                         ),
                                       ),
@@ -219,9 +240,21 @@ class _GameScreenState extends State<GameScreen> {
                                                 fontSize: 10,
                                                 fontFamily:
                                                     'PressStart2P-Regular',
-                                                color: Colors.white),
+                                                color: Colors.black),
                                             textAlign: TextAlign.center,
                                           ),
+                                          // Exibe mensagem de desbloqueio, se necessário
+                                          if (!isUnlocked)
+                                            Text(
+                                              'Desbloqueia com $requiredPoints pontos',
+                                              style: const TextStyle(
+                                                color: Colors.yellow,
+                                                fontSize: 8,
+                                                fontFamily:
+                                                    'PressStart2P-Regular',
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
                                         ],
                                       ),
                                     ),
@@ -264,7 +297,11 @@ class _GameScreenState extends State<GameScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text('Pódio',
-                style: TextStyle(color: Colors.white, fontSize: 24)),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontFamily: 'PressStart2P-Regular',
+                )),
             Expanded(
               child: ListView.builder(
                 itemCount: _podiumScores.length,
@@ -273,21 +310,63 @@ class _GameScreenState extends State<GameScreen> {
                   return ListTile(
                     title: Text(
                         '${index + 1}. ${score['name']} - ${score['points']}',
-                        style: const TextStyle(color: Colors.white)),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontFamily: 'PressStart2P-Regular',
+                        )),
                   );
                 },
               ),
             ),
-            if (_userBestScore != null &&
-                _userBestScore!['points'] > _podiumScores.last['points'])
+            if (_userBestScore!['points'] > _podiumScores.last['points'] &&
+                !_podiumScores.any(
+                    (score) => score['points'] == _userBestScore!['points']))
               ElevatedButton(
                 onPressed: _addUserToPodium,
-                child: const Text('Inserir Minha Pontuação'),
+                child: const Text('Inserir Minha Pontuação',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontFamily: 'PressStart2P-Regular',
+                    )),
+              ),
+            if (_userBestScore!['points'] <= _podiumScores.last['points'])
+              Opacity(
+                opacity: 0.5,
+                child: Column(
+                  children: [
+                    const Text(
+                      'Sua maior pontuação não é o suficiente para entrar no pódio',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontFamily: 'PressStart2P-Regular',
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Pontuação atual: ',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontFamily: 'PressStart2P-Regular',
+                      ),
+                    ),
+                    Text(
+                      _userBestScore!['points'].toString(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontFamily: 'PressStart2P-Regular',
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ElevatedButton(
               onPressed: () =>
                   setState(() => _isPodiumVisible = !_isPodiumVisible),
-              child: Text(_isPodiumVisible ? 'Fechar Pódio' : 'Abrir Pódio',
+              child: Text(_isPodiumVisible ? 'Fechar Pódio' : 'Pódio',
                   style: const TextStyle(
                     fontSize: 10,
                     fontFamily: 'PressStart2P-Regular',

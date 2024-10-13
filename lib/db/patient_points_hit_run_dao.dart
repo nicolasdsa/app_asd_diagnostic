@@ -18,6 +18,16 @@ class PatientPointsHitRunDao {
     return await db.insert(_tableName, response);
   }
 
+  Future<int> update(Map<String, dynamic> response) async {
+    final db = await dbHelper.database;
+    return await db.update(
+      _tableName,
+      response,
+      where: 'patient_id = ?',
+      whereArgs: [response['patient_id']],
+    );
+  }
+
   Future<Map<String, dynamic>?> getUserBestScore(int gameId, int userId) async {
     final db = await dbHelper.database;
     final result = await db.query(_tableName,

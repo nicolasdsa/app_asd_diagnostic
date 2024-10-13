@@ -6,9 +6,15 @@ import 'package:app_asd_diagnostic/games/hit_run/components/level_design.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
+import 'package:flame_audio/flame_audio.dart';
+import 'package:flutter/widgets.dart';
 
 class HitRun extends FlameGame
-    with TapCallbacks, HasCollisionDetection, DragCallbacks {
+    with
+        TapCallbacks,
+        HasCollisionDetection,
+        DragCallbacks,
+        WidgetsBindingObserver {
   final int id;
   final String idPatient;
   final Map<String, dynamic> properties;
@@ -34,8 +40,21 @@ class HitRun extends FlameGame
   // Variáveis para monitorar o tempo de pressão do toque
   late DateTime _touchStartTime;
   double _holdDuration = 0.0; // Armazena o tempo de hold em segundos
+  AudioPlayer? _audioPlayer;
 
   Level get level => _level;
+  // Lista de músicas
+  List<String> musicTracks = [
+    'music_1.mp3',
+    'music_2.mp3',
+    'music_3.mp3',
+    'music_4.mp3',
+    'music_5.mp3',
+    'music_6.mp3',
+    'music_7.mp3',
+    'music_8.mp3'
+  ];
+  int currentTrackIndex = 0;
 
   void startGame() {
     stats.startGame(); // Inicia as estatísticas
@@ -59,22 +78,46 @@ class HitRun extends FlameGame
   FutureOr<void> onLoad() async {
     await images.loadAllImages();
     overlays.add('MenuOverlay'); // Mostra o menu ao iniciar o jogo
+    musicTracks.shuffle();
+    overlays.add('MenuOverlay'); // Mostra o menu ao iniciar o jogo
+    _audioPlayer = AudioPlayer();
+    _audioPlayer?.onPlayerComplete.listen((event) {
+      _onMusicComplete(); // Função chamada ao terminar a música
+    });
+    _playNextMusic();
+    WidgetsBinding.instance.addObserver(this);
     return super.onLoad();
   }
 
-  void resetGame() {
-    saveGameStats();
+  void resetGame() async {
+    await saveGameStats();
     stats.endGame(_level.points);
     stats.startGame();
   }
 
+  // Função para tocar a próxima música
+  void _playNextMusic() {
+    _audioPlayer?.play(
+        AssetSource('audio/hit_run/${musicTracks[currentTrackIndex]}'),
+        volume: 0.20);
+  }
+
+  // Função chamada quando uma música termina
+  void _onMusicComplete() {
+    // Avança para a próxima música, embaralha se necessário
+    currentTrackIndex++;
+    if (currentTrackIndex >= musicTracks.length) {
+      musicTracks.shuffle(); // Embaralha a lista de músicas
+      currentTrackIndex = 0; // Reseta o índice
+    }
+    _playNextMusic(); // Toca a próxima música
+  }
+
   Future<void> saveGameStats() async {
-    Map<String, dynamic> jsonData = stats.toJson(_level.points);
+    Map<String, dynamic> jsonData =
+        await stats.toJson(_level.points, idPatient, id);
     Map<String, dynamic> jsonDataFlag = stats.toJsonFlag();
     Map<String, dynamic> jsonDataDescription = stats.toJsonFlagDescription();
-
-    print('JSON data before saving: $jsonData');
-    print('JSON data before saving: $jsonDataFlag');
 
     JsonDataDao jsonDataDao = JsonDataDao();
     await jsonDataDao.insertJson(
@@ -179,5 +222,20 @@ class HitRun extends FlameGame
     cam.priority = 1;
 
     addAll([cam, _level]);
+  }
+
+  // Método que lida com as mudanças de estado do ciclo de vida do app
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    if (state == AppLifecycleState.paused) {
+      _audioPlayer?.pause(); // Pausa a música ao minimizar o app
+    } else if (state == AppLifecycleState.resumed) {
+      if (!isPaused) {
+        _audioPlayer
+            ?.resume(); // Retoma a música quando o app volta, se o jogo não estiver pausado
+      }
+    }
   }
 }
