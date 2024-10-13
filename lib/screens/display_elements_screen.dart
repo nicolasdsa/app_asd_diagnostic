@@ -164,7 +164,7 @@ class DisplayElementsScreenState extends State<DisplayElementsScreen>
 
     Navigator.pushNamedAndRemoveUntil(
       context,
-      '/patient',
+      '/initial',
       arguments: {'patientId': widget.idPatient.toString()},
       (Route<dynamic> route) => false, // Remove todas as rotas anteriores
     );

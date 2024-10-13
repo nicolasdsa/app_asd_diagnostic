@@ -5,16 +5,14 @@ import 'package:app_asd_diagnostic/screens/components/patient.dart';
 import 'package:app_asd_diagnostic/screens/patients_create_screen.dart';
 
 class PatientScreen extends StatefulWidget {
-  final ValueNotifier<int> patientChangeNotifier;
-
-  const PatientScreen({required this.patientChangeNotifier, Key? key})
-      : super(key: key);
+  const PatientScreen({Key? key}) : super(key: key);
 
   @override
   State<PatientScreen> createState() => _PatientScreenState();
 }
 
 class _PatientScreenState extends State<PatientScreen> {
+  final patientChangeNotifier = ValueNotifier(0);
   final _patientDao = PatientDao();
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
@@ -53,7 +51,7 @@ class _PatientScreenState extends State<PatientScreen> {
           ),
           Expanded(
             child: ValueListenableBuilder(
-              valueListenable: widget.patientChangeNotifier,
+              valueListenable: patientChangeNotifier,
               builder: (context, value, child) {
                 return FutureBuilder<List<Map<String, dynamic>>>(
                   future: _searchQuery.isEmpty
@@ -83,7 +81,7 @@ class _PatientScreenState extends State<PatientScreen> {
                               patient['photo'],
                               patient['age'],
                               patient['gender'],
-                              widget.patientChangeNotifier);
+                              patientChangeNotifier);
                         },
                       );
                     }
@@ -100,7 +98,7 @@ class _PatientScreenState extends State<PatientScreen> {
             context,
             MaterialPageRoute(
               builder: (context) => PatientCreateScreen(
-                  patientChangeNotifier: widget.patientChangeNotifier),
+                  patientChangeNotifier: patientChangeNotifier),
             ),
           );
         },

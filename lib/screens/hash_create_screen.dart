@@ -254,7 +254,7 @@ class HashCreateScreenState extends State<HashCreateScreen> {
               ),
               const SizedBox(height: 10),
               const Text(
-                  'Ele já está copiado no seu teclado. Você será redirecionado para a página do paciente ao fechar.'),
+                  'Ele já está copiado no seu teclado. Você será redirecionado para a página inicial ao fechar.'),
             ],
           ),
           actions: [
@@ -265,8 +265,7 @@ class HashCreateScreenState extends State<HashCreateScreen> {
                 // Redireciona para a página de pacientes e remove a tela atual da pilha
                 Navigator.pushNamedAndRemoveUntil(
                   context,
-                  '/patient',
-                  arguments: {'patientId': widget.idPatient.toString()},
+                  '/initial',
                   (Route<dynamic> route) =>
                       false, // Remove todas as rotas anteriores
                 );

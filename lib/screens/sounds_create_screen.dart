@@ -42,7 +42,8 @@ class _SoundCreateEditScreenState extends State<SoundCreateEditScreen> {
   }
 
   Future<void> _selectFile() async {
-    String? filePath = await FilePicker.platform.pickFiles().then((value) {
+    String? filePath =
+        await FilePicker.platform.pickFiles(type: FileType.audio).then((value) {
       if (value != null) {
         return value.files.single.path;
       } else {

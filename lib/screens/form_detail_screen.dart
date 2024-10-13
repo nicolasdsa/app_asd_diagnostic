@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:app_asd_diagnostic/db/patient_dao.dart';
 import 'package:app_asd_diagnostic/db/sound_response_dao.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
@@ -317,8 +318,19 @@ class _FormDetailScreenState extends State<FormDetailScreen>
       );
     }
 
+    final String timestamp =
+        DateFormat('dd-MM-yyyy_HH-mm-ss').format(DateTime.now());
+
+    final Map<String, dynamic> formData =
+        await FormDao().getOneForm(widget.formId);
+
+    final Map<String, dynamic> patientData =
+        await PatientDao().getPatientById(formData['id_patient']);
+    final String patientName = patientData['name'];
+
     final Directory? downloadsDirectory = await getExternalStorageDirectory();
-    final pdfPath = '${downloadsDirectory!.path}/screenshots.pdf';
+    final String pdfPath =
+        '${downloadsDirectory!.path}/$patientName-$timestamp.pdf';
 
     final file = File(pdfPath);
     await file.writeAsBytes(await pdf.save());

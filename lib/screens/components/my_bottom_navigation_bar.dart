@@ -31,8 +31,8 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
   Widget build(BuildContext context) {
     final List<Widget> children = [
       InitialScreen(),
-      PatientScreen(patientChangeNotifier: patientChangeNotifier),
-      ExportScreen(),
+      const PatientScreen(),
+      const ExportScreen(),
     ];
 
     return Scaffold(

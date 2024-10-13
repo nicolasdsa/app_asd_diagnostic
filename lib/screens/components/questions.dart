@@ -122,12 +122,8 @@ class QuestionsState extends State<Questions> {
           width: double.infinity,
           child: ElevatedButton.icon(
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => QuestionCreateScreen(),
-                ),
-              );
+              Navigator.pushNamed(context, '/createQuestion',
+                  arguments: {"notifier": questionChangeNotifier});
             },
             icon: const Icon(Icons.add, color: Colors.white, size: 20),
             label: Text(

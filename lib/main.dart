@@ -8,6 +8,7 @@ import 'package:app_asd_diagnostic/screens/game_screen.dart';
 import 'package:app_asd_diagnostic/screens/games_screen.dart';
 import 'package:app_asd_diagnostic/screens/hash_create_screen.dart';
 import 'package:app_asd_diagnostic/screens/patient_detail_screen.dart';
+import 'package:app_asd_diagnostic/screens/patients_screen.dart';
 import 'package:app_asd_diagnostic/screens/questions_create_screen.dart';
 import 'package:app_asd_diagnostic/screens/questions_screen.dart';
 import 'package:app_asd_diagnostic/screens/register_screen.dart';
@@ -94,6 +95,7 @@ void main() async {
               questionId: idQuestion, notifier: notifier);
         },
         '/questions': (context) => const QuestionsScreen(),
+        '/patients': (context) => const PatientScreen(),
         '/check': (context) => const InitialCheckScreen(),
         '/initial': (context) => const MyBottomNavigationBar(),
         '/': (context) => const LoginAndHashScreen(),

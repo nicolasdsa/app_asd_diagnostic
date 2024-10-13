@@ -42,6 +42,16 @@ class FormDao {
         .first;
   }
 
+  Future<Map<String, dynamic>> getOneForm(int id) async {
+    final db = await dbHelper.database;
+    final List<Map<String, dynamic>> result = await db.query(
+      _tableName,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    return result.first;
+  }
+
   Future<List<FormUser>> getFormsByPatientId(int patientId) async {
     final db = await dbHelper.database;
     final List<Map<String, dynamic>> result = await db.query(

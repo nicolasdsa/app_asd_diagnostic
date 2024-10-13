@@ -26,6 +26,17 @@ class UserDao {
     return rows.first;
   }
 
+  Future<Map<String, dynamic>> getOneId(String id) async {
+    final db = await dbHelper.database;
+    final List<Map<String, dynamic>> rows = await db.query(
+      _tableName,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    return rows.first;
+  }
+
   Future<int> insert(String name, String email, String username,
       String password, String institute, String crm) async {
     final db = await dbHelper.database;
