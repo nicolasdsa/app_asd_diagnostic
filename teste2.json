@@ -1,0 +1,73 @@
+{
+  "dados": [
+    {
+      "json": {
+        "Tempo de reação médio": 17.21192307692308,
+        "Tempo de jogo": 100,
+        "Total de jogos na mesma sessão": 3,
+        "Total de pontos": 13,
+        "Tempo de pressão médio": 0.15053846153846157,
+        "Precisão média dos toques": 62.659492944480704
+      },
+      "json_flag": {
+        "Causa do fim do jogo": 0,
+        "Ação do usuário": 1
+      },
+      "json_flag_description": {
+        "Causa do fim do jogo-0": "das partidas, o paciente perdeu mais vidas por conta do tempo",
+        "Causa do fim do jogo-1": "das partidas, paciente perdeu mais vidas por conta de selecionar a peça errada",
+        "Ação do usuário-0": "das partidas, paciente não realizou nenhuma ação",
+        "Ação do usuário-1": "das partidas, paciente realizou alguma ação"
+      },
+      "game": "Jogo Teste",
+      "created_at": "2024-10-08T20:18:04.000Z",
+      "updated_at": "2024-10-08T20:18:04.000Z"
+    },
+    {
+      "json": {
+        "Tempo de reação médio": 10.21192307692308,
+        "Tempo de jogo": 110,
+        "Total de jogos na mesma sessão": 5,
+        "Total de pontos": 18,
+        "Tempo de pressão médio": 0.22053846153846157,
+        "Precisão média dos toques": 71.659492944480704
+      },
+      "json_flag": {
+        "Causa do fim do jogo": 0,
+        "Ação do usuário": 1
+      },
+      "json_flag_description": {
+        "Causa do fim do jogo-0": "das partidas, o paciente perdeu mais vidas por conta do tempo",
+        "Causa do fim do jogo-1": "das partidas, paciente perdeu mais vidas por conta de selecionar a peça errada",
+        "Ação do usuário-0": "das partidas, paciente não realizou nenhuma ação",
+        "Ação do usuário-1": "das partidas, paciente realizou alguma ação"
+      },
+      "game": "Jogo Teste",
+      "created_at": "2024-10-20T20:20:04.000Z",
+      "updated_at": "2024-10-20T20:20:04.000Z"
+    },
+    {
+      "json": {
+        "Tempo de reação médio": 7.21192307692308,
+        "Tempo de jogo": 71,
+        "Total de jogos na mesma sessão": 5,
+        "Total de pontos": 20,
+        "Tempo de pressão médio": 0.19053846153846157,
+        "Precisão média dos toques": 72.659492944480704
+      },
+      "json_flag": {
+        "Causa do fim do jogo": 0,
+        "Ação do usuário": 1
+      },
+      "json_flag_description": {
+        "Causa do fim do jogo-0": "das partidas, o paciente perdeu mais vidas por conta do tempo",
+        "Causa do fim do jogo-1": "das partidas, paciente perdeu mais vidas por conta de selecionar a peça errada",
+        "Ação do usuário-0": "das partidas, paciente não realizou nenhuma ação",
+        "Ação do usuário-1": "das partidas, paciente realizou alguma ação"
+      },
+      "game": "Jogo Teste",
+      "created_at": "2024-10-20T20:20:04.000Z",
+      "updated_at": "2024-10-20T20:20:04.000Z"
+    }
+  ]
+}

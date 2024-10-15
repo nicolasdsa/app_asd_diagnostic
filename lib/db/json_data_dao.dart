@@ -220,4 +220,37 @@ class JsonDataDao {
 
     return result.isNotEmpty; // Se a lista não estiver vazia, o registro existe
   }
+
+  Future<List<Map<String, dynamic>>> exportJson(
+      String idPatient, List<String> games, String createdAt) async {
+    print(games);
+    final db = await dbHelper.database;
+    final List<Map<String, dynamic>> rows = await db.query(
+      _tableName,
+      where:
+          'id_patient = ? AND game IN (${games.map((game) => '?').join(', ')}) AND created_at >= ?',
+      whereArgs: [idPatient, ...games, createdAt],
+      orderBy: 'created_at DESC',
+    );
+    final List<Map<String, dynamic>> resultRows = [];
+
+    for (var row in rows) {
+      final resultRow = Map<String, dynamic>.from(row);
+
+      if (row.containsKey('json')) {
+        resultRow['json'] = jsonDecode(row['json']);
+      }
+      if (row.containsKey('json_flag_description')) {
+        resultRow['json_flag_description'] =
+            jsonDecode(row['json_flag_description']);
+      }
+      if (row.containsKey('json_flag')) {
+        resultRow['json_flag'] = jsonDecode(row['json_flag']);
+      }
+
+      resultRows.add(resultRow);
+    }
+
+    return resultRows;
+  }
 }

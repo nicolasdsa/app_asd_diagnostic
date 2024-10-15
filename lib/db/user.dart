@@ -72,6 +72,26 @@ class UserDao {
     return false;
   }
 
+  Future<bool> loginHash(String username, String password) async {
+    final db = await dbHelper.database;
+    final List<Map<String, dynamic>> rows = await db.query(
+      _tableName,
+      where: 'username = ?',
+      whereArgs: [username],
+    );
+
+    if (rows.isEmpty) {
+      return false;
+    }
+
+    final storedPassword = rows.first['password'] as String;
+    if (isValid(storedPassword, password)) {
+      return true;
+    }
+
+    return false;
+  }
+
   Crypt _hashPassword(String password) {
     final c1 = Crypt.sha512(password);
     return c1;

@@ -47,6 +47,7 @@ dependencies:
   screenshot: ^3.0.0
   pdf: ^3.11.1
   shared_preferences: ^2.3.2
+  flutter_file_dialog: ^3.0.2
 
 dev_dependencies:
   flutter_test:
