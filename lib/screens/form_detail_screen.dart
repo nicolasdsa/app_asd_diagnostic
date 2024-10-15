@@ -24,7 +24,7 @@ import 'package:pdf/widgets.dart' as pw;
 class FormDetailScreen extends StatefulWidget {
   final int formId;
 
-  FormDetailScreen({Key? key, required this.formId}) : super(key: key);
+  const FormDetailScreen({Key? key, required this.formId}) : super(key: key);
 
   @override
   State<FormDetailScreen> createState() => _FormDetailScreenState();

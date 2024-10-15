@@ -30,7 +30,6 @@ class ChartData extends StatefulWidget {
 }
 
 class _ChartDataState extends State<ChartData> {
-  List<GlobalKey> _repaintBoundaryKeys = [];
   final JsonDataDao jsonDataDao = JsonDataDao();
   late Future<List<List<dynamic>>> futureJsonData;
   late bool isExpanded;

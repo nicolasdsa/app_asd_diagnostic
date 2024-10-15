@@ -8,13 +8,14 @@ class PatientCreateScreen extends StatefulWidget {
   final ValueNotifier<int> patientChangeNotifier;
   final int? patientId; // Adicionando o id do paciente
 
-  PatientCreateScreen({required this.patientChangeNotifier, this.patientId});
+  const PatientCreateScreen(
+      {super.key, required this.patientChangeNotifier, this.patientId});
 
   @override
-  _PatientsCreateScreenState createState() => _PatientsCreateScreenState();
+  PatientsCreateScreenState createState() => PatientsCreateScreenState();
 }
 
-class _PatientsCreateScreenState extends State<PatientCreateScreen> {
+class PatientsCreateScreenState extends State<PatientCreateScreen> {
   final _formKey = GlobalKey<FormState>();
   final _patientDao = PatientDao();
   final _nameController = TextEditingController();

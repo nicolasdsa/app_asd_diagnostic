@@ -2,7 +2,6 @@ import 'package:app_asd_diagnostic/db/answer_options_dao.dart';
 import 'package:app_asd_diagnostic/db/question_dao.dart';
 import 'package:app_asd_diagnostic/db/type_question_dao.dart';
 import 'package:app_asd_diagnostic/screens/components/question.dart';
-import 'package:app_asd_diagnostic/screens/questions_create_screen.dart';
 import 'package:flutter/material.dart';
 
 class Questions extends StatefulWidget {

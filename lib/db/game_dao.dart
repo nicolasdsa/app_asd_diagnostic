@@ -11,8 +11,6 @@ class GameDao {
       'config TEXT)';
 
   static const String _tableName = 'games';
-  static const String _name = 'name';
-  static const String _id = 'id';
 
   final dbHelper = DatabaseHelper.instance;
 

@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:app_asd_diagnostic/screens/components/my_app_bar.dart';
-import 'package:app_asd_diagnostic/screens/components/patient_details.dart';
 import 'package:app_asd_diagnostic/screens/form_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:app_asd_diagnostic/db/patient_dao.dart';

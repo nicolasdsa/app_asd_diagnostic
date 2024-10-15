@@ -1,5 +1,4 @@
 import 'package:app_asd_diagnostic/db/database.dart';
-import 'package:app_asd_diagnostic/screens/components/sound.dart';
 
 class SoundResponseDao {
   static const String tableSql = 'CREATE TABLE $_tableName('

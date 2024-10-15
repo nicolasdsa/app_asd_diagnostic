@@ -7,19 +7,19 @@ import 'package:file_picker/file_picker.dart';
 class SoundListScreen extends StatefulWidget {
   final Function(int) onSoundSelected;
 
-  SoundListScreen({required this.onSoundSelected});
+  SoundListScreen({super.key, required this.onSoundSelected});
 
-  final _SoundListScreenState _soundListScreenState = _SoundListScreenState();
+  final SoundListScreenState soundListScreenState = SoundListScreenState();
 
   void stopCurrentSound() {
-    _soundListScreenState.stopSound();
+    soundListScreenState.stopSound();
   }
 
   @override
-  _SoundListScreenState createState() => _soundListScreenState;
+  SoundListScreenState createState() => soundListScreenState;
 }
 
-class _SoundListScreenState extends State<SoundListScreen>
+class SoundListScreenState extends State<SoundListScreen>
     with WidgetsBindingObserver {
   final SoundDao _soundDao = SoundDao();
   List<Sound> _sounds = [];
@@ -98,7 +98,7 @@ class _SoundListScreenState extends State<SoundListScreen>
       mainAxisSize: MainAxisSize.min,
       children: [
         _sounds.isEmpty
-            ? Center(child: Text('Nenhum som adicionado'))
+            ? const Center(child: Text('Nenhum som adicionado'))
             : Flexible(
                 child: ListView.builder(
                   shrinkWrap: true,
@@ -116,7 +116,7 @@ class _SoundListScreenState extends State<SoundListScreen>
                       ),
                       title: Text(sound.name),
                       trailing: IconButton(
-                        icon: Icon(Icons.delete),
+                        icon: const Icon(Icons.delete),
                         onPressed: () => _deleteSound(sound.id!),
                       ),
                       onLongPress: () {
@@ -127,10 +127,10 @@ class _SoundListScreenState extends State<SoundListScreen>
                 ),
               ),
         Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: ElevatedButton(
             onPressed: _showAddSoundDialog,
-            child: Text('Adicionar Som'),
+            child: const Text('Adicionar Som'),
           ),
         ),
       ],
@@ -144,13 +144,13 @@ class _SoundListScreenState extends State<SoundListScreen>
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Adicionar Som'),
+          title: const Text('Adicionar Som'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: nameController,
-                decoration: InputDecoration(labelText: 'Nome'),
+                decoration: const InputDecoration(labelText: 'Nome'),
               ),
               ElevatedButton(
                 onPressed: () async {
@@ -162,15 +162,15 @@ class _SoundListScreenState extends State<SoundListScreen>
                     });
                   }
                 },
-                child: Text('Escolher Arquivo de Som'),
+                child: const Text('Escolher Arquivo de Som'),
               ),
-              if (_selectedFilePath != null) Text('Arquivo selecionado!'),
+              if (_selectedFilePath != null) const Text('Arquivo selecionado!'),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Cancelar'),
+              child: const Text('Cancelar'),
             ),
             TextButton(
               onPressed: () {
@@ -184,7 +184,7 @@ class _SoundListScreenState extends State<SoundListScreen>
                   Navigator.pop(context);
                 }
               },
-              child: Text('Confirmar'),
+              child: const Text('Confirmar'),
             ),
           ],
         );
