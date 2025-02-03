@@ -18,6 +18,7 @@ import 'package:app_asd_diagnostic/db/text_response_dao.dart';
 import 'package:app_asd_diagnostic/db/type_form_dao.dart';
 import 'package:app_asd_diagnostic/db/type_question_dao.dart';
 import 'package:app_asd_diagnostic/db/user.dart';
+import 'package:app_asd_diagnostic/db/words_dao.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -57,6 +58,7 @@ class DatabaseHelper {
     await db.execute(ObjectiveDao.tableSql);
     await db.execute(HighScoreHitRunDao.tableSql);
     await db.execute(PatientPointsHitRunDao.tableSql);
+    await db.execute(WordsDao.tableSql);
 
     await db.insert('type_forms', {'name': 'Analise de informações'});
     await db.insert('type_forms', {'name': 'Avaliar Comportamento'});
@@ -89,6 +91,97 @@ class DatabaseHelper {
           'Teste a atenção e reflexos em um jogo dinâmico onde é necessário identificar e selecionar os elementos em movimento na tela, de acordo com o item indicado.',
       'long_description':
           'Neste jogo interativo, o objetivo é observar atentamente a tela e identificar os elementos que estão se movendo conforme o objeto ou padrão indicado. À medida que os elementos se movimentam, é necessário selecionar apenas aqueles que correspondem à indicação fornecida. O ritmo aumenta progressivamente, exigindo que uma reação de forma rápida e precisa. Com diferentes níveis de dificuldade e diversos tipos de elementos, este jogo é perfeito para testar habilidades de observação e resposta.'
+    });
+
+    await db.insert('games', {
+      'name': 'Aventuras no Mundo das Palavras',
+      'link': '/wordsAdventureMenu',
+      'config': "{\"Dificuldade\": [\"Difícil\", \"Fácil\"]}",
+      'path': 'assets/images/hit_run/hit_run_logo.jpeg',
+      "short_description":
+          "Construa palavras combinando letras corretamente, enquanto estimula a atenção, a linguagem e a percepção visual em um desafio divertido.",
+      "long_description":
+          "Em *Forma Palavras*, as crianças são desafiadas a formar palavras a partir de letras apresentadas na tela. O jogo envolve a seleção e combinação correta dos elementos disponíveis para completar a palavra-alvo, que pode ser acompanhada por imagens ou dicas sonoras para maior interatividade. Conforme o jogador avança, a dificuldade aumenta com palavras mais complexas e menos tempo disponível, incentivando a atenção sustentada, o desenvolvimento linguístico e a tomada de decisões rápidas. Projetado para proporcionar aprendizado e diversão, este jogo é uma excelente ferramenta para o estímulo cognitivo e verbal de forma lúdica."
+    });
+
+    await db.insert('words', {
+      'palavra': 'Sapo',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/frog.jpeg',
+      'audio': 'assets/audio/words_adventure/frog.wav',
+      'dica': 'Animal verde que pula!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Trem',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/frog.jpeg',
+      'audio': 'assets/audio/words_adventure/frog.wav',
+      'dica': 'Máquina grande nos trilhos!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Vaca',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/cow.jpeg',
+      'audio': 'assets/audio/words_adventure/cow.wav',
+      'dica': 'Animal que faz "muu"!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Bola',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/ball.jpeg',
+      'audio': 'assets/audio/words_adventure/ball.wav',
+      'dica': 'Objeto redondo para brincar!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Sino',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/bell.jpeg',
+      'audio': 'assets/audio/words_adventure/bell.wav',
+      'dica': 'Emite um som "ding-dong"!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Porta',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/door.jpeg',
+      'audio': 'assets/audio/words_adventure/door.wav',
+      'dica': 'Abre e fecha com um rangido!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Pato',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/duck.jpeg',
+      'audio': 'assets/audio/words_adventure/duck.wav',
+      'dica': 'Brinquedo que faz "quack"!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Fogo',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/fire.jpeg',
+      'audio': 'assets/audio/words_adventure/fire.wav',
+      'dica': 'Quente e cheio de faíscas!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Rato',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/rat.jpeg',
+      'audio': 'assets/audio/words_adventure/rat.wav',
+      'dica': 'Pequeno e adora queijo!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Galo',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/rooster.jpeg',
+      'audio': 'assets/audio/words_adventure/rooster.wav',
+      'dica': 'Canta ao amanhecer!'
     });
 
     await db.insert('objectives', {

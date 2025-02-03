@@ -1,5 +1,7 @@
 import 'package:app_asd_diagnostic/games/hit_run/game.dart';
 import 'package:app_asd_diagnostic/games/hit_run/hit_run.dart';
+import 'package:app_asd_diagnostic/games/magic_words/game.dart';
+import 'package:app_asd_diagnostic/games/magic_words/magic_words.dart';
 import 'package:app_asd_diagnostic/screens/check_credential_screen.dart';
 import 'package:app_asd_diagnostic/screens/components/my_bottom_navigation_bar.dart';
 import 'package:app_asd_diagnostic/screens/export_screen.dart';
@@ -15,6 +17,7 @@ import 'package:app_asd_diagnostic/screens/register_screen.dart';
 import 'package:app_asd_diagnostic/screens/login_and_hash_screen.dart';
 import 'package:app_asd_diagnostic/screens/sounds_create_screen.dart';
 import 'package:app_asd_diagnostic/screens/sounds_screen.dart';
+import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -95,6 +98,7 @@ void main() async {
               questionId: idQuestion, notifier: notifier);
         },
         '/questions': (context) => const QuestionsScreen(),
+        '/word_box': (context) => GameWidget(game: JogoFormaPalavrasGame()),
         '/patients': (context) => const PatientScreen(),
         '/check': (context) => const InitialCheckScreen(),
         '/initial': (context) => const MyBottomNavigationBar(),
@@ -138,6 +142,32 @@ void main() async {
           return MaterialPageRoute(
             builder: (context) =>
                 GameScreen(game: game, idPatient: int.parse(idPatient)),
+          );
+        }
+
+        if (settings.name == '/hitRunMenu') {
+          final args = settings.arguments as Map<String, dynamic>;
+          final idPatient = args['idPatient']!;
+          final properties = args['properties']!;
+          final id = args['id']!;
+
+          final game =
+              HitRun(idPatient: idPatient, properties: properties, id: id);
+          return MaterialPageRoute(
+            builder: (context) =>
+                GameScreen(game: game, idPatient: int.parse(idPatient)),
+          );
+        }
+
+        if (settings.name == '/wordsAdventureMenu') {
+          final args = settings.arguments as Map<String, dynamic>;
+          final idPatient = args['idPatient']!;
+          final properties = args['properties']!;
+          final id = args['id']!;
+
+          final game = MenuInicial();
+          return MaterialPageRoute(
+            builder: (context) => game,
           );
         }
         return null; // Unknown route

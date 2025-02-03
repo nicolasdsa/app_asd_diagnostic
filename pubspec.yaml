@@ -75,6 +75,8 @@ flutter:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
   assets:
+    - assets/images/words_adventure/icons/
+    - assets/images/words_adventure/letters/
     - assets/images/hit_run/
     - assets/images/hit_run/Background/
     - assets/tiles/hit_run/
