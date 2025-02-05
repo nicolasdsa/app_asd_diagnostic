@@ -35,10 +35,54 @@ class WordBox extends PositionComponent {
     }
   }
 
-  bool checkWord() {
+  Future<bool> checkWord() async {
     String constructedWord =
         letterBoxes.map((box) => box.currentLetter ?? '').join();
-    return constructedWord == correctWord;
+    print(constructedWord);
+    print(correctWord);
+
+    if (constructedWord.length == correctWord.length) {
+      if (constructedWord.toLowerCase() == correctWord.toLowerCase()) {
+        // Palavras são iguais, atualiza os sprites para a versão correta
+        for (var box in letterBoxes) {
+          if (!box.hasAnimated) {
+            await box.setLetter(
+                box.currentLetter!,
+                await Sprite.load(
+                    'words_adventure/letters/${box.currentLetter}_correct.png'));
+            box.isLocked = true; // Trava a letra no LetterBox
+            await box.wave(); // Animação de onda para indicar acerto
+            box.hasAnimated = true; // Marca a animação como executada
+          }
+        }
+        return true;
+      } else {
+        // Palavras têm o mesmo comprimento, mas são diferentes
+        for (int i = 0; i < letterBoxes.length; i++) {
+          if (letterBoxes[i].currentLetter != null &&
+              !letterBoxes[i].hasAnimated) {
+            await letterBoxes[i].setLetter(
+                letterBoxes[i].currentLetter!,
+                await Sprite.load(
+                    'words_adventure/letters/${letterBoxes[i].currentLetter}_wrong.png'));
+            await letterBoxes[i].shake(); // Animação de shake para indicar erro
+            letterBoxes[i].hasAnimated =
+                true; // Marca a animação como executada
+          }
+        }
+        // Redefine os LetterBox após a animação de erro
+        await Future.delayed(const Duration(milliseconds: 500), () {
+          for (var box in letterBoxes) {
+            box.reset();
+          }
+        });
+      }
+    }
+    return false;
+  }
+
+  bool isLetterInCorrectPosition(int index, String letter) {
+    return correctWord[index] == letter;
   }
 
   bool areAllFilled() {
@@ -47,8 +91,7 @@ class WordBox extends PositionComponent {
 
   void resetWord() {
     for (var box in letterBoxes) {
-      box.sprite = box.defaultSprite;
-      box.currentLetter = null;
+      box.reset();
     }
   }
 }

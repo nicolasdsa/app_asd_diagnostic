@@ -1,12 +1,15 @@
 import 'package:app_asd_diagnostic/games/magic_words/components/letter_box.dart';
+import 'package:app_asd_diagnostic/games/magic_words/components/word_box.dart';
+import 'package:app_asd_diagnostic/games/magic_words/magic_words.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/collisions.dart';
 
 class DraggableLetter extends SpriteComponent
-    with DragCallbacks, CollisionCallbacks {
+    with DragCallbacks, CollisionCallbacks, HasGameRef<JogoFormaPalavrasGame> {
   final String letter; // A letra representada por este componente
   final Sprite letterSprite; // Sprite correspondente à letra
+  final List<WordBox> wordBoxes; // Lista de WordBox
   bool isDragging = false;
   Vector2 initialPosition;
   LetterBox? collidedLetterBox;
@@ -14,6 +17,7 @@ class DraggableLetter extends SpriteComponent
   DraggableLetter({
     required this.letter,
     required this.letterSprite,
+    required this.wordBoxes, // Adicione a lista de WordBox ao construtor
     required Vector2 position,
     required Vector2 size,
   })  : initialPosition = position.clone(),
@@ -41,12 +45,25 @@ class DraggableLetter extends SpriteComponent
   }
 
   @override
-  void onDragEnd(DragEndEvent event) {
+  void onDragEnd(DragEndEvent event) async {
     super.onDragEnd(event);
     isDragging = false;
     if (collidedLetterBox != null) {
       collidedLetterBox!
           .setLetter(letter, letterSprite); // Atualiza o LetterBox
+      for (var wordBox in wordBoxes) {
+        wordBox.checkWord(); // Chama o checkWord de cada WordBox
+        // Verifica se a letra está na posição correta
+        /*int index = wordBox.letterBoxes.indexOf(collidedLetterBox!);
+        if (index != -1 && wordBox.isLetterInCorrectPosition(index, letter)) {
+          // Modifica o LetterBox para outro tipo de sprite
+          collidedLetterBox!.sprite =
+              await Sprite.load('path/to/correct_sprite.png');
+        }*/
+      }
+
+      gameRef
+          .checkPalavrasCompletas(); // Verifica se todas as palavras foram completadas
     }
     position = initialPosition.clone(); // Reseta a posição para a inicial
   }

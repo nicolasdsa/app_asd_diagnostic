@@ -50,20 +50,23 @@ class JogoFormaPalavrasGame extends FlameGame with HasCollisionDetection {
 
       add(wordBox);
       _wordBoxes.add(wordBox); // Adicione a wordBox à lista
-      offsetY += 100; // Espaçamento entre as palavras
+      offsetY += 70; // Espaçamento entre as palavras
     }
 
     final lettersContainer = LettersContainer(
-      letters: _gerarLetrasEmbaralhadas(_currentWords),
-      startPosition: Vector2(400, 200),
+      letters: _gerarLetrasUnicas(_currentWords),
+      startPosition: Vector2(400, 100),
+      wordBoxes: _wordBoxes, // Passe a lista de WordBox
     );
     add(lettersContainer);
   }
 
-  void _checkPalavrasCompletas() {
-    if (_levelCompleted) return; // Verifique se o nível já foi completado
+  Future<void> checkPalavrasCompletas() async {
+    //if (_levelCompleted) return; // Verifique se o nível já foi completado
 
-    final allCorrect = _wordBoxes.every((wordBox) => wordBox.checkWord());
+    final allCorrect =
+        await Future.wait(_wordBoxes.map((wordBox) => wordBox.checkWord()))
+            .then((results) => results.every((result) => result));
     if (allCorrect) {
       _levelCompleted = true; // Marque o nível como completado
       _usedWordIds.clear(); // Limpa o histórico para o novo nível
@@ -73,18 +76,15 @@ class JogoFormaPalavrasGame extends FlameGame with HasCollisionDetection {
     }
   }
 
-  @override
+  /*@override
   void update(double dt) {
     super.update(dt);
-    _checkPalavrasCompletas();
-  }
+  }*/
 
-  List<String> _gerarLetrasEmbaralhadas(List<Map<String, dynamic>> words) {
-    final List<String> allLetters = words
-        .expand((word) => word['palavra'].toUpperCase().split(''))
-        .cast<String>()
-        .toList();
-    allLetters.shuffle();
-    return allLetters;
+  List<String> _gerarLetrasUnicas(List<Map<String, dynamic>> words) {
+    final Set<String> uniqueLetters = words
+        .expand((word) => (word['palavra'] as String).toUpperCase().split(''))
+        .toSet();
+    return uniqueLetters.toList()..shuffle();
   }
 }

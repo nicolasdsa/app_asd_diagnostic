@@ -115,7 +115,7 @@ class DatabaseHelper {
     await db.insert('words', {
       'palavra': 'Trem',
       'modo': 'fácil',
-      'imagem': 'words_adventure/icons/frog.jpeg',
+      'imagem': 'words_adventure/icons/train.jpeg',
       'audio': 'assets/audio/words_adventure/frog.wav',
       'dica': 'Máquina grande nos trilhos!'
     });

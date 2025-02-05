@@ -1,9 +1,15 @@
 import 'package:app_asd_diagnostic/games/magic_words/components/draggable_letter.dart';
+import 'package:app_asd_diagnostic/games/magic_words/components/word_box.dart';
 import 'package:flame/components.dart';
 
 class LettersContainer extends PositionComponent {
-  LettersContainer(
-      {required List<String> letters, required Vector2 startPosition}) {
+  final List<WordBox> wordBoxes; // Adicione uma lista de WordBox
+
+  LettersContainer({
+    required List<String> letters,
+    required Vector2 startPosition,
+    required this.wordBoxes, // Adicione a lista de WordBox ao construtor
+  }) {
     double offsetX = 0;
     double offsetY = 0;
     const double maxLettersPerRow = 5;
@@ -30,6 +36,7 @@ class LettersContainer extends PositionComponent {
     final draggableLetter = DraggableLetter(
       letter: letter,
       letterSprite: sprite,
+      wordBoxes: wordBoxes, // Passe a lista de WordBox
       position: position,
       size: Vector2(50, 50),
     );
