@@ -13,6 +13,7 @@ class DraggableLetter extends SpriteComponent
   bool isDragging = false;
   Vector2 initialPosition;
   LetterBox? collidedLetterBox;
+  WordBox? collidedWordBox;
 
   DraggableLetter({
     required this.letter,
@@ -35,6 +36,7 @@ class DraggableLetter extends SpriteComponent
     super.onDragStart(event);
     isDragging = true;
     collidedLetterBox = null; // Reseta a caixa de letra colidida
+    collidedWordBox = null; // Reseta o WordBox colidido
   }
 
   @override
@@ -48,20 +50,11 @@ class DraggableLetter extends SpriteComponent
   void onDragEnd(DragEndEvent event) async {
     super.onDragEnd(event);
     isDragging = false;
-    if (collidedLetterBox != null) {
-      collidedLetterBox!
+    if (collidedLetterBox != null && collidedWordBox != null) {
+      await collidedLetterBox!
           .setLetter(letter, letterSprite); // Atualiza o LetterBox
-      for (var wordBox in wordBoxes) {
-        wordBox.checkWord(); // Chama o checkWord de cada WordBox
-        // Verifica se a letra está na posição correta
-        /*int index = wordBox.letterBoxes.indexOf(collidedLetterBox!);
-        if (index != -1 && wordBox.isLetterInCorrectPosition(index, letter)) {
-          // Modifica o LetterBox para outro tipo de sprite
-          collidedLetterBox!.sprite =
-              await Sprite.load('path/to/correct_sprite.png');
-        }*/
-      }
-
+      await collidedWordBox!
+          .checkWord(); // Chama o checkWord apenas para o WordBox colidido
       gameRef
           .checkPalavrasCompletas(); // Verifica se todas as palavras foram completadas
     }
@@ -70,9 +63,12 @@ class DraggableLetter extends SpriteComponent
 
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
+    super.onCollision(intersectionPoints, other);
     if (other is LetterBox) {
       collidedLetterBox = other; // Armazena a caixa de letra colidida
+      // Encontra o WordBox ao qual o LetterBox pertence
+      collidedWordBox = wordBoxes
+          .firstWhere((wordBox) => wordBox.letterBoxes.contains(other));
     }
-    super.onCollision(intersectionPoints, other);
   }
 }

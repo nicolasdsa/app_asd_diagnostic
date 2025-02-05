@@ -10,6 +10,8 @@ class JogoFormaPalavrasGame extends FlameGame with HasCollisionDetection {
   final Set<int> _usedWordIds = {};
   final List<Map<String, dynamic>> _currentWords = [];
   final List<WordBox> _wordBoxes = [];
+  LettersContainer?
+      _lettersContainer; // Adicione uma referência ao LettersContainer
   bool _levelCompleted = false; // Adicione esta variável
 
   @override
@@ -32,8 +34,8 @@ class JogoFormaPalavrasGame extends FlameGame with HasCollisionDetection {
   }
 
   Future<void> _montarTela() async {
-    const double startX = 50;
-    const double startY = 100;
+    const double startX = 0;
+    const double startY = 50;
     double offsetY = 0;
 
     for (var word in _currentWords) {
@@ -53,38 +55,41 @@ class JogoFormaPalavrasGame extends FlameGame with HasCollisionDetection {
       offsetY += 70; // Espaçamento entre as palavras
     }
 
-    final lettersContainer = LettersContainer(
+    // Remova o LettersContainer anterior, se existir
+    if (_lettersContainer != null) {
+      remove(_lettersContainer!);
+    }
+
+    // Crie e adicione um novo LettersContainer
+    _lettersContainer = LettersContainer(
       letters: _gerarLetrasUnicas(_currentWords),
       startPosition: Vector2(400, 100),
       wordBoxes: _wordBoxes, // Passe a lista de WordBox
     );
-    add(lettersContainer);
+    add(_lettersContainer!);
   }
 
   Future<void> checkPalavrasCompletas() async {
     //if (_levelCompleted) return; // Verifique se o nível já foi completado
 
     final allCorrect =
-        await Future.wait(_wordBoxes.map((wordBox) => wordBox.checkWord()))
-            .then((results) => results.every((result) => result));
+        _wordBoxes.every((wordBox) => wordBox.isInitiallyCorrect);
+
     if (allCorrect) {
       _levelCompleted = true; // Marque o nível como completado
       _usedWordIds.clear(); // Limpa o histórico para o novo nível
       _currentWords.clear();
       _wordBoxes.clear();
-      _carregarPalavras().then((_) => _montarTela());
+      await _carregarPalavras();
+      await _montarTela();
     }
   }
 
-  /*@override
-  void update(double dt) {
-    super.update(dt);
-  }*/
-
   List<String> _gerarLetrasUnicas(List<Map<String, dynamic>> words) {
-    final Set<String> uniqueLetters = words
-        .expand((word) => (word['palavra'] as String).toUpperCase().split(''))
-        .toSet();
-    return uniqueLetters.toList()..shuffle();
+    final uniqueLetters = <String>{};
+    for (var word in words) {
+      uniqueLetters.addAll((word['palavra'] as String).toUpperCase().split(''));
+    }
+    return uniqueLetters.toList();
   }
 }

@@ -27,41 +27,17 @@ class LetterBox extends SpriteComponent with TapCallbacks, CollisionCallbacks {
   Future<void> setLetter(String letter, Sprite letterSprite) async {
     if (!isLocked) {
       currentLetter = letter;
-      await _animateSpriteChange(letterSprite);
+      _animateSpriteChange(letterSprite);
       // Adicione um print para debug
       print('Letra definida: $letter');
     }
   }
 
-  Future<void> _animateSpriteChange(Sprite newSprite) async {
+  void _animateSpriteChange(Sprite newSprite) {
     // Animação de fade out do sprite atual
-    await Future.delayed(const Duration(milliseconds: 100), () {
+    Future.delayed(const Duration(milliseconds: 100), () {
       sprite = newSprite; // Troca o sprite
     });
-  }
-
-  Future<void> shake() async {
-    // Animação de shake
-    for (int i = 0; i < 3; i++) {
-      position.add(Vector2(5, 0));
-      await Future.delayed(const Duration(milliseconds: 50));
-      position.add(Vector2(-10, 0));
-      await Future.delayed(const Duration(milliseconds: 50));
-      position.add(Vector2(5, 0));
-      await Future.delayed(const Duration(milliseconds: 50));
-    }
-  }
-
-  Future<void> wave() async {
-    // Animação de onda
-    for (int i = 0; i < 3; i++) {
-      position.add(Vector2(0, -5));
-      await Future.delayed(const Duration(milliseconds: 50));
-      position.add(Vector2(0, 10));
-      await Future.delayed(const Duration(milliseconds: 50));
-      position.add(Vector2(0, -5));
-      await Future.delayed(const Duration(milliseconds: 50));
-    }
   }
 
   void reset() {
