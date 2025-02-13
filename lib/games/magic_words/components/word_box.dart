@@ -5,6 +5,7 @@ import 'package:flame/components.dart';
 class WordBox extends PositionComponent {
   final List<LetterBox> letterBoxes;
   final String correctWord;
+  final String tip;
   late final AudioButton audioButton;
   bool isInitiallyCorrect;
 
@@ -14,6 +15,7 @@ class WordBox extends PositionComponent {
     required Vector2 audioButtonPosition,
     required String audioPath,
     required String spritePath,
+    required this.tip,
     this.isInitiallyCorrect = false,
   }) {
     // Adiciona o botão de áudio
@@ -59,7 +61,7 @@ class WordBox extends PositionComponent {
           box.isLocked = true; // Trava a letra no LetterBox
         }
         isInitiallyCorrect = true;
-        _waveAnimation(); // Animação de onda para indicar acerto
+        waveAnimation(); // Animação de onda para indicar acerto
         return true;
       } else {
         // Palavras têm o mesmo comprimento, mas são diferentes
@@ -81,7 +83,7 @@ class WordBox extends PositionComponent {
     return false;
   }
 
-  void _waveAnimation() async {
+  void waveAnimation() async {
     const double waveHeight = 5.0; // Diminui a amplitude do movimento de onda
     const int waveDuration = 50;
 

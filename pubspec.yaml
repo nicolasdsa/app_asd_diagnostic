@@ -77,6 +77,7 @@ flutter:
   assets:
     - assets/images/words_adventure/icons/
     - assets/images/words_adventure/letters/
+    - assets/images/words_adventure/background/
     - assets/images/hit_run/
     - assets/images/hit_run/Background/
     - assets/tiles/hit_run/
