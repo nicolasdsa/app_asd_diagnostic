@@ -104,11 +104,22 @@ class DatabaseHelper {
           "Em *Forma Palavras*, as crianças são desafiadas a formar palavras a partir de letras apresentadas na tela. O jogo envolve a seleção e combinação correta dos elementos disponíveis para completar a palavra-alvo, que pode ser acompanhada por imagens ou dicas sonoras para maior interatividade. Conforme o jogador avança, a dificuldade aumenta com palavras mais complexas e menos tempo disponível, incentivando a atenção sustentada, o desenvolvimento linguístico e a tomada de decisões rápidas. Projetado para proporcionar aprendizado e diversão, este jogo é uma excelente ferramenta para o estímulo cognitivo e verbal de forma lúdica."
     });
 
+    await db.insert('games', {
+      'name': 'Minha Rotina Interativa',
+      'link': '/dailyRoutineMenu',
+      'config': "{\"Dificuldade\": [\"Difícil\", \"Fácil\"]}",
+      'path': 'assets/images/daily_routine/daily_routine_logo.jpeg',
+      "short_description":
+          "Ajude o personagem a completar sua rotina diária escolhendo os objetos corretos para cada atividade, promovendo autonomia e reconhecimento de padrões.",
+      "long_description":
+          "Em *Minha Rotina Interativa*, as crianças acompanham um personagem ao longo do seu dia e precisam selecionar os objetos corretos para cada situação. Desde o momento de acordar até a hora de dormir, o jogador interage com diversas cenas, como escolher a roupa para ir à escola, pegar a escova de dentes na hora da higiene ou preparar um lanche na cozinha. O jogo trabalha a associação de objetos ao contexto, promovendo autonomia, organização e reconhecimento de padrões diários. Com níveis de dificuldade progressivos e feedback interativo, esta experiência lúdica estimula habilidades cognitivas e reforça a compreensão de rotinas de forma divertida e educativa."
+    });
+
     await db.insert('words', {
       'palavra': 'Sapo',
       'modo': 'fácil',
       'imagem': 'words_adventure/icons/frog.jpeg',
-      'audio': 'assets/audio/words_adventure/frog.wav',
+      'audio': 'words_adventure/frog.wav',
       'dica': 'Animal verde que pula!'
     });
 
@@ -116,7 +127,7 @@ class DatabaseHelper {
       'palavra': 'Trem',
       'modo': 'fácil',
       'imagem': 'words_adventure/icons/train.jpeg',
-      'audio': 'assets/audio/words_adventure/frog.wav',
+      'audio': 'words_adventure/frog.wav',
       'dica': 'Máquina grande nos trilhos!'
     });
 
@@ -124,7 +135,7 @@ class DatabaseHelper {
       'palavra': 'Vaca',
       'modo': 'fácil',
       'imagem': 'words_adventure/icons/cow.jpeg',
-      'audio': 'assets/audio/words_adventure/cow.wav',
+      'audio': 'words_adventure/cow.wav',
       'dica': 'Animal que faz "muu"!'
     });
 
@@ -132,7 +143,7 @@ class DatabaseHelper {
       'palavra': 'Bola',
       'modo': 'fácil',
       'imagem': 'words_adventure/icons/ball.jpeg',
-      'audio': 'assets/audio/words_adventure/ball.wav',
+      'audio': 'words_adventure/ball.wav',
       'dica': 'Objeto redondo para brincar!'
     });
 
@@ -140,7 +151,7 @@ class DatabaseHelper {
       'palavra': 'Sino',
       'modo': 'fácil',
       'imagem': 'words_adventure/icons/bell.jpeg',
-      'audio': 'assets/audio/words_adventure/bell.wav',
+      'audio': 'words_adventure/bell.wav',
       'dica': 'Emite um som "ding-dong"!'
     });
 
@@ -148,7 +159,7 @@ class DatabaseHelper {
       'palavra': 'Porta',
       'modo': 'fácil',
       'imagem': 'words_adventure/icons/door.jpeg',
-      'audio': 'assets/audio/words_adventure/door.wav',
+      'audio': 'words_adventure/door.wav',
       'dica': 'Abre e fecha com um rangido!'
     });
 
@@ -156,7 +167,7 @@ class DatabaseHelper {
       'palavra': 'Pato',
       'modo': 'fácil',
       'imagem': 'words_adventure/icons/duck.jpeg',
-      'audio': 'assets/audio/words_adventure/duck.wav',
+      'audio': 'words_adventure/duck.wav',
       'dica': 'Brinquedo que faz "quack"!'
     });
 
@@ -164,7 +175,7 @@ class DatabaseHelper {
       'palavra': 'Fogo',
       'modo': 'fácil',
       'imagem': 'words_adventure/icons/fire.jpeg',
-      'audio': 'assets/audio/words_adventure/fire.wav',
+      'audio': 'words_adventure/fire.wav',
       'dica': 'Quente e cheio de faíscas!'
     });
 
@@ -172,7 +183,7 @@ class DatabaseHelper {
       'palavra': 'Rato',
       'modo': 'fácil',
       'imagem': 'words_adventure/icons/rat.jpeg',
-      'audio': 'assets/audio/words_adventure/rat.wav',
+      'audio': 'words_adventure/rat.wav',
       'dica': 'Pequeno e adora queijo!'
     });
 
@@ -180,7 +191,7 @@ class DatabaseHelper {
       'palavra': 'Galo',
       'modo': 'fácil',
       'imagem': 'words_adventure/icons/rooster.jpeg',
-      'audio': 'assets/audio/words_adventure/rooster.wav',
+      'audio': 'words_adventure/rooster.wav',
       'dica': 'Canta ao amanhecer!'
     });
 
