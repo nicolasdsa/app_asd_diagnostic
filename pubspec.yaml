@@ -82,6 +82,7 @@ flutter:
     - assets/images/hit_run/
     - assets/images/hit_run/Background/
     - assets/images/my_routine/
+    - assets/images/my_routine/icons/
     - assets/tiles/hit_run/
     - assets/tiles/my_routine/
     - assets/tiles/

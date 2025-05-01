@@ -18,6 +18,7 @@ class Player extends SpriteAnimationComponent
   double fixedDeltaTime = 1 / 60;
   double accumulatedTime = 0;
   Interactive? currentInteractive;
+  bool freeze = false;
 
   // Receber o joystick como parâmetro
   Player({required this.joystick, required this.actionButton})
@@ -93,6 +94,7 @@ class Player extends SpriteAnimationComponent
   @override
   void update(double dt) {
     super.update(dt);
+    if (freeze) return; // Se estiver congelado, não atualiza o movimento
 
     // Atualiza a direção com base na entrada do joystick
     switch (joystick.direction) {

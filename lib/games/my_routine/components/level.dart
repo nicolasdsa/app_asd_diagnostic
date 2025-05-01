@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:app_asd_diagnostic/games/my_routine/components/collision_block.dart';
 import 'package:app_asd_diagnostic/games/my_routine/components/interactive.dart';
 import 'package:app_asd_diagnostic/games/my_routine/components/player.dart';
+import 'package:app_asd_diagnostic/games/my_routine/components/stage.dart';
 import 'package:app_asd_diagnostic/games/my_routine/my_routine.dart';
 import 'package:flame/components.dart';
 import 'package:flame_tiled/flame_tiled.dart';
@@ -52,12 +53,12 @@ class Level extends World with HasGameRef<MyGame> {
             player.scale.x = 1;
             add(player);
             break;
-          case 'Interactive':
-            final interactive = Interactive(
+          case 'Stage':
+            final stage = Stage(
                 phrase: spawnPoint.name,
                 position: Vector2(spawnPoint.x, spawnPoint.y),
                 size: Vector2(spawnPoint.width, spawnPoint.height));
-            add(interactive);
+            add(stage);
             break;
         }
       }
