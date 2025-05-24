@@ -2,6 +2,7 @@ import 'package:app_asd_diagnostic/games/hit_run/game.dart';
 import 'package:app_asd_diagnostic/games/hit_run/hit_run.dart';
 import 'package:app_asd_diagnostic/games/magic_words/game.dart';
 import 'package:app_asd_diagnostic/games/magic_words/magic_words.dart';
+import 'package:app_asd_diagnostic/games/my_routine/components/stage_menu.dart';
 import 'package:app_asd_diagnostic/games/my_routine/game.dart';
 import 'package:app_asd_diagnostic/games/my_routine/my_routine.dart';
 import 'package:app_asd_diagnostic/screens/check_credential_screen.dart';
@@ -100,7 +101,30 @@ void main() async {
               questionId: idQuestion, notifier: notifier);
         },
         '/questions': (context) => const QuestionsScreen(),
-        '/routine': (context) => GameWidget(game: MyGame()),
+        '/routine': (context) => GameWidget<MyGame>(
+              game: MyGame(),
+              overlayBuilderMap: {
+                'StageOverlay': (_, MyGame game) {
+                  // garante que o MyGame já abasteceu esses campos em Stage.collidedWithPlayer()
+                  return StageMenuWidget(
+                    phaseText: game.currentPhaseText!,
+                    iconNames: game.currentIconNames!,
+                    correctIcons: game.currentCorrectIcons!,
+                    id: game.currentStageId!,
+                    immediateFeedback: game.currentImmediateFeedback,
+                    onComplete: (selected) {
+                      game.objectives.complete(game.currentStageId!);
+                      game.add(game.joystick);
+                      game.add(game.actionButton);
+                      game.player.freeze = false;
+                      game.overlays.remove('StageOverlay');
+                      game.resumeEngine();
+                    },
+                  );
+                },
+              },
+              initialActiveOverlays: const [],
+            ),
         '/word_box': (context) => GameWidget(game: JogoFormaPalavrasGame()),
         '/patients': (context) => const PatientScreen(),
         '/check': (context) => const InitialCheckScreen(),

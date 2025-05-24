@@ -90,6 +90,7 @@ flutter:
     - assets/images/screens/
     - assets/audio/
     - assets/audio/hit_run/
+    - assets/audio/my_routine/
     - assets/fonts/
   fonts:
     - family: PressStart2P-Regular

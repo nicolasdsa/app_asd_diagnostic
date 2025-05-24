@@ -14,16 +14,18 @@ class Interactive extends SpriteAnimationComponent
   bool get isTextActive => _isShowingText;
 
   Interactive({this.phrase = 'Cama', position, size})
-      : super(
-            position: position,
-            size: size,
-            priority: 1000); // Ajuste a prioridade aqui
+      : super(position: position, size: size, priority: 1000);
 
   @override
   FutureOr<void> onLoad() {
-    add(RectangleHitbox());
+    add(RectangleHitbox()..collisionType = CollisionType.active);
 
-    // Criar componente de texto
+    add(RectangleHitbox.relative(
+      Vector2(2, 2), // 2× maior que o sprite
+      parentSize: size,
+      position: Vector2(-size.x / 2, -size.y / 2),
+    )..collisionType = CollisionType.passive);
+
     _textComponent = TextComponent(
       text: '',
       textRenderer: TextPaint(
@@ -40,9 +42,7 @@ class Interactive extends SpriteAnimationComponent
     return super.onLoad();
   }
 
-  void collidedWithPlayer() {
-    print('Você está próximo de: $phrase');
-  }
+  void collidedWithPlayer() {}
 
   void toggleInteraction() {
     if (!_isShowingText) {

@@ -1,4 +1,6 @@
+import 'package:app_asd_diagnostic/games/my_routine/components/conditional_barrier.dart';
 import 'package:app_asd_diagnostic/games/my_routine/components/interactive.dart';
+import 'package:app_asd_diagnostic/games/my_routine/components/stage.dart';
 import 'package:flame/components.dart';
 import 'package:flame/input.dart';
 import 'package:flame/game.dart';
@@ -14,7 +16,7 @@ class Player extends SpriteAnimationComponent
   final double speed = 100;
   late final Map<String, SpriteAnimation> animations;
   String currentDirection = 'down';
-  List<CollisionBlock> collisionBlocks = [];
+  List collisionBlocks = [];
   double fixedDeltaTime = 1 / 60;
   double accumulatedTime = 0;
   Interactive? currentInteractive;
@@ -126,6 +128,12 @@ class Player extends SpriteAnimationComponent
 
       // Verifica colisões com os blocos de colisão
       for (final block in collisionBlocks) {
+        if ((block is ConditionalBarrier || block is Stage) &&
+            block.toRect().overlaps(toRect())) {
+          block.collidedWithPlayer();
+          position.sub(delta);
+          break;
+        }
         if (block.toRect().overlaps(toRect())) {
           // Reverte a posição se houver colisão
           position.sub(delta);
