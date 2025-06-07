@@ -2,7 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class MenuInicialMinhaRotina extends StatefulWidget {
-  const MenuInicialMinhaRotina({super.key});
+  final int id;
+  final String idPatient;
+  final Map<String, dynamic> properties;
+
+  const MenuInicialMinhaRotina({
+    super.key,
+    required this.id,
+    required this.idPatient,
+    required this.properties,
+  });
 
   @override
   State<MenuInicialMinhaRotina> createState() => _MenuInicialMinhaRotinaState();
@@ -78,7 +87,18 @@ class _MenuInicialMinhaRotinaState extends State<MenuInicialMinhaRotina> {
                           ),
                           child: ElevatedButton(
                             onPressed: () {
-                              Navigator.pushNamed(context, '/routine');
+                              Navigator.pushNamed(
+                                context,
+                                '/routine',
+                                arguments: {
+                                  'id': widget
+                                      .id, // Substitua pelo valor real de id
+                                  'idPatient': widget
+                                      .idPatient, // Substitua pelo valor real de idPatient
+                                  'properties': widget
+                                      .properties, // Substitua pelo mapa real de propriedades
+                                },
+                              );
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.transparent,

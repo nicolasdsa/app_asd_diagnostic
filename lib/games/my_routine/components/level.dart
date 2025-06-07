@@ -8,7 +8,7 @@ import 'package:app_asd_diagnostic/games/my_routine/my_routine.dart';
 import 'package:flame/components.dart';
 import 'package:flame_tiled/flame_tiled.dart';
 
-class Level extends World with HasGameRef<MyGame> {
+class Level extends World with HasGameRef<MyRoutine> {
   final String levelName;
   final Player player;
   Level({required this.levelName, required this.player});

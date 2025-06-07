@@ -5,7 +5,7 @@ import 'package:flutter/material.dart' show Colors, TextStyle;
 import 'package:app_asd_diagnostic/games/my_routine/my_routine.dart';
 
 class Interactive extends SpriteAnimationComponent
-    with HasGameRef<MyGame>, CollisionCallbacks {
+    with HasGameRef<MyRoutine>, CollisionCallbacks {
   final String phrase;
   late TextComponent _textComponent;
   bool _isShowingText = false;

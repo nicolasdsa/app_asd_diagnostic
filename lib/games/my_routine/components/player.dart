@@ -10,7 +10,7 @@ import 'package:app_asd_diagnostic/games/my_routine/my_routine.dart';
 import 'package:flame/collisions.dart';
 
 class Player extends SpriteAnimationComponent
-    with HasGameRef<MyGame>, CollisionCallbacks {
+    with HasGameRef<MyRoutine>, CollisionCallbacks {
   final JoystickComponent joystick;
   final ButtonComponent actionButton;
   final double speed = 100;
@@ -22,15 +22,19 @@ class Player extends SpriteAnimationComponent
   Interactive? currentInteractive;
   bool freeze = false;
 
-  // Receber o joystick como parâmetro
+  /// Ícone que indica interação disponível
+  late SpriteComponent interactionIcon;
+
   Player({required this.joystick, required this.actionButton})
       : super(size: Vector2.all(32));
+
   @override
   Future<void> onLoad() async {
-    // Carrega a folha de sprite e configura as animações
+    await super.onLoad();
+
+    // Carrega animações do personagem
     final spriteSheet =
         await gameRef.images.load('my_routine/Premade_Character_32x32_01.png');
-
     animations = {
       'down': SpriteAnimation.fromFrameData(
         spriteSheet,
@@ -81,14 +85,21 @@ class Player extends SpriteAnimationComponent
 
     animation = animations['down'];
 
-    // Adiciona um hitbox para detectar colisões
     add(RectangleHitbox());
 
-    actionButton.onPressed = () {
-      print('Chamou');
+    // Prepara o ícone de interação
+    final iconImage = await gameRef.images.load('my_routine/interactive.png');
+    interactionIcon = SpriteComponent(
+      sprite: Sprite(iconImage),
+      size: Vector2(24, 24),
+      anchor: Anchor.bottomCenter,
+      position: Vector2(size.x / 2, -4),
+    );
 
+    actionButton.onPressed = () {
       if (currentInteractive != null) {
         currentInteractive!.toggleInteraction();
+        if (interactionIcon.isMounted) interactionIcon.removeFromParent();
       }
     };
   }
@@ -96,9 +107,19 @@ class Player extends SpriteAnimationComponent
   @override
   void update(double dt) {
     super.update(dt);
-    if (freeze) return; // Se estiver congelado, não atualiza o movimento
+    if (freeze) return;
 
-    // Atualiza a direção com base na entrada do joystick
+    // Somente para Interactive puro
+    if (currentInteractive != null &&
+        currentInteractive.runtimeType == Interactive) {
+      if (currentInteractive!.isTextActive) {
+        if (interactionIcon.isMounted) interactionIcon.removeFromParent();
+      } else {
+        if (!interactionIcon.isMounted) add(interactionIcon);
+      }
+    }
+
+    // Lógica de movimento e colisões continua igual...
     switch (joystick.direction) {
       case JoystickDirection.down:
         currentDirection = 'down';
@@ -121,12 +142,9 @@ class Player extends SpriteAnimationComponent
         break;
     }
 
-    // Se houver um interactive ativo com texto exibido, não permite movimento
     if (currentInteractive == null || !currentInteractive!.isTextActive) {
       Vector2 delta = joystick.relativeDelta * speed * dt;
       position.add(delta);
-
-      // Verifica colisões com os blocos de colisão
       for (final block in collisionBlocks) {
         if ((block is ConditionalBarrier || block is Stage) &&
             block.toRect().overlaps(toRect())) {
@@ -135,7 +153,6 @@ class Player extends SpriteAnimationComponent
           break;
         }
         if (block.toRect().overlaps(toRect())) {
-          // Reverte a posição se houver colisão
           position.sub(delta);
           break;
         }
@@ -148,19 +165,33 @@ class Player extends SpriteAnimationComponent
   @override
   void onCollisionStart(
       Set<Vector2> intersectionPoints, PositionComponent other) {
+    super.onCollisionStart(intersectionPoints, other);
+    // Só considera Interactive direto (não subclasses)
     if (other is Interactive) {
-      currentInteractive = other;
       other.collidedWithPlayer();
     }
-    super.onCollisionStart(intersectionPoints, other);
+
+    if (other is Interactive && other.runtimeType == Interactive) {
+      currentInteractive = other;
+      if (!interactionIcon.isMounted) add(interactionIcon);
+    }
   }
 
   @override
   void onCollisionEnd(PositionComponent other) {
-    if (other is Interactive && currentInteractive == other) {
+    super.onCollisionEnd(other);
+
+    // Se era um Interactive “puro”, garante que o ícone suma
+    if (other is Interactive && other.runtimeType == Interactive) {
+      if (interactionIcon.isMounted) {
+        interactionIcon.removeFromParent();
+      }
+    }
+
+    // Aí sim zera o currentInteractive
+    if (other is Interactive && other == currentInteractive) {
       other.hideText();
       currentInteractive = null;
     }
-    super.onCollisionEnd(other);
   }
 }

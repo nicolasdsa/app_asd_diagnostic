@@ -24,40 +24,6 @@ class ConditionalBarrier extends Interactive {
   @override
   void hideText() {}
 
-  /*@override
-  void onCollisionStart(Set<Vector2> points, PositionComponent other) {
-    if (other is Player) {
-      final done = gameRef.objectives.isComplete(requiredObjective);
-      if (!done) {
-        // congela o player
-        other.freeze = true;
-        // mostra um texto temporário
-        print(requiredObjective);
-        final text = TextComponent(
-          text: message,
-          textRenderer: TextPaint(
-            style: TextStyle(
-              fontSize: 50,
-              color: Colors.red,
-              backgroundColor: Colors.white70,
-            ),
-          ),
-          anchor: Anchor.topCenter,
-          position: other.position + Vector2(0, -20),
-        )..priority = 10000;
-        gameRef.player.add(text);
-        Future.delayed(Duration(seconds: 2), () {
-          text.removeFromParent();
-          other.freeze = false;
-        });
-      } else {
-        // se já atingiu, simplesmente remove a barreira
-        removeFromParent();
-      }
-    }
-    super.onCollisionStart(points, other);
-  }*/
-
   @override
   void collidedWithPlayer() async {
     print('alo');

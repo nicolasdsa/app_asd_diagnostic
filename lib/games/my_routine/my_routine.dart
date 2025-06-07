@@ -1,5 +1,7 @@
+import 'package:app_asd_diagnostic/games/my_routine/components/end_overlay.dart';
 import 'package:app_asd_diagnostic/games/my_routine/components/objetive_manager.dart';
 import 'package:app_asd_diagnostic/games/my_routine/components/objetives_hud.dart';
+import 'package:flame/events.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flame/components.dart';
@@ -9,12 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:app_asd_diagnostic/games/my_routine/components/level.dart';
 import 'package:app_asd_diagnostic/games/my_routine/components/player.dart';
 
-void main() {
-  runApp(GameWidget(game: MyGame()));
-}
-
-class MyGame extends FlameGame
-    with HasCollisionDetection, WidgetsBindingObserver {
+class MyRoutine extends FlameGame
+    with HasCollisionDetection, WidgetsBindingObserver, TapCallbacks {
   late Player player;
   late JoystickComponent joystick;
   late CameraComponent cam;
@@ -26,6 +24,18 @@ class MyGame extends FlameGame
   List<String>? currentCorrectIcons;
   String? currentStageId;
   bool currentImmediateFeedback = false;
+
+  MyRoutine({
+    required this.id,
+    required this.idPatient,
+    required this.properties,
+  });
+
+  final int id;
+  final String idPatient;
+  final Map<String, dynamic> properties;
+
+  bool _endScreenShown = false;
 
   List<String> musicTracks = [
     'music_1.mp3',
@@ -48,14 +58,19 @@ class MyGame extends FlameGame
     musicTracks.shuffle();
     _audioPlayer = AudioPlayer();
     _audioPlayer?.onPlayerComplete.listen((event) {
-      _onMusicComplete(); // Função chamada ao terminar a música
+      _onMusicComplete();
     });
     _playNextMusic();
     //debugMode = true;
 
     objectives = ObjectiveManager()..priority = 50;
+    objectives.registerObjective("Acordar");
     objectives.registerObjective("Escovar os dentes");
-    objectives.registerObjective("Hora do lanche");
+    objectives.registerObjective("Ir para escola");
+    objectives.registerObjective("Tomar banho");
+    objectives.registerObjective("Hora de comer");
+    objectives.registerObjective("Hora de brincar");
+    objectives.registerObjective("Hora de dormir");
 
     add(objectives);
 
@@ -78,11 +93,9 @@ class MyGame extends FlameGame
           radius: 20, paint: Paint()..color = Colors.green.withOpacity(0.5)),
       priority: 100,
     );
-
-    // Define a posição do botão de ação no lado inferior direito da tela
     actionButton.position = Vector2(
-      size.x - actionButton.size.x - 20, // 20 é a margem da direita
-      size.y - actionButton.size.y - 20, // 20 é a margem de baixo
+      size.x - actionButton.size.x - 20,
+      size.y - actionButton.size.y - 20,
     );
 
     add(joystick);
@@ -93,6 +106,51 @@ class MyGame extends FlameGame
     player.priority = 999;
 
     await _loadLevel();
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    // Verifica se concluiu todos os objetivos
+    if (!_endScreenShown && objectives.all.every((e) => e.value)) {
+      _showEndScreen();
+    }
+  }
+
+  @override
+  bool onTapDown(TapDownEvent info) {
+    // Se estiver na tela de fim, qualquer toque leva ao menu
+    if (_endScreenShown) {
+      returnToMainMenu();
+      return true;
+    }
+    return false;
+  }
+
+  void _showEndScreen() {
+    _endScreenShown = true;
+    // Para a música
+    _audioPlayer?.stop();
+    pauseEngine();
+    overlays.add('EndOverlay');
+    // Exibe a tela de fim do dia
+  }
+
+  void returnToMainMenu() {
+    // Certifica-se que a música está parada
+    _audioPlayer?.stop();
+    // Navegue para o menu inicial
+    // Exemplo usando Navigator (se envolver GameWidget em MaterialApp):
+    if (buildContext != null) {
+      Navigator.of(buildContext!).pushReplacementNamed(
+        '/dailyRoutineMenu',
+        arguments: {
+          'id': id, // Substitua pelo valor real de id
+          'idPatient': idPatient, // Substitua pelo valor real de idPatient
+          'properties': properties, // Substitua pelo mapa real de propriedades
+        },
+      );
+    }
   }
 
   Future<void> _loadLevel() async {
@@ -106,14 +164,14 @@ class MyGame extends FlameGame
     cam.follow(player);
     cam.viewfinder.zoom = 1.5;
     cam.priority = 2;
-
     addAll([cam, world]);
   }
 
   void _playNextMusic() {
     _audioPlayer?.play(
-        AssetSource('audio/my_routine/${musicTracks[currentTrackIndex]}'),
-        volume: 0.20);
+      AssetSource('audio/my_routine/${musicTracks[currentTrackIndex]}'),
+      volume: 0.20,
+    );
   }
 
   void _onMusicComplete() {
@@ -125,17 +183,14 @@ class MyGame extends FlameGame
     _playNextMusic();
   }
 
-  // Método que lida com as mudanças de estado do ciclo de vida do app
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.detached) {
-      _audioPlayer?.pause(); // Pausa a música ao minimizar o app
+      _audioPlayer?.pause();
     } else if (state == AppLifecycleState.resumed) {
-      _audioPlayer
-          ?.resume(); // Retoma a música quando o app volta, se o jogo não estiver pausado
+      _audioPlayer?.resume();
     }
   }
 }

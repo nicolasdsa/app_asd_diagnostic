@@ -4,7 +4,7 @@ import 'package:app_asd_diagnostic/games/my_routine/my_routine.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
-class ObjectivesHud extends Component with HasGameRef<MyGame> {
+class ObjectivesHud extends Component with HasGameRef<MyRoutine> {
   @override
   Future<void> onLoad() async {}
 
