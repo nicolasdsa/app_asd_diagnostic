@@ -1,8 +1,7 @@
-import 'package:app_asd_diagnostic/games/my_routine/components/end_overlay.dart';
+import 'package:app_asd_diagnostic/db/json_data_dao.dart';
 import 'package:app_asd_diagnostic/games/my_routine/components/objetive_manager.dart';
 import 'package:app_asd_diagnostic/games/my_routine/components/objetives_hud.dart';
 import 'package:flame/events.dart';
-import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flame/components.dart';
 import 'package:flame/input.dart';
@@ -10,6 +9,7 @@ import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
 import 'package:app_asd_diagnostic/games/my_routine/components/level.dart';
 import 'package:app_asd_diagnostic/games/my_routine/components/player.dart';
+import 'package:app_asd_diagnostic/games/my_routine/components/game_stats.dart';
 
 class MyRoutine extends FlameGame
     with HasCollisionDetection, WidgetsBindingObserver, TapCallbacks {
@@ -18,12 +18,14 @@ class MyRoutine extends FlameGame
   late CameraComponent cam;
   late ButtonComponent actionButton;
   late ObjectiveManager objectives;
+  DateTime? gameStartTime;
   AudioPlayer? _audioPlayer;
   String? currentPhaseText;
   List<String>? currentIconNames;
   List<String>? currentCorrectIcons;
   String? currentStageId;
-  bool currentImmediateFeedback = false;
+  late bool currentImmediateFeedback;
+  GameStats stats = GameStats();
 
   MyRoutine({
     required this.id,
@@ -34,7 +36,6 @@ class MyRoutine extends FlameGame
   final int id;
   final String idPatient;
   final Map<String, dynamic> properties;
-
   bool _endScreenShown = false;
 
   List<String> musicTracks = [
@@ -54,6 +55,9 @@ class MyRoutine extends FlameGame
 
   @override
   Future<void> onLoad() async {
+    currentImmediateFeedback =
+        properties["Dificuldade"] == 'Fácil' ? true : false;
+    gameStartTime = DateTime.now();
     WidgetsBinding.instance.addObserver(this);
     musicTracks.shuffle();
     _audioPlayer = AudioPlayer();
@@ -129,7 +133,7 @@ class MyRoutine extends FlameGame
 
   void _showEndScreen() {
     _endScreenShown = true;
-    // Para a música
+    saveGameStats();
     _audioPlayer?.stop();
     pauseEngine();
     overlays.add('EndOverlay');
@@ -192,5 +196,19 @@ class MyRoutine extends FlameGame
     } else if (state == AppLifecycleState.resumed) {
       _audioPlayer?.resume();
     }
+  }
+
+  Future<void> saveGameStats() async {
+    Map<String, dynamic> jsonData = await stats.toJson(idPatient, id);
+    Map<String, dynamic> jsonDataFlag = stats.toJsonFlag();
+    Map<String, dynamic> jsonDataDescription = stats.toJsonFlagDescription();
+
+    JsonDataDao jsonDataDao = JsonDataDao();
+    await jsonDataDao.insertJson(
+        jsonData,
+        idPatient,
+        'Meu Dia a Dia - Dificuldade: ${properties['Dificuldade']}',
+        jsonDataFlag,
+        jsonDataDescription);
   }
 }

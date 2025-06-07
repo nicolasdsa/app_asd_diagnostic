@@ -54,7 +54,6 @@ class Level extends World with HasGameRef<MyRoutine> {
               position: Vector2(collision.x, collision.y),
               size: Vector2(collision.width, collision.height));
           colisionBlocks.add(stage);
-          print('Stage: ${collision.name} - ${collision.x}, ${collision.y}');
           add(stage);
           continue;
         }
@@ -64,8 +63,6 @@ class Level extends World with HasGameRef<MyRoutine> {
               phrase: collision.name,
               position: Vector2(collision.x, collision.y),
               size: Vector2(collision.width, collision.height));
-          print(
-              'Interactive: ${collision.name} - ${collision.x}, ${collision.y}');
           colisionBlocks.add(interactive);
           add(interactive);
           continue;

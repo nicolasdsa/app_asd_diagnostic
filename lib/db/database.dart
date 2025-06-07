@@ -96,7 +96,8 @@ class DatabaseHelper {
     await db.insert('games', {
       'name': 'Aventuras no Mundo das Palavras',
       'link': '/wordsAdventureMenu',
-      'config': "{\"Dificuldade\": [\"Difícil\", \"Fácil\"]}",
+      'config':
+          "{\"Dificuldade\": [\"Difícil\", \"Fácil\"], \"Tempo para dica aparecer (segundos)\": 5}",
       'path': 'assets/images/hit_run/hit_run_logo.jpeg',
       "short_description":
           "Construa palavras combinando letras corretamente, enquanto estimula a atenção, a linguagem e a percepção visual em um desafio divertido.",
@@ -105,14 +106,15 @@ class DatabaseHelper {
     });
 
     await db.insert('games', {
-      'name': 'Minha Rotina Interativa',
+      'name': 'Meu Dia a Dia',
       'link': '/dailyRoutineMenu',
-      'config': "{\"Dificuldade\": [\"Difícil\", \"Fácil\"]}",
-      'path': 'assets/images/daily_routine/daily_routine_logo.jpeg',
+      'config':
+          "{\"Dificuldade\": [\"Difícil\", \"Fácil\"], \"Tempo para dica aparecer (segundos)\": 5}",
+      'path': 'assets/images/my_routine/menu.png',
       "short_description":
           "Ajude o personagem a completar sua rotina diária escolhendo os objetos corretos para cada atividade, promovendo autonomia e reconhecimento de padrões.",
       "long_description":
-          "Em *Minha Rotina Interativa*, as crianças acompanham um personagem ao longo do seu dia e precisam selecionar os objetos corretos para cada situação. Desde o momento de acordar até a hora de dormir, o jogador interage com diversas cenas, como escolher a roupa para ir à escola, pegar a escova de dentes na hora da higiene ou preparar um lanche na cozinha. O jogo trabalha a associação de objetos ao contexto, promovendo autonomia, organização e reconhecimento de padrões diários. Com níveis de dificuldade progressivos e feedback interativo, esta experiência lúdica estimula habilidades cognitivas e reforça a compreensão de rotinas de forma divertida e educativa."
+          "Em *Meu Dia a Dia*, as crianças acompanham um personagem ao longo do seu dia e precisam selecionar os objetos corretos para cada situação. Desde o momento de acordar até a hora de dormir, o jogador interage com diversas cenas, como pegar a escova de dentes na hora da higiene ou preparar um lanche na cozinha. O jogo trabalha a associação de objetos ao contexto, promovendo autonomia, organização e reconhecimento de padrões diários. Com níveis de dificuldade progressivos e feedback interativo, esta experiência lúdica estimula habilidades cognitivas e reforça a compreensão de rotinas de forma divertida e educativa."
     });
 
     await db.insert('words', {

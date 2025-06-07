@@ -193,8 +193,24 @@ void main() async {
                     iconNames: game.currentIconNames!,
                     correctIcons: game.currentCorrectIcons!,
                     id: game.currentStageId!,
-                    immediateFeedback: game.currentImmediateFeedback,
-                    onComplete: (selected) {
+                    timerDuration: game.properties[
+                            'Tempo para dica aparecer (segundos)'] ??
+                        10,
+                    immediateFeedback: game.currentImmediateFeedback =
+                        properties["Dificuldade"] == 'Fácil' ? true : false,
+                    onComplete: ({
+                      required selected,
+                      required wrongCount,
+                      required hasError,
+                      required elapsed,
+                      required tipCount,
+                      required hasTip,
+                    }) {
+                      game.stats.addWrongTap(wrongCount);
+                      game.stats.addErrorPhase(hasError ? 1 : 0);
+                      game.stats.addPhaseTime(elapsed);
+                      game.stats.addTip(tipCount);
+                      game.stats.addTip(hasTip ? 1 : 0);
                       game.objectives.complete(game.currentStageId!);
                       game.add(game.joystick);
                       game.add(game.actionButton);

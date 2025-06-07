@@ -7,7 +7,15 @@ class StageMenuWidget extends StatefulWidget {
   final List<String> correctIcons;
   final String id;
   final bool immediateFeedback;
-  final void Function(List<String> selected) onComplete;
+  final int timerDuration;
+  final void Function({
+    required List<String> selected,
+    required int wrongCount,
+    required int tipCount,
+    required bool hasTip,
+    required bool hasError,
+    required Duration elapsed,
+  }) onComplete;
 
   const StageMenuWidget({
     super.key,
@@ -15,7 +23,8 @@ class StageMenuWidget extends StatefulWidget {
     required this.iconNames,
     required this.correctIcons,
     required this.id,
-    this.immediateFeedback = false,
+    required this.immediateFeedback,
+    required this.timerDuration,
     required this.onComplete,
   });
 
@@ -25,31 +34,51 @@ class StageMenuWidget extends StatefulWidget {
 
 class _StageMenuWidgetState extends State<StageMenuWidget> {
   final List<String> _selected = [];
+  int _wrongCount = 0;
+  bool _hasError = false;
+  int _tipCount = 0;
+  bool _hasTip = false;
+  late DateTime _screenOpenedAt;
   Timer? _hintTimer;
   String? _hintingIcon;
   String? _errorMessage;
 
   @override
   void initState() {
+    _screenOpenedAt = DateTime.now();
     super.initState();
     _startHintTimer();
   }
 
   void _startHintTimer() {
     _hintTimer?.cancel();
-    _hintTimer = Timer(const Duration(seconds: 5), _showHint);
+    _hintTimer = Timer(Duration(seconds: widget.timerDuration), _showHint);
   }
+
+  final List<String> _hintedIcons = [];
 
   void _showHint() {
     final missing =
         widget.correctIcons.where((i) => !_selected.contains(i)).toList();
     if (missing.isNotEmpty) {
+      final hintIcon = missing.first;
+      if (!_hintedIcons.contains(hintIcon)) {
+        _tipCount++;
+        _hintedIcons.add(hintIcon);
+      }
+      _tipCount++;
+      _hasTip = true;
       setState(() => _hintingIcon = missing.first);
     }
     _startHintTimer();
   }
 
   void _onTapIcon(String name) {
+    // conta tentativas em ícone incorreto
+    if (!widget.correctIcons.contains(name)) {
+      _wrongCount++;
+      _hasError = true;
+    }
     // 1) feedback imediato?
     if (widget.immediateFeedback && !widget.correctIcons.contains(name)) {
       setState(() {
@@ -81,7 +110,15 @@ class _StageMenuWidgetState extends State<StageMenuWidget> {
     if (sel.length == 3 &&
         sel.difference(corr).isEmpty &&
         corr.difference(sel).isEmpty) {
-      widget.onComplete(_selected);
+      final elapsed = DateTime.now().difference(_screenOpenedAt);
+      widget.onComplete(
+        selected: _selected,
+        wrongCount: _wrongCount,
+        hasError: _hasError,
+        elapsed: elapsed,
+        tipCount: _tipCount,
+        hasTip: _hasTip,
+      );
     } else {
       setState(() {
         _errorMessage = 'Resposta incorreta. Tente novamente!';
