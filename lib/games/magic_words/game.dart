@@ -2,7 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class MenuInicial extends StatefulWidget {
-  const MenuInicial({super.key});
+  final int id;
+  final String idPatient;
+  final Map<String, dynamic> properties;
+
+  const MenuInicial({
+    super.key,
+    required this.id,
+    required this.idPatient,
+    required this.properties,
+  });
 
   @override
   State<MenuInicial> createState() => _MenuInicialState();
@@ -161,7 +170,15 @@ class _MenuInicialState extends State<MenuInicial> {
                           ),
                           child: ElevatedButton(
                             onPressed: () {
-                              Navigator.pushNamed(context, '/word_box');
+                              Navigator.pushNamed(
+                                context,
+                                '/word_box',
+                                arguments: {
+                                  'id': widget.id,
+                                  'idPatient': widget.idPatient,
+                                  'properties': widget.properties,
+                                },
+                              );
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.transparent,

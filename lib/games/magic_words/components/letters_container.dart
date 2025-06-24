@@ -1,21 +1,36 @@
+import 'dart:math';
+
 import 'package:app_asd_diagnostic/games/magic_words/components/draggable_letter.dart';
 import 'package:app_asd_diagnostic/games/magic_words/components/word_box.dart';
+import 'package:app_asd_diagnostic/games/magic_words/magic_words.dart';
 import 'package:flame/components.dart';
 
-class LettersContainer extends PositionComponent {
+class LettersContainer extends PositionComponent
+    with HasGameRef<JogoFormaPalavrasGame> {
   final List<WordBox> wordBoxes; // Adicione uma lista de WordBox
 
   LettersContainer({
     required List<String> letters,
     required Vector2 startPosition,
     required this.wordBoxes, // Adicione a lista de WordBox ao construtor
+    required difficulty,
   }) {
     double offsetX = 0;
     double offsetY = 0;
     const double maxLettersPerRow = 5;
 
     // Use um Set para garantir que apenas letras únicas sejam usadas
-    final uniqueLetters = letters.toSet().toList();
+    final uniqueLetters = letters.toSet().toList()..shuffle(Random());
+
+    if (!difficulty) {
+      final allLetters =
+          List<String>.generate(26, (i) => String.fromCharCode(65 + i));
+      final availableExtras = allLetters
+          .where((l) => !uniqueLetters.contains(l))
+          .toList()
+        ..shuffle(Random());
+      uniqueLetters.addAll(availableExtras.take(4));
+    }
 
     for (int i = 0; i < uniqueLetters.length; i++) {
       // Quando atinge o máximo de letras na linha, quebra para a próxima linha

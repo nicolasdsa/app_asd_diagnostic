@@ -32,7 +32,11 @@ class StageMenuWidget extends StatefulWidget {
   _StageMenuWidgetState createState() => _StageMenuWidgetState();
 }
 
-class _StageMenuWidgetState extends State<StageMenuWidget> {
+class _StageMenuWidgetState extends State<StageMenuWidget>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _shakeController;
+  late final Animation<double> _shakeAnimation;
+
   final List<String> _selected = [];
   int _wrongCount = 0;
   bool _hasError = false;
@@ -47,6 +51,22 @@ class _StageMenuWidgetState extends State<StageMenuWidget> {
   void initState() {
     _screenOpenedAt = DateTime.now();
     super.initState();
+    _shakeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _shakeAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0, end: -10), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: -10, end: 10), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 10, end: -8), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: -8, end: 8), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 8, end: -5), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: -5, end: 5), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 5, end: 0), weight: 1),
+    ]).animate(CurvedAnimation(
+      parent: _shakeController,
+      curve: Curves.linear,
+    ));
     _startHintTimer();
   }
 
@@ -68,7 +88,9 @@ class _StageMenuWidgetState extends State<StageMenuWidget> {
       }
       _tipCount++;
       _hasTip = true;
-      setState(() => _hintingIcon = missing.first);
+      setState(() => _hintingIcon = hintIcon);
+      // 2) dispara o shake sempre que a dica aparecer
+      _shakeController.forward(from: 0);
     }
     _startHintTimer();
   }
@@ -129,6 +151,7 @@ class _StageMenuWidgetState extends State<StageMenuWidget> {
   @override
   void dispose() {
     _hintTimer?.cancel();
+    _shakeController.dispose();
     super.dispose();
   }
 
@@ -168,37 +191,52 @@ class _StageMenuWidgetState extends State<StageMenuWidget> {
                         children: widget.iconNames.map((name) {
                           final sel = _selected.contains(name);
                           final hint = name == _hintingIcon;
+                          Widget iconBox = AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            width: 70,
+                            height: 70,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: sel
+                                    ? Colors.green
+                                    : hint
+                                        ? Colors.orange
+                                        : Colors.grey,
+                                width: sel ? 4 : 2,
+                              ),
+                              boxShadow: sel
+                                  ? [
+                                      BoxShadow(
+                                          color: Colors.green.withOpacity(0.5),
+                                          blurRadius: 8)
+                                    ]
+                                  : null,
+                            ),
+                            child: Image.asset(
+                              'assets/images/my_routine/icons/$name.png',
+                              fit: BoxFit.contain,
+                            ),
+                          );
+
+                          // Se for o ícone de dica, embrulha no shake
+                          if (hint) {
+                            iconBox = AnimatedBuilder(
+                              animation: _shakeAnimation,
+                              builder: (_, child) {
+                                return Transform.translate(
+                                  offset: Offset(_shakeAnimation.value, 0),
+                                  child: child,
+                                );
+                              },
+                              child: iconBox,
+                            );
+                          }
+
                           return GestureDetector(
                             onTap: () => _onTapIcon(name),
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              width: 70,
-                              height: 70,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color: sel
-                                      ? Colors.green
-                                      : hint
-                                          ? Colors.orange
-                                          : Colors.grey,
-                                  width: sel ? 4 : 2,
-                                ),
-                                boxShadow: sel
-                                    ? [
-                                        BoxShadow(
-                                          color: Colors.green.withOpacity(0.5),
-                                          blurRadius: 8,
-                                        )
-                                      ]
-                                    : null,
-                              ),
-                              child: Image.asset(
-                                'assets/images/my_routine/icons/$name.png',
-                                fit: BoxFit.contain,
-                              ),
-                            ),
+                            child: iconBox,
                           );
                         }).toList(),
                       ),

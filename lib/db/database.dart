@@ -98,7 +98,7 @@ class DatabaseHelper {
       'link': '/wordsAdventureMenu',
       'config':
           "{\"Dificuldade\": [\"Difícil\", \"Fácil\"], \"Tempo para dica aparecer (segundos)\": 5}",
-      'path': 'assets/images/hit_run/hit_run_logo.jpeg',
+      'path': 'assets/images/words_adventure/icons/menu.png',
       "short_description":
           "Construa palavras combinando letras corretamente, enquanto estimula a atenção, a linguagem e a percepção visual em um desafio divertido.",
       "long_description":
@@ -110,7 +110,7 @@ class DatabaseHelper {
       'link': '/dailyRoutineMenu',
       'config':
           "{\"Dificuldade\": [\"Difícil\", \"Fácil\"], \"Tempo para dica aparecer (segundos)\": 5}",
-      'path': 'assets/images/my_routine/menu.png',
+      'path': 'assets/images/my_routine/icons/menu.png',
       "short_description":
           "Ajude o personagem a completar sua rotina diária escolhendo os objetos corretos para cada atividade, promovendo autonomia e reconhecimento de padrões.",
       "long_description":
@@ -129,7 +129,7 @@ class DatabaseHelper {
       'palavra': 'Trem',
       'modo': 'fácil',
       'imagem': 'words_adventure/icons/train.jpeg',
-      'audio': 'words_adventure/frog.wav',
+      'audio': 'words_adventure/train.wav',
       'dica': 'Máquina grande nos trilhos!'
     });
 

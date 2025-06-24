@@ -1,121 +1,58 @@
-import 'package:app_asd_diagnostic/db/patient_points_hit_run_dao.dart';
-import 'package:app_asd_diagnostic/games/hit_run/components/points.dart';
-
 class GameStats {
-  List<double> reactionTimes = [];
   DateTime sessionStartTime;
-  DateTime? gameStartTime;
-  int totalGames = 0;
-  double totalHoldTime = 0;
-  int successfulTaps = 0;
-  double totalAccuracy = 0;
-  List<String> causeOfLose = [];
-
+  int errorTaps = 0;
+  int tipTaps = 0;
+  int errorPhases = 0;
+  int tipPhases = 0;
+  int phasesPlayed = 0;
+  Duration totalPhaseDuration = Duration.zero;
+  void startNewPhase() => phasesPlayed++;
   GameStats() : sessionStartTime = DateTime.now();
 
-  void startGame() {
-    gameStartTime = DateTime.now();
-    totalGames += 1;
+  void addWrongLetters(int tapIndex) {
+    errorTaps += tapIndex;
   }
 
-  void recordTapAccuracy(double accuracy) {
-    totalAccuracy += accuracy;
-    successfulTaps++;
+  void addErrorPhase(int phaseIndex) {
+    errorPhases += phaseIndex;
   }
 
-  // Método para obter a média de precisão dos toques
-  double getAverageAccuracy() {
-    if (successfulTaps == 0) return 0;
-    return totalAccuracy / successfulTaps;
+  void addTip(int tipIndex) {
+    tipTaps += tipIndex;
   }
 
-  // Adiciona um novo método para registrar o tempo de pressão
-  void recordHoldTime(double holdTime) {
-    totalHoldTime += holdTime;
+  void addPhaseTime(Duration phaseTime) {
+    totalPhaseDuration += phaseTime;
   }
 
-  // Método para obter o tempo médio de pressão
-  double getAverageHoldTime() {
-    if (successfulTaps == 0) return 0;
-    return totalHoldTime / successfulTaps;
+  void addTipPhase(int phaseIndex) {
+    tipPhases += phaseIndex;
   }
 
-  void endGame(Points? pointsComponent) {
-    if (gameStartTime != null) {
-      gameStartTime = null;
-      pointsComponent!.resetPoints(); // Reseta os pontos
-      reactionTimes = [];
-      totalHoldTime = 0;
-      successfulTaps = 0;
-      totalAccuracy = 0;
-      gameStartTime = DateTime.now();
-      totalGames += 1;
-      causeOfLose = [];
-    }
-  }
-
-  void recordReactionTime(double reactionTime) {
-    reactionTimes.add(reactionTime);
-  }
-
-  String _determineCauseOfLose() {
-    int shapeCount = causeOfLose.where((cause) => cause == 'shape').length;
-    int timerCount = causeOfLose.where((cause) => cause == 'timer').length;
-
-    return timerCount > shapeCount ? '0' : '1';
-  }
-
-  String _determineAction() {
-    if (successfulTaps == 0 &&
-        totalHoldTime == 0 &&
-        totalAccuracy == 0 &&
-        reactionTimes.isEmpty) return '0';
-
-    return '1';
-  }
-
-  double get averageReactionTime => reactionTimes.isEmpty
-      ? 0
-      : reactionTimes.reduce((a, b) => a + b) / reactionTimes.length;
-
-  Future<Map<String, dynamic>> toJson(
-      Points? pointsComponent, String idPatient, id) async {
-    PatientPointsHitRunDao patientPointsHitRunDao = PatientPointsHitRunDao();
-    final bestScore =
-        await patientPointsHitRunDao.getUserBestScore(id, int.parse(idPatient));
-
-    if (pointsComponent!.getTotalPoints() > bestScore?['points']) {
-      await patientPointsHitRunDao.update({
-        'patient_id': int.parse(idPatient),
-        'game_id': id,
-        'points': pointsComponent.getTotalPoints(),
-      });
-    }
+  Future<Map<String, dynamic>> toJson(String idPatient, id) async {
     return {
-      'Tempo de reação médio': averageReactionTime,
       'Tempo de jogo': DateTime.now().difference(sessionStartTime).inSeconds,
-      'Total de jogos na mesma sessão': totalGames,
-      'Total de pontos': pointsComponent.getTotalPoints(),
-      'Tempo de pressão médio': getAverageHoldTime(),
-      'Precisão média dos toques': getAverageAccuracy(),
+      'Total de letras selecionadas erradas': errorTaps,
+      'Quantidade de fases que houveram erros': errorPhases,
+      'Tempo médio nas fases': totalPhaseDuration.inSeconds / 7,
+      'Total de dicas necessárias': tipTaps,
+      'Quantidade de fases que foi necessário dicas': tipPhases
     };
   }
 
   Map<String, dynamic> toJsonFlag() {
     return {
-      'Causa do fim do jogo': _determineCauseOfLose(),
-      'Ação do usuário': _determineAction(),
+      'Quantidade de fases que houveram erros': 0,
+      'Quantidade de fases que foi necessário dicas': 0,
     };
   }
 
   Map<String, dynamic> toJsonFlagDescription() {
     return {
-      'Causa do fim do jogo-0':
-          'das partidas, o paciente perdeu mais vidas por conta do tempo',
-      'Causa do fim do jogo-1':
-          'das partidas, paciente perdeu mais vidas por conta de selecionar a peça errada',
-      'Ação do usuário-0': 'das partidas, paciente não realizou nenhuma ação',
-      'Ação do usuário-1': 'das partidas, paciente realizou alguma ação',
+      'Quantidade de fases que houveram erros-0':
+          'das 7 partidas, o paciente cometeu pelos menos 1 erro',
+      'Quantidade de fases que que foi necessário dicas-0':
+          'das 7 partidas, paciente precisou de dicas em pelo menos 1 fase',
     };
   }
 }

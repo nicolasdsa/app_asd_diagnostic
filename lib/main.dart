@@ -1,5 +1,6 @@
 import 'package:app_asd_diagnostic/games/hit_run/game.dart';
 import 'package:app_asd_diagnostic/games/hit_run/hit_run.dart';
+import 'package:app_asd_diagnostic/games/magic_words/components/end_overlay.dart';
 import 'package:app_asd_diagnostic/games/magic_words/game.dart';
 import 'package:app_asd_diagnostic/games/magic_words/magic_words.dart';
 import 'package:app_asd_diagnostic/games/my_routine/components/end_overlay.dart';
@@ -102,7 +103,6 @@ void main() async {
                 questionId: idQuestion, notifier: notifier);
           },
           '/questions': (context) => const QuestionsScreen(),
-          '/word_box': (context) => GameWidget(game: JogoFormaPalavrasGame()),
           '/patients': (context) => const PatientScreen(),
           '/check': (context) => const InitialCheckScreen(),
           '/initial': (context) => const MyBottomNavigationBar(),
@@ -155,7 +155,31 @@ void main() async {
             final properties = args['properties']!;
             final id = args['id']!;
 
-            final game = MenuInicial();
+            final game = MenuInicial(
+                idPatient: idPatient, properties: properties, id: id);
+            return MaterialPageRoute(
+              builder: (context) => game,
+            );
+          }
+
+          if (settings.name == '/word_box') {
+            final args = settings.arguments as Map<String, dynamic>;
+            final idPatient = args['idPatient']!;
+            final properties = args['properties']!;
+            final id = args['id']!;
+
+            final game = GameWidget<JogoFormaPalavrasGame>(
+              game: JogoFormaPalavrasGame(
+                id: id,
+                idPatient: idPatient,
+                properties: properties,
+              ),
+              overlayBuilderMap: {
+                'EndOverlay': (ctx, game) => MagicWordsEndOverlay(game: game),
+              },
+              initialActiveOverlays: const [],
+            );
+
             return MaterialPageRoute(
               builder: (context) => game,
             );

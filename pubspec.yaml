@@ -89,6 +89,7 @@ flutter:
     - assets/images/HUD/
     - assets/images/screens/
     - assets/audio/
+    - assets/audio/words_adventure/
     - assets/audio/hit_run/
     - assets/audio/my_routine/
     - assets/fonts/

@@ -1,13 +1,21 @@
+import 'dart:ui';
+
 import 'package:app_asd_diagnostic/games/magic_words/components/audio_button.dart';
 import 'package:app_asd_diagnostic/games/magic_words/components/letter_box.dart';
+import 'package:app_asd_diagnostic/games/magic_words/magic_words.dart';
 import 'package:flame/components.dart';
 
-class WordBox extends PositionComponent {
+class WordBox extends PositionComponent with HasGameRef<JogoFormaPalavrasGame> {
   final List<LetterBox> letterBoxes;
   final String correctWord;
   final String tip;
   late final AudioButton audioButton;
   bool isInitiallyCorrect;
+  final VoidCallback onSolved;
+  final VoidCallback onCorrect;
+  final void Function(int wrongLetters) onWrong; // continua
+  final void Function(int wrongLetters) onWrongLetterTap; // NOVO
+  final bool immediateCheckMode;
 
   WordBox({
     required this.letterBoxes,
@@ -16,7 +24,12 @@ class WordBox extends PositionComponent {
     required String audioPath,
     required String spritePath,
     required this.tip,
+    required this.onSolved,
+    required this.onCorrect,
+    required this.onWrong,
+    required this.onWrongLetterTap,
     this.isInitiallyCorrect = false,
+    this.immediateCheckMode = false,
   }) {
     // Adiciona o botão de áudio
     audioButton = AudioButton(
@@ -39,7 +52,69 @@ class WordBox extends PositionComponent {
     }
   }
 
+  Future<void> checkLetterAt(int index) async {
+    final box = letterBoxes[index];
+    final letter = box.currentLetter;
+    if (letter == null) return;
+
+    final correct = correctWord[index].toLowerCase() == letter.toLowerCase();
+    if (correct) {
+      // troca sprite e trava
+      await box.setLetter(
+        letter,
+        await Sprite.load('words_adventure/letters/${letter}_correct.png'),
+      );
+      box.isLocked = true;
+      _popLetterAnimation(index);
+      gameRef.checkPalavrasCompletas();
+
+      // **Novo**: se agora todas as letras estão travadas, resolve a palavra
+      if (letterBoxes.every((b) => b.isLocked) && !isInitiallyCorrect) {
+        isInitiallyCorrect = true;
+        onSolved();
+        waveAnimation();
+      }
+    } else {
+      // erro na letra única
+      await box.setLetter(
+        letter,
+        await Sprite.load('words_adventure/letters/${letter}_wrong.png'),
+      );
+      _shakeLetterAnimation(index);
+      Future.delayed(const Duration(milliseconds: 500), () {
+        box.reset();
+      });
+      onWrongLetterTap(1);
+    }
+  }
+
+  void _popLetterAnimation(int index) async {
+    final box = letterBoxes[index];
+    const offset = 5.0;
+    const step = 50;
+    // fazendo uma mini onda de 1 ciclo
+    box.position.add(Vector2(0, -offset));
+    await Future.delayed(const Duration(milliseconds: step));
+    box.position.add(Vector2(0, offset));
+  }
+
+  void _shakeLetterAnimation(int index) async {
+    final box = letterBoxes[index];
+    const d = 5.0, t = 50;
+    for (var i = 0; i < 3; i++) {
+      box.position.add(Vector2(d, 0));
+      await Future.delayed(const Duration(milliseconds: t));
+      box.position.add(Vector2(-2 * d, 0));
+      await Future.delayed(const Duration(milliseconds: t));
+      box.position.add(Vector2(d, 0));
+      await Future.delayed(const Duration(milliseconds: t));
+    }
+  }
+
   Future<bool> checkWord() async {
+    if (isInitiallyCorrect) {
+      return true;
+    }
     if (!areAllFilled()) {
       return false;
     }
@@ -52,6 +127,7 @@ class WordBox extends PositionComponent {
     if (constructedWord.length == correctWord.length) {
       if (constructedWord.toLowerCase() == correctWord.toLowerCase() &&
           !isInitiallyCorrect) {
+        onSolved();
         // Palavras são iguais, atualiza os sprites para a versão correta
         for (var box in letterBoxes) {
           await box.setLetter(
@@ -62,6 +138,7 @@ class WordBox extends PositionComponent {
         }
         isInitiallyCorrect = true;
         waveAnimation(); // Animação de onda para indicar acerto
+        onCorrect();
         return true;
       } else {
         // Palavras têm o mesmo comprimento, mas são diferentes
@@ -111,15 +188,15 @@ class WordBox extends PositionComponent {
       for (var box in letterBoxes) {
         box.position.add(Vector2(shakeDistance, 0));
       }
-      await Future.delayed(Duration(milliseconds: shakeDuration));
+      await Future.delayed(const Duration(milliseconds: shakeDuration));
       for (var box in letterBoxes) {
         box.position.add(Vector2(-shakeDistance * 2, 0));
       }
-      await Future.delayed(Duration(milliseconds: shakeDuration));
+      await Future.delayed(const Duration(milliseconds: shakeDuration));
       for (var box in letterBoxes) {
         box.position.add(Vector2(shakeDistance, 0));
       }
-      await Future.delayed(Duration(milliseconds: shakeDuration));
+      await Future.delayed(const Duration(milliseconds: shakeDuration));
     }
   }
 

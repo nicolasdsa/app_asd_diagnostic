@@ -1,5 +1,7 @@
+import 'package:app_asd_diagnostic/db/json_data_dao.dart';
 import 'package:app_asd_diagnostic/games/magic_words/components/background.dart';
 import 'package:app_asd_diagnostic/games/magic_words/components/cloud.dart';
+import 'package:app_asd_diagnostic/games/magic_words/components/game_stats.dart';
 import 'package:app_asd_diagnostic/games/magic_words/components/letter_box.dart';
 import 'package:app_asd_diagnostic/games/magic_words/components/letters_container.dart';
 import 'package:app_asd_diagnostic/games/magic_words/components/tip.dart';
@@ -16,13 +18,59 @@ class JogoFormaPalavrasGame extends FlameGame with HasCollisionDetection {
   final List<Map<String, dynamic>> _currentWords = [];
   final List<WordBox> _wordBoxes = [];
   LettersContainer? _lettersContainer;
+  final GameStats _stats = GameStats();
+  late DateTime _phaseStartTime;
+  bool _phaseHadError = false;
+  bool _phaseHadTip = false;
   bool _levelCompleted = false;
 
   Timer? _tipTimer; // Timer para exibir dicas
   Tip? _currentTip;
 
+  JogoFormaPalavrasGame({
+    required this.id,
+    required this.idPatient,
+    required this.properties,
+  });
+
+  final int id;
+  final String idPatient;
+  final Map<String, dynamic> properties;
+
+  void onWordSolved() {
+    _resetTipTimer(); // some a dica atual + reinicia cronômetro
+    checkPalavrasCompletas(); // verá se todas as palavras do nível já foram feitas
+  }
+
+  // Jogador acertou a palavra
+  void onWordCorrect() {
+    _resetTipTimer(); // some a dica e inicia novo timer
+    checkPalavrasCompletas(); // confere fim de fase
+  }
+
+  // Jogador errou a palavra
+  void onWordWrong(int wrongLetters) {
+    _resetTipTimer();
+
+    // --------- Estatísticas ---------
+    _stats.addWrongLetters(wrongLetters);
+    if (!_phaseHadError) {
+      _stats.addErrorPhase(1);
+      _phaseHadError = true;
+    }
+  }
+
+  void onWrongLetterTap(int n) {
+    _stats.addWrongLetters(n);
+    if (!_phaseHadError) {
+      _stats.addErrorPhase(1);
+      _phaseHadError = true;
+    }
+  }
+
   @override
   Future<void> onLoad() async {
+    _startNewPhase();
     await Future.delayed(Duration.zero); // Aguarda o tamanho correto da tela
     camera.viewport = FixedResolutionViewport(
         resolution: Vector2(canvasSize.x, canvasSize.y));
@@ -32,6 +80,14 @@ class JogoFormaPalavrasGame extends FlameGame with HasCollisionDetection {
     await _carregarPalavras();
     await _montarTela();
     _startTipTimer();
+  }
+
+  void _startNewPhase() {
+    _stats.startNewPhase();
+    _phaseStartTime = DateTime.now();
+    _phaseHadError = false;
+    _phaseHadTip = false;
+    _startTipTimer(); // timer só começa quando inicia fase
   }
 
   void _startTipTimer() {
@@ -52,6 +108,11 @@ class JogoFormaPalavrasGame extends FlameGame with HasCollisionDetection {
     final availableTips =
         _wordBoxes.where((wordBox) => !wordBox.isInitiallyCorrect).toList();
 
+    if (_currentTip != null) {
+      remove(_currentTip!);
+      _currentTip = null;
+    }
+
     if (availableTips.isNotEmpty) {
       final randomWordBox =
           availableTips[Random().nextInt(availableTips.length)];
@@ -62,6 +123,12 @@ class JogoFormaPalavrasGame extends FlameGame with HasCollisionDetection {
       add(_currentTip!); // Adiciona a dica ao jogo
       randomWordBox
           .waveAnimation(); // Chama a animação de onda para destacar o WordBox
+
+      _stats.addTip(1);
+      if (!_phaseHadTip) {
+        _stats.addTipPhase(1);
+        _phaseHadTip = true;
+      }
     }
   }
 
@@ -76,6 +143,10 @@ class JogoFormaPalavrasGame extends FlameGame with HasCollisionDetection {
         _currentWords.add(randomWord);
       }
     }
+
+    _currentWords.sort((a, b) => (a['palavra'] as String)
+        .length
+        .compareTo((b['palavra'] as String).length));
   }
 
   Future<void> _montarTela() async {
@@ -93,7 +164,13 @@ class JogoFormaPalavrasGame extends FlameGame with HasCollisionDetection {
           audioButtonPosition: Vector2(startX, startY + offsetY),
           audioPath: word['audio'],
           spritePath: word['imagem'],
-          tip: word['dica']);
+          onSolved: onWordSolved,
+          onCorrect: onWordCorrect,
+          onWrong: onWordWrong,
+          onWrongLetterTap: onWrongLetterTap,
+          tip: word['dica'],
+          immediateCheckMode:
+              properties["Dificuldade"] == 'Fácil' ? true : false);
 
       add(wordBox);
       _wordBoxes.add(wordBox);
@@ -108,23 +185,35 @@ class JogoFormaPalavrasGame extends FlameGame with HasCollisionDetection {
       letters: _gerarLetrasUnicas(_currentWords),
       startPosition: Vector2(400, 100),
       wordBoxes: _wordBoxes,
+      difficulty: properties["Dificuldade"] == 'Fácil' ? true : false,
     );
     add(_lettersContainer!);
   }
 
   Future<void> checkPalavrasCompletas() async {
-    final allCorrect =
-        _wordBoxes.every((wordBox) => wordBox.isInitiallyCorrect);
-
-    if (allCorrect) {
+    final allCorrect = _wordBoxes.every((w) => w.isInitiallyCorrect);
+    if (allCorrect && !_levelCompleted) {
+      final phaseTime = DateTime.now().difference(_phaseStartTime);
+      _stats.addPhaseTime(phaseTime);
       _levelCompleted = true;
-      _usedWordIds.clear();
-      _currentWords.clear();
-      _wordBoxes.clear();
-      await _carregarPalavras();
-      await _montarTela();
-      _resetTipTimer(); // Reinicia o timer ao carregar o próximo nível
+      saveGameStats();
+      pauseEngine();
+      overlays.add('EndOverlay');
     }
+  }
+
+  Future<void> saveGameStats() async {
+    Map<String, dynamic> jsonData = await _stats.toJson(idPatient, id);
+    Map<String, dynamic> jsonDataFlag = _stats.toJsonFlag();
+    Map<String, dynamic> jsonDataDescription = _stats.toJsonFlagDescription();
+
+    JsonDataDao jsonDataDao = JsonDataDao();
+    await jsonDataDao.insertJson(
+        jsonData,
+        idPatient,
+        'Aventuras no Mundo das Palavras - Dificuldade: ${properties['Dificuldade']}',
+        jsonDataFlag,
+        jsonDataDescription);
   }
 
   List<String> _gerarLetrasUnicas(List<Map<String, dynamic>> words) {
@@ -132,6 +221,7 @@ class JogoFormaPalavrasGame extends FlameGame with HasCollisionDetection {
     for (var word in words) {
       uniqueLetters.addAll((word['palavra'] as String).toUpperCase().split(''));
     }
-    return uniqueLetters.toList();
+
+    return uniqueLetters.toList()..shuffle(Random());
   }
 }

@@ -50,15 +50,30 @@ class DraggableLetter extends SpriteComponent
   void onDragEnd(DragEndEvent event) async {
     super.onDragEnd(event);
     isDragging = false;
+
     if (collidedLetterBox != null && collidedWordBox != null) {
-      await collidedLetterBox!
-          .setLetter(letter, letterSprite); // Atualiza o LetterBox
-      await collidedWordBox!
-          .checkWord(); // Chama o checkWord apenas para o WordBox colidido
-      gameRef
-          .checkPalavrasCompletas(); // Verifica se todas as palavras foram completadas
+      // **Novo**: se já está “locked”, não faz nada
+      if (collidedLetterBox!.isLocked) {
+        position = initialPosition.clone();
+        return;
+      }
+
+      // restante do fluxo de inserção...
+      await collidedLetterBox!.setLetter(letter, letterSprite);
+      final wordBox = collidedWordBox!;
+      final idx = wordBox.letterBoxes.indexOf(collidedLetterBox!);
+
+      if (wordBox.immediateCheckMode) {
+        await wordBox.checkLetterAt(idx);
+      } else {
+        await wordBox.checkWord();
+      }
+
+      // **Mover aqui**: chama sempre a checagem de fim de fase
+      gameRef.checkPalavrasCompletas();
     }
-    position = initialPosition.clone(); // Reseta a posição para a inicial
+
+    position = initialPosition.clone();
   }
 
   @override
