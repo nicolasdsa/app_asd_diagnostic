@@ -42,51 +42,16 @@ class _ExportScreenState extends State<ExportScreen> {
       appBar: const CustomAppBar(title: 'Dados', showBackArrow: false),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Text('Escolha o paciente que vocẽ quer manipular os dados',
-                style: Theme.of(context).textTheme.labelMedium),
-            PatientSearchField(
-              onPatientSelected: _setSelectedPatientId,
-            ),
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Text('Escolha o paciente que vocẽ quer manipular os dados',
+                  style: Theme.of(context).textTheme.labelMedium),
+              PatientSearchField(
+                onPatientSelected: _setSelectedPatientId,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Exportar dados',
-                      style: Theme.of(context).textTheme.titleMedium),
-                  Opacity(
-                    opacity: _selectedPatientId != null ? 1.0 : 0.5,
-                    child: IgnorePointer(
-                      ignoring: _selectedPatientId == null,
-                      child: GameSelectionField(
-                        patientId: _selectedPatientId,
-                        onGameSelected: _setSelectedGame,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  Opacity(
-                    opacity: _selectedPatientId != null && _selectedGame != null
-                        ? 1.0
-                        : 0.5,
-                    child: IgnorePointer(
-                        ignoring:
-                            _selectedPatientId == null || _selectedGame == null,
-                        child: ExportButton(
-                          patientId: _selectedPatientId,
-                          game: _selectedGame,
-                        )),
-                  ),
-                ],
-              ),
-            ),
-            Container(
+              Container(
                 padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey),
@@ -94,33 +59,71 @@ class _ExportScreenState extends State<ExportScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Importar dados',
+                    Text('Exportar dados',
                         style: Theme.of(context).textTheme.titleMedium),
-                    const SizedBox(height: 16.0),
-                    Text('Arquivo JSON',
-                        style: Theme.of(context).textTheme.labelSmall),
                     Opacity(
-                        opacity: _selectedPatientId != null ? 1.0 : 0.5,
-                        child: IgnorePointer(
-                            ignoring: _selectedPatientId == null,
-                            child:
-                                JsonFilePicker(onJsonSelected: _setJsonData))),
-                    const SizedBox(height: 16.0),
-                    Opacity(
-                      opacity: _selectedPatientId != null && _jsonData != null
-                          ? 1.0
-                          : 0.5,
+                      opacity: _selectedPatientId != null ? 1.0 : 0.5,
                       child: IgnorePointer(
-                          ignoring:
-                              _selectedPatientId == null || _jsonData == null,
-                          child: ImportButton(
+                        ignoring: _selectedPatientId == null,
+                        child: GameSelectionField(
+                          patientId: _selectedPatientId,
+                          onGameSelected: _setSelectedGame,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16.0),
+                    Opacity(
+                      opacity:
+                          _selectedPatientId != null && _selectedGame != null
+                              ? 1.0
+                              : 0.5,
+                      child: IgnorePointer(
+                          ignoring: _selectedPatientId == null ||
+                              _selectedGame == null,
+                          child: ExportButton(
                             patientId: _selectedPatientId,
-                            jsonData: _jsonData,
+                            game: _selectedGame,
                           )),
                     ),
                   ],
-                )),
-          ],
+                ),
+              ),
+              Container(
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Importar dados',
+                          style: Theme.of(context).textTheme.titleMedium),
+                      const SizedBox(height: 16.0),
+                      Text('Arquivo JSON',
+                          style: Theme.of(context).textTheme.labelSmall),
+                      Opacity(
+                          opacity: _selectedPatientId != null ? 1.0 : 0.5,
+                          child: IgnorePointer(
+                              ignoring: _selectedPatientId == null,
+                              child: JsonFilePicker(
+                                  onJsonSelected: _setJsonData))),
+                      const SizedBox(height: 16.0),
+                      Opacity(
+                        opacity: _selectedPatientId != null && _jsonData != null
+                            ? 1.0
+                            : 0.5,
+                        child: IgnorePointer(
+                            ignoring:
+                                _selectedPatientId == null || _jsonData == null,
+                            child: ImportButton(
+                              patientId: _selectedPatientId,
+                              jsonData: _jsonData,
+                            )),
+                      ),
+                    ],
+                  )),
+            ],
+          ),
         ),
       ),
     );

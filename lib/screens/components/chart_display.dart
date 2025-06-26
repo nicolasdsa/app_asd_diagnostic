@@ -252,10 +252,21 @@ class _ChartDataState extends State<ChartData> {
                             int maxValue = counts.entries
                                 .reduce((a, b) => a.value > b.value ? a : b)
                                 .key;
-                            double percentage =
-                                (counts[maxValue]! / total) * 100;
                             String description =
                                 flagDescriptions['$flagKey-$maxValue'];
+
+// monta a string de exibição escolhendo entre total ou %:
+                            String displayText;
+                            if (counts.length == 1) {
+                              // só um flag: mostra o total
+                              displayText = '$total $description';
+                            } else {
+                              // múltiplos flags: mantém porcentagem
+                              double percentage =
+                                  (counts[maxValue]! / total) * 100;
+                              displayText =
+                                  '${percentage.toStringAsFixed(2)}% $description';
+                            }
 
                             return Column(
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -265,18 +276,21 @@ class _ChartDataState extends State<ChartData> {
                                   TextSpan(
                                     children: [
                                       TextSpan(
-                                        text: '$flagKey:',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .labelMedium,
+                                        children: [
+                                          TextSpan(
+                                            text: '$flagKey:',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .labelMedium,
+                                          ),
+                                          TextSpan(
+                                            text: ' $displayText',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .labelSmall,
+                                          ),
+                                        ],
                                       ),
-                                      TextSpan(
-                                        text:
-                                            ' ${percentage.toStringAsFixed(2)}% $description',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .labelSmall,
-                                      )
                                     ],
                                   ),
                                 ),

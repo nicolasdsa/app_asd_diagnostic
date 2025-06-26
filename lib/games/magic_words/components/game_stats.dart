@@ -51,7 +51,7 @@ class GameStats {
     return {
       'Quantidade de fases que houveram erros-0':
           'das 7 partidas, o paciente cometeu pelos menos 1 erro',
-      'Quantidade de fases que que foi necessário dicas-0':
+      'Quantidade de fases que foi necessário dicas-0':
           'das 7 partidas, paciente precisou de dicas em pelo menos 1 fase',
     };
   }

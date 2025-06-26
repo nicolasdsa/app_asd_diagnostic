@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter_file_dialog/flutter_file_dialog.dart'; // Adicione este import
 
 class ExportButton extends StatelessWidget {
   final int? patientId;
@@ -13,7 +14,7 @@ class ExportButton extends StatelessWidget {
 
   const ExportButton({super.key, required this.patientId, required this.game});
 
-  Future<void> _exportToExcel() async {
+  Future<void> _exportToExcel(BuildContext context) async {
     final JsonDataDao jsonDataDao = JsonDataDao();
     List<Map<String, dynamic>> filteredData = await jsonDataDao
         .getRowsByPatientIdAndGame(patientId.toString(), game!);
@@ -50,8 +51,6 @@ class ExportButton extends StatelessWidget {
             .value = TextCellValue(filteredData[i]['created_at'].toString());
       }
 
-      final Directory? downloadsDirectory = await getExternalStorageDirectory();
-
       final Map<String, dynamic> patientData =
           await PatientDao().getPatientById(patientId!);
       final String patientName = patientData['name'];
@@ -59,11 +58,22 @@ class ExportButton extends StatelessWidget {
       final String timestamp =
           DateFormat('dd-MM-yyyy_HH-mm-ss').format(DateTime.now());
 
-      final String path =
-          '${downloadsDirectory!.path}/$patientName-$timestamp.xlsx';
-      File(path)
-        ..createSync(recursive: true)
-        ..writeAsBytesSync(excel.encode()!);
+      // Salva o arquivo Excel em um arquivo temporário
+      final Directory tempDir = await getTemporaryDirectory();
+      final String tempPath = '${tempDir.path}/$patientName-$timestamp.xlsx';
+      final File tempFile = File(tempPath);
+      await tempFile.writeAsBytes(excel.encode()!);
+
+      // Usa o FlutterFileDialog para permitir que o usuário escolha o local
+      final params = SaveFileDialogParams(
+        sourceFilePath: tempPath,
+        fileName: '$patientName-$timestamp.xlsx',
+      );
+      await FlutterFileDialog.saveFile(params: params);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Arquivo Excel exportado com sucesso!')),
+      );
     }
   }
 
@@ -77,7 +87,7 @@ class ExportButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(8.0),
         ),
       ),
-      onPressed: _exportToExcel,
+      onPressed: () => _exportToExcel(context),
       child: const SizedBox(
         width: double.infinity,
         child: Center(

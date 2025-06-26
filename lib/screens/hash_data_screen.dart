@@ -225,10 +225,17 @@ class _HashDataScreenState extends State<HashDataScreen> {
     final hashData = await hashAccessDao.getOne(widget.hash);
     final gameLinks = hashData!['gameLinks'];
     idPatient = gameLinks.split('-')[0];
-    final games = gameLinks.split('-')[1].split(', ');
+    final gamesString = gameLinks.split('-')[1];
+
+    String gamesJson = gamesString.trim();
+    if (!gamesJson.startsWith('[')) {
+      gamesJson = '[$gamesJson]';
+    }
+
+    final games = jsonDecode(gamesJson);
 
     for (var game in games) {
-      final gameDecode = jsonDecode(game);
+      final gameDecode = game;
       final gameData = await gameDao.getOne(gameDecode["Id"].toString());
       gameDetails.add({
         'game': gameData,

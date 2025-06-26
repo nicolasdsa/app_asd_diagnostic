@@ -20,6 +20,7 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 
 class FormDetailScreen extends StatefulWidget {
   final int formId;
@@ -328,15 +329,23 @@ class _FormDetailScreenState extends State<FormDetailScreen>
         await PatientDao().getPatientById(formData['id_patient']);
     final String patientName = patientData['name'];
 
-    final Directory? downloadsDirectory = await getExternalStorageDirectory();
-    final String pdfPath =
-        '${downloadsDirectory!.path}/$patientName-$timestamp.pdf';
+    final fileBytes = await pdf.save();
 
-    final file = File(pdfPath);
-    await file.writeAsBytes(await pdf.save());
+    // Crie um arquivo temporário para salvar o PDF antes de abrir o diálogo
+    final Directory tempDir = await getTemporaryDirectory();
+    final String tempPath = '${tempDir.path}/$patientName-$timestamp.pdf';
+    final File tempFile = File(tempPath);
+    await tempFile.writeAsBytes(fileBytes);
+
+    // Use o FlutterFileDialog para permitir que o usuário escolha o local
+    final params = SaveFileDialogParams(
+      sourceFilePath: tempPath,
+      fileName: '$patientName-$timestamp.pdf',
+    );
+    await FlutterFileDialog.saveFile(params: params);
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('PDF salvo em $pdfPath')),
+      const SnackBar(content: Text('PDF exportado com sucesso!')),
     );
   }
 
