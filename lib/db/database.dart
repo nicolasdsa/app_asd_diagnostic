@@ -129,7 +129,7 @@ class DatabaseHelper {
       'palavra': 'Trem',
       'modo': 'fácil',
       'imagem': 'words_adventure/icons/train.jpeg',
-      'audio': 'words_adventure/train.wav',
+      'audio': 'words_adventure/Train.mp3',
       'dica': 'Máquina grande nos trilhos!'
     });
 
@@ -170,7 +170,7 @@ class DatabaseHelper {
       'modo': 'fácil',
       'imagem': 'words_adventure/icons/duck.jpeg',
       'audio': 'words_adventure/duck.wav',
-      'dica': 'Brinquedo que faz "quack"!'
+      'dica': 'Animal que faz "quack"!'
     });
 
     await db.insert('words', {
@@ -195,6 +195,182 @@ class DatabaseHelper {
       'imagem': 'words_adventure/icons/rooster.jpeg',
       'audio': 'words_adventure/rooster.wav',
       'dica': 'Canta ao amanhecer!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Abelha',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/Abelha.png',
+      'audio': 'words_adventure/Abelha.wav',
+      'dica': 'Faz Mel!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Gato',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/Gato.png',
+      'audio': 'words_adventure/gato.wav',
+      'dica': 'Animal que faz "miau"!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Apito',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/Apito.png',
+      'audio': 'words_adventure/Apito.wav',
+      'dica': 'É utilizado em partidas de futebol!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Arara',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/Arara.png',
+      'audio': 'words_adventure/Arara.wav',
+      'dica': 'Uma ave colorida que fala!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Baleia',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/Baleia.png',
+      'audio': 'words_adventure/Baleia.wav',
+      'dica': 'Um grande mamífero marinho que canta!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Cabra',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/Cabra.png',
+      'audio': 'words_adventure/Cabra.wav',
+      'dica': 'Animal que gosta de subir montanhas!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Carro',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/Carro.png',
+      'audio': 'words_adventure/Carro.wav',
+      'dica': 'Veículo que anda sobre rodas!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Cavalo',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/Cavalo.png',
+      'audio': 'words_adventure/Cavalo.wav',
+      'dica': 'Animal que é possível cavalgar!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Chave',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/Chave.png',
+      'audio': 'words_adventure/Chave.wav',
+      'dica': 'Objeto que abre fechaduras!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Copo',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/Copo.png',
+      'audio': 'words_adventure/Copo.wav',
+      'dica': 'Utilizado para beber líquidos!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Flauta',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/Flauta.png',
+      'audio': 'words_adventure/Flauta.wav',
+      'dica': 'Instrumento musical de sopro!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Foca',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/Foca.png',
+      'audio': 'words_adventure/Foca.wav',
+      'dica': 'Animal marinho que faz acrobacias!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Gaita',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/Gaita.png',
+      'audio': 'words_adventure/Gaita.wav',
+      'dica': 'Instrumento musical de sopro!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Lobo',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/Lobo.png',
+      'audio': 'words_adventure/Lobo.wav',
+      'dica': 'Animal que uiva à noite!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Macaco',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/Macaco.png',
+      'audio': 'words_adventure/Macaco.wav',
+      'dica': 'Animal que gosta de bananas!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Moto',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/Moto.png',
+      'audio': 'words_adventure/Moto.wav',
+      'dica': 'Veículo de duas rodas!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Piano',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/Piano.png',
+      'audio': 'words_adventure/Piano.wav',
+      'dica': 'Instrumento musical de teclas!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Pombo',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/Pombo.png',
+      'audio': 'words_adventure/Pombo.wav',
+      'dica': 'Animal que voa e gosta de grãos!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Porco',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/Porco.png',
+      'audio': 'words_adventure/Porco.wav',
+      'dica': 'Animal que faz "oinc"!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Radio',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/Radio.png',
+      'audio': 'words_adventure/Radio.wav',
+      'dica': 'Dispositivo que toca músicas e notícias!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Tigre',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/Tigre.png',
+      'audio': 'words_adventure/Tigre.flac',
+      'dica': 'Animal listrado que vive na selva!'
+    });
+
+    await db.insert('words', {
+      'palavra': 'Urso',
+      'modo': 'fácil',
+      'imagem': 'words_adventure/icons/Urso.png',
+      'audio': 'words_adventure/Urso.wav',
+      'dica': 'Animal grande que gosta de mel!'
     });
 
     await db.insert('objectives', {

@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:app_asd_diagnostic/db/json_data_dao.dart';
 import 'package:app_asd_diagnostic/games/magic_words/components/background.dart';
 import 'package:app_asd_diagnostic/games/magic_words/components/cloud.dart';
@@ -13,8 +15,15 @@ import 'package:app_asd_diagnostic/db/words_dao.dart';
 import 'dart:math';
 import 'dart:async';
 
+import 'package:flame_audio/flame_audio.dart';
+import 'package:flutter/material.dart';
+
 class JogoFormaPalavrasGame extends FlameGame
-    with HasCollisionDetection, TapCallbacks, DragCallbacks {
+    with
+        HasCollisionDetection,
+        TapCallbacks,
+        DragCallbacks,
+        WidgetsBindingObserver {
   final WordsDao _wordsDao = WordsDao();
   final Set<int> _usedWordIds = {};
   final List<Map<String, dynamic>> _currentWords = [];
@@ -29,6 +38,7 @@ class JogoFormaPalavrasGame extends FlameGame
   Timer? _tipTimer; // Timer para exibir dicas
   Tip? _currentTip;
   bool _isTransitioning = false; // nova flag
+  AudioPlayer? _audioPlayer;
 
   JogoFormaPalavrasGame({
     required this.id,
@@ -39,6 +49,19 @@ class JogoFormaPalavrasGame extends FlameGame
   final int id;
   final String idPatient;
   final Map<String, dynamic> properties;
+  List<String> musicTracks = [
+    'music_1.mp3',
+    'music_2.mp3',
+    'music_3.mp3',
+    'music_4.mp3',
+    'music_5.mp3',
+    'music_6.mp3',
+    'music_7.mp3',
+    'music_8.mp3',
+    'music_9.mp3',
+    'music_10.mp3',
+  ];
+  int currentTrackIndex = 0;
 
   void onWordSolved() {
     _resetTipTimer(); // some a dica atual + reinicia cronômetro
@@ -80,6 +103,13 @@ class JogoFormaPalavrasGame extends FlameGame
     camera.viewport = FixedResolutionViewport(
       resolution: Vector2(canvasSize.x, canvasSize.y),
     );
+
+    musicTracks.shuffle();
+    _audioPlayer = AudioPlayer();
+    _audioPlayer?.onPlayerComplete.listen((event) {
+      _onMusicComplete();
+    });
+    _playNextMusic();
 
     await add(Background());
     await add(Cloud());
@@ -267,5 +297,32 @@ class JogoFormaPalavrasGame extends FlameGame
     }
 
     return uniqueLetters.toList()..shuffle(Random());
+  }
+
+  void _onMusicComplete() {
+    currentTrackIndex++;
+    if (currentTrackIndex >= musicTracks.length) {
+      musicTracks.shuffle();
+      currentTrackIndex = 0;
+    }
+    _playNextMusic();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      _audioPlayer?.pause();
+    } else if (state == AppLifecycleState.resumed) {
+      _audioPlayer?.resume();
+    }
+  }
+
+  void _playNextMusic() {
+    _audioPlayer?.play(
+      AssetSource('audio/words_adventure/${musicTracks[currentTrackIndex]}'),
+      volume: 0.20,
+    );
   }
 }

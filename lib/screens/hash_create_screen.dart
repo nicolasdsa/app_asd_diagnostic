@@ -41,44 +41,54 @@ class HashCreateScreenState extends State<HashCreateScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool noGames = widget.elements.isEmpty;
     return Scaffold(
       appBar: const CustomAppBar(title: 'Seleção de Jogos'),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: ListView.builder(
-          itemCount: widget.elements.length,
-          itemBuilder: (context, index) {
-            final gameId = widget.elements[index][1]; // ID do jogo
+        child: noGames
+            ? const Center(
+                child: Text(
+                  'Nenhum jogo selecionado',
+                  textAlign: TextAlign.center,
+                ),
+              )
+            : ListView.builder(
+                itemCount: widget.elements.length,
+                itemBuilder: (context, index) {
+                  final gameId = widget.elements[index][1]; // ID do jogo
 
-            return FutureBuilder<Map<String, dynamic>>(
-              future: _fetchGameConfig(gameId), // Carrega o jogo pelo ID
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const CircularProgressIndicator();
-                }
+                  return FutureBuilder<Map<String, dynamic>>(
+                    future: _fetchGameConfig(gameId), // Carrega o jogo pelo ID
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const CircularProgressIndicator();
+                      }
 
-                final game = snapshot.data!;
-                return _buildGameConfig(game, gameId);
-              },
-            );
-          },
-        ),
+                      final game = snapshot.data!;
+                      return _buildGameConfig(game, gameId);
+                    },
+                  );
+                },
+              ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ElevatedButton(
-          onPressed: _isFormValid() ? _createSection : null,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.black,
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0),
+      bottomNavigationBar: noGames
+          ? null
+          : Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                onPressed: _isFormValid() ? _createSection : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+                child: const Text('Criar seção',
+                    style: TextStyle(color: Colors.white)),
+              ),
             ),
-          ),
-          child:
-              const Text('Criar seção', style: TextStyle(color: Colors.white)),
-        ),
-      ),
     );
   }
 
