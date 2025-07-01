@@ -258,8 +258,9 @@ class _ChartDataState extends State<ChartData> {
 // monta a string de exibição escolhendo entre total ou %:
                             String displayText;
                             if (counts.length == 1) {
-                              // só um flag: mostra o total
-                              displayText = '$total $description';
+                              // só um flag: mostra a média arredondada
+                              double average = total / counts.length;
+                              displayText = '${average.round()} $description';
                             } else {
                               // múltiplos flags: mantém porcentagem
                               double percentage =

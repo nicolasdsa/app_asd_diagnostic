@@ -21,7 +21,7 @@ class Interactive extends SpriteAnimationComponent
     add(RectangleHitbox()..collisionType = CollisionType.active);
 
     add(RectangleHitbox.relative(
-      Vector2(2, 2), // 2× maior que o sprite
+      Vector2(1.85, 1.85), // 1.5× maior que o sprite
       parentSize: size,
       position: Vector2(-size.x / 2, -size.y / 2),
     )..collisionType = CollisionType.passive);

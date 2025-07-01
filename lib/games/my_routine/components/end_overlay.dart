@@ -13,7 +13,8 @@ class EndOverlay extends StatelessWidget {
         // Remove o overlay e retorna ao menu inicial
         game.overlays.remove('EndOverlay');
         // Supondo que sua rota inicial seja '/', ajuste se for diferente:
-        Navigator.of(context).pushReplacementNamed('/routine', arguments: {
+        Navigator.of(context)
+            .pushReplacementNamed('/dailyRoutineMenu', arguments: {
           'idPatient': game.idPatient,
           'properties': game.properties,
           'id': game.id,

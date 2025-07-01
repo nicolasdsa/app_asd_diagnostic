@@ -97,7 +97,11 @@ class JogoFormaPalavrasGame extends FlameGame
   @override
   Future<void> onLoad() async {
     // 1) carrega todas as palavras de uma vez
-    _allWords = await _wordsDao.getWords();
+    _allWords = List<Map<String, dynamic>>.from(await _wordsDao.getWords());
+    _allWords.sort((a, b) => (a['palavra'] as String)
+        .length
+        .compareTo((b['palavra'] as String).length));
+    WidgetsBinding.instance.addObserver(this);
 
     _startNewPhase(); // stats, timers, etc.
     camera.viewport = FixedResolutionViewport(
@@ -171,12 +175,30 @@ class JogoFormaPalavrasGame extends FlameGame
   Future<void> _carregarPalavras() async {
     final random = Random();
 
-    while (_currentWords.length < 4 && _usedWordIds.length < _allWords.length) {
-      final randomWord = _allWords[random.nextInt(_allWords.length)];
-      if (!_usedWordIds.contains(randomWord['id'])) {
-        _usedWordIds.add(randomWord['id']);
-        _currentWords.add(randomWord);
+    // Agrupa as palavras por tamanho em ordem crescente
+    final Map<int, List<Map<String, dynamic>>> wordsByLength = {};
+    for (var word in _allWords) {
+      final length = (word['palavra'] as String).length;
+      wordsByLength.putIfAbsent(length, () => []).add(word);
+    }
+    final sortedLengths = wordsByLength.keys.toList()..sort();
+
+    int wordsNeeded = 4;
+    for (final length in sortedLengths) {
+      final availableWords = wordsByLength[length]!
+          .where((w) => !_usedWordIds.contains(w['id']))
+          .toList();
+      availableWords.shuffle(random);
+
+      for (final word in availableWords) {
+        if (_currentWords.length < wordsNeeded) {
+          _usedWordIds.add(word['id']);
+          _currentWords.add(word);
+        } else {
+          break;
+        }
       }
+      if (_currentWords.length >= wordsNeeded) break;
     }
 
     _currentWords.sort((a, b) => (a['palavra'] as String)
@@ -218,7 +240,7 @@ class JogoFormaPalavrasGame extends FlameGame
 
     _lettersContainer = LettersContainer(
       letters: _gerarLetrasUnicas(_currentWords),
-      startPosition: Vector2(400, 100),
+      startPosition: Vector2(500, 50),
       wordBoxes: _wordBoxes,
       difficulty: properties["Dificuldade"] == 'Fácil' ? true : false,
     );
@@ -247,6 +269,7 @@ class JogoFormaPalavrasGame extends FlameGame
     } else {
       await saveGameStats();
       pauseEngine();
+      _audioPlayer?.stop();
       overlays.add('EndOverlay');
     }
 
