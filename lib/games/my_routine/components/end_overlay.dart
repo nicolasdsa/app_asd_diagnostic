@@ -10,15 +10,17 @@ class EndOverlay extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        // Remove o overlay e retorna ao menu inicial
+        // Remove o overlay e retorna ao menu inicial zerando a pilha de rotas
         game.overlays.remove('EndOverlay');
-        // Supondo que sua rota inicial seja '/', ajuste se for diferente:
-        Navigator.of(context)
-            .pushReplacementNamed('/dailyRoutineMenu', arguments: {
-          'idPatient': game.idPatient,
-          'properties': game.properties,
-          'id': game.id,
-        });
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          '/dailyRoutineMenu',
+          (Route<dynamic> route) => false,
+          arguments: {
+            'idPatient': game.idPatient,
+            'properties': game.properties,
+            'id': game.id,
+          },
+        );
       },
       child: Container(
         color: Colors.white, // fundo branco para bloquear tudo atrás

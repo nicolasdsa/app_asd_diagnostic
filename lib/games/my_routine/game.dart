@@ -87,9 +87,10 @@ class _MenuInicialMinhaRotinaState extends State<MenuInicialMinhaRotina> {
                           ),
                           child: ElevatedButton(
                             onPressed: () {
-                              Navigator.pushNamed(
+                              Navigator.pushNamedAndRemoveUntil(
                                 context,
                                 '/routine',
+                                (Route<dynamic> route) => false,
                                 arguments: {
                                   'id': widget
                                       .id, // Substitua pelo valor real de id

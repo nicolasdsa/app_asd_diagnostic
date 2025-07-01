@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flame/game.dart';
+import 'package:flame/game.dart' as flame;
 import 'package:app_asd_diagnostic/games/magic_words/magic_words.dart';
 
 class MagicWordsEndOverlay extends StatelessWidget {
@@ -11,12 +11,15 @@ class MagicWordsEndOverlay extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        Navigator.of(context)
-            .pushReplacementNamed('/wordsAdventureMenu', arguments: {
-          'idPatient': game.idPatient,
-          'properties': game.properties,
-          'id': game.id,
-        });
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          '/wordsAdventureMenu',
+          (Route<dynamic> route) => false,
+          arguments: {
+            'idPatient': game.idPatient,
+            'properties': game.properties,
+            'id': game.id,
+          },
+        );
       },
       child: Container(
         color: Colors.black54,

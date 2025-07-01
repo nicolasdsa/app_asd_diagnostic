@@ -170,9 +170,10 @@ class _MenuInicialState extends State<MenuInicial> {
                           ),
                           child: ElevatedButton(
                             onPressed: () {
-                              Navigator.pushNamed(
+                              Navigator.pushNamedAndRemoveUntil(
                                 context,
                                 '/word_box',
+                                (Route<dynamic> route) => false,
                                 arguments: {
                                   'id': widget.id,
                                   'idPatient': widget.idPatient,

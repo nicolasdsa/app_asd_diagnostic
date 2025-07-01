@@ -293,9 +293,10 @@ class _HashDataScreenState extends State<HashDataScreen> {
 
           return ElevatedButton(
             onPressed: () {
-              Navigator.pushNamed(
+              Navigator.pushNamedAndRemoveUntil(
                 context,
                 game['link'],
+                (Route<dynamic> route) => false,
                 arguments: {
                   'idPatient': idPatient,
                   'properties': properties,
