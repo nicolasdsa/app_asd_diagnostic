@@ -234,7 +234,7 @@ void main() async {
                       game.stats.addErrorPhase(hasError ? 1 : 0);
                       game.stats.addPhaseTime(elapsed);
                       game.stats.addTip(tipCount);
-                      game.stats.addTip(hasTip ? 1 : 0);
+                      game.stats.addTipPhase(hasTip ? 1 : 0);
                       game.objectives.complete(game.currentStageId!);
                       game.add(game.joystick);
                       game.add(game.actionButton);
