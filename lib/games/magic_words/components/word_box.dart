@@ -4,6 +4,8 @@ import 'package:app_asd_diagnostic/games/magic_words/components/audio_button.dar
 import 'package:app_asd_diagnostic/games/magic_words/components/letter_box.dart';
 import 'package:app_asd_diagnostic/games/magic_words/magic_words.dart';
 import 'package:flame/components.dart';
+import 'package:flame_audio/flame_audio.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class WordBox extends PositionComponent with HasGameRef<JogoFormaPalavrasGame> {
   final List<LetterBox> letterBoxes;
@@ -52,6 +54,20 @@ class WordBox extends PositionComponent with HasGameRef<JogoFormaPalavrasGame> {
     }
   }
 
+  AudioPlayer? _currentFx;
+
+  Future<void> _playFx(String file) async {
+    if (_currentFx != null) {
+      await _currentFx!.stop(); // pára o que estiver tocando
+    }
+    final p = await FlameAudio.play(file, volume: 0.5); // assets/audio/<file>
+    _currentFx = p;
+    p.onPlayerComplete.listen((_) {
+      // libera referência
+      if (_currentFx == p) _currentFx = null;
+    });
+  }
+
   Future<void> checkLetterAt(int index) async {
     final box = letterBoxes[index];
     final letter = box.currentLetter;
@@ -59,6 +75,7 @@ class WordBox extends PositionComponent with HasGameRef<JogoFormaPalavrasGame> {
 
     final correct = correctWord[index].toLowerCase() == letter.toLowerCase();
     if (correct) {
+      _playFx('words_adventure/success.wav');
       // troca sprite e trava
       await box.setLetter(
         letter,
@@ -76,6 +93,7 @@ class WordBox extends PositionComponent with HasGameRef<JogoFormaPalavrasGame> {
       }
     } else {
       // erro na letra única
+      _playFx('words_adventure/error.wav');
       await box.setLetter(
         letter,
         await Sprite.load('words_adventure/letters/${letter}_wrong.png'),
@@ -136,6 +154,7 @@ class WordBox extends PositionComponent with HasGameRef<JogoFormaPalavrasGame> {
                   'words_adventure/letters/${box.currentLetter}_correct.png'));
           box.isLocked = true; // Trava a letra no LetterBox
         }
+        _playFx('words_adventure/success.wav');
         isInitiallyCorrect = true;
         waveAnimation(); // Animação de onda para indicar acerto
         onCorrect();
@@ -148,6 +167,7 @@ class WordBox extends PositionComponent with HasGameRef<JogoFormaPalavrasGame> {
               await Sprite.load(
                   'words_adventure/letters/${letterBoxes[i].currentLetter}_wrong.png'));
         }
+        _playFx('words_adventure/error.wav');
         _shakeAnimation(); // Animação de shake para indicar erro
         // Redefine os LetterBox após a animação de erro
         Future.delayed(const Duration(milliseconds: 500), () {

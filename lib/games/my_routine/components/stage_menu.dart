@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flame_audio/flame_audio.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class StageMenuWidget extends StatefulWidget {
   final String phaseText;
@@ -46,6 +48,20 @@ class _StageMenuWidgetState extends State<StageMenuWidget>
   Timer? _hintTimer;
   String? _hintingIcon;
   String? _errorMessage;
+
+  static AudioPlayer? _currentPlayer;
+
+  Future<void> _playSound(String file) async {
+    if (_currentPlayer != null) {
+      await _currentPlayer!.stop();
+    }
+    final p = await FlameAudio.play(file, volume: 0.5); // assets/audio/<file>
+    _currentPlayer = p;
+    p.onPlayerComplete.listen((_) {
+      // libera referência
+      if (_currentPlayer == p) _currentPlayer = null;
+    });
+  }
 
   @override
   void initState() {
@@ -104,6 +120,7 @@ class _StageMenuWidgetState extends State<StageMenuWidget>
     // 1) feedback imediato?
     if (widget.immediateFeedback && !widget.correctIcons.contains(name)) {
       setState(() {
+        _playSound('my_routine/error.wav');
         _errorMessage = 'Esse não é o item correto!';
       });
       return;
@@ -114,6 +131,10 @@ class _StageMenuWidgetState extends State<StageMenuWidget>
       _errorMessage = null; // limpa qualquer erro anterior
       _hintingIcon = null; // reseta dica
       _startHintTimer(); // reinicia timer de dica
+
+      if (widget.immediateFeedback) {
+        _playSound('my_routine/success.wav');
+      }
 
       if (_selected.contains(name)) {
         _selected.remove(name);
@@ -129,10 +150,12 @@ class _StageMenuWidgetState extends State<StageMenuWidget>
   void _onContinue() {
     final sel = _selected.toSet();
     final corr = widget.correctIcons.toSet();
+
     if (sel.length == 3 &&
         sel.difference(corr).isEmpty &&
         corr.difference(sel).isEmpty) {
       final elapsed = DateTime.now().difference(_screenOpenedAt);
+      _playSound('my_routine/success.wav');
       widget.onComplete(
         selected: _selected,
         wrongCount: _wrongCount,
@@ -143,6 +166,7 @@ class _StageMenuWidgetState extends State<StageMenuWidget>
       );
     } else {
       setState(() {
+        _playSound('my_routine/error.wav');
         _errorMessage = 'Resposta incorreta. Tente novamente!';
       });
     }
