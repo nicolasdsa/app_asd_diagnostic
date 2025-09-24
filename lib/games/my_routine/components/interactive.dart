@@ -58,7 +58,8 @@ class Interactive extends SpriteAnimationComponent
     _displayText = '';
     (gameRef).player.add(_textComponent);
 
-    gameRef.add(TimerComponent(
+    late final TimerComponent timer;
+    timer = TimerComponent(
       period: 0.05, // Velocidade da escrita
       repeat: true,
       onTick: () {
@@ -67,10 +68,11 @@ class Interactive extends SpriteAnimationComponent
           _textComponent.text = _displayText;
           _currentCharIndex++;
         } else {
-          children.removeWhere((child) => child is TimerComponent);
+          timer.removeFromParent();
         }
       },
-    ));
+    );
+    gameRef.add(timer);
   }
 
   void hideText() {

@@ -1,3 +1,5 @@
+import 'package:app_asd_diagnostic/games/go_no_go/widgets/menu.dart';
+import 'package:app_asd_diagnostic/games/go_no_go/widgets/myo_connection_screen.dart';
 import 'package:app_asd_diagnostic/games/hit_run/game.dart';
 import 'package:app_asd_diagnostic/games/hit_run/hit_run.dart';
 import 'package:app_asd_diagnostic/games/magic_words/components/end_overlay.dart';
@@ -7,6 +9,8 @@ import 'package:app_asd_diagnostic/games/my_routine/components/end_overlay.dart'
 import 'package:app_asd_diagnostic/games/my_routine/components/stage_menu.dart';
 import 'package:app_asd_diagnostic/games/my_routine/game.dart';
 import 'package:app_asd_diagnostic/games/my_routine/my_routine.dart';
+import 'package:app_asd_diagnostic/myo/myo_test.dart';
+import 'package:app_asd_diagnostic/myo_test_page.dart';
 import 'package:app_asd_diagnostic/screens/check_credential_screen.dart';
 import 'package:app_asd_diagnostic/screens/components/my_bottom_navigation_bar.dart';
 import 'package:app_asd_diagnostic/screens/export_screen.dart';
@@ -25,6 +29,8 @@ import 'package:app_asd_diagnostic/screens/sounds_screen.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+
+import 'games/go_no_go/go_no_go_game.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -76,8 +82,24 @@ void main() async {
             ),
           ),
         ),
-        initialRoute: '/check',
+        initialRoute: '/mio',
         routes: {
+          '/mio': (context) => const GoNoGoMenu(
+                id: 1,
+                idPatient: '1',
+                properties: {},
+              ),
+          '/myo_connection': (context) => const MyoConnectionScreen(
+                id: 1,
+                idPatient: '1',
+                properties: {},
+              ),
+          '/go_no_go_game': (context) => GameWidget(
+                  game: GoNoGoGame(
+                id: 1,
+                idPatient: '1',
+                properties: {},
+              )),
           '/gameView': (context) {
             final args = ModalRoute.of(context)!.settings.arguments as int;
             final idGame = args;
